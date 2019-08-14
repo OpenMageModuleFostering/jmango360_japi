@@ -255,6 +255,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                                     $fieldTmp['values'] = range(1, 5);
                                     break;
                                 case 'TextInput':
+                                case 'TextAreaInput':
                                     $fieldTmp['min_length'] = @$fieldData['MinLength'];
                                     $fieldTmp['max_length'] = @$fieldData['MaxLength'];
                                     break;

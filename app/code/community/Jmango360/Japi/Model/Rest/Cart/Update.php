@@ -2,6 +2,8 @@
 
 class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Cart
 {
+    const XML_PATH_SHIPPING_ORIGIN_COUNTRY = 'shipping/origin/country_id';
+
     /**
      * @throws Jmango360_Japi_Exception
      * @return array
@@ -101,6 +103,22 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
             $this->getQuote()->save();
         }
 
+        /**
+         * MPLUGIN-1852: Fix Kega_AutoShipping
+         */
+        if (Mage::helper('core')->isModuleEnabled('Kega_AutoShipping')) {
+            /* @var $customer Mage_Customer_Model_Session */
+            $customer = Mage::getSingleton('customer/session');
+            if ($customer->isLoggedIn()) {
+                /* @var $shippingAddress Mage_Sales_Model_Quote_Address */
+                $shippingAddress = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress();
+                $country = $shippingAddress->getCountryId();
+                if (!$country) {
+                    $shippingAddress->setCountryId(Mage::getStoreConfig(self::XML_PATH_SHIPPING_ORIGIN_COUNTRY));
+                }
+            }
+        }
+
         $this->addProduct($product, $params);
         if (count($related)) {
             $this->addProductsByIds($related);
@@ -111,7 +129,7 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
         $this->_getSession()->setCartWasUpdated(true);
 
         Mage::dispatchEvent('checkout_cart_add_product_complete',
-            array('product' => $product, 'request' => $this->_getRequest(), 'response' => $this->_getResponse())
+            array('product' => $product, 'request' => Mage::app()->getRequest(), 'response' => Mage::app()->getResponse())
         );
 
         $data = $this->_getCart();

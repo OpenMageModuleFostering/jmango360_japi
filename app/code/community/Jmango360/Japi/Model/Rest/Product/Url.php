@@ -7,7 +7,7 @@ class Jmango360_Japi_Model_Rest_Product_Url extends Jmango360_Japi_Model_Rest_Pr
         $url = $this->_getRequest()->getParam('url', null);
         if ($url) {
             $request = new Mage_Core_Controller_Request_Http($url);
-            if (Mage::getEdition() == Mage::EDITION_ENTERPRISE) {
+            if (class_exists('Enterprise_UrlRewrite_Model_Url_Rewrite')) {
                 /* @var $rewrite Enterprise_UrlRewrite_Model_Url_Rewrite */
                 $rewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite');
 

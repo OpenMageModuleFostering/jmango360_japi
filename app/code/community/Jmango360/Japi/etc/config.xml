@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.2.1</version>
+            <version>3.3.0</version>
         </Jmango360_Japi>
     </modules>
 

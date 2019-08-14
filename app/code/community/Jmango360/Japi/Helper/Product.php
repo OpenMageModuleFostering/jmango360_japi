@@ -316,6 +316,13 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             return $dir;
         }
 
+        /**
+         * MPLUGIN-1888:
+         * This codes seem too ricky, for only small benefit is get current sort direction from theme layout
+         * So I decided to remove it.
+         * Goodbye code, be happy in graveyard!
+         */
+        /*
         //Check needed to load sort direction
         $session = Mage::getSingleton('core/session');
         if ($session->getData('japi_direction_loaded')) {
@@ -343,6 +350,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 return $dir;
             }
         }
+        */
 
         return '';
     }

@@ -889,8 +889,7 @@ button.button-cancel {
 }
 .checkout-klarna-index .klarna_block {
   margin-bottom: 0;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding: 0 12px;
 }
 .checkout-klarna-index .klarna_block a {
   color: #0089cf;

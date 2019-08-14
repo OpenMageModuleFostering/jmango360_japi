@@ -236,7 +236,7 @@
             <action method="addCss"><stylesheet>css/vaimo/klarna/vendor/fontawesome.min.css</stylesheet><group>klarna</group></action>
             <action method="addCss"><stylesheet>css/vaimo/klarna/klarnadefault.css</stylesheet><group>klarna</group></action>
             <action method="addCss"><stylesheet>css/vaimo/klarna/klarnacheckout.css</stylesheet><group>klarna</group></action>
-            <action method="addCss"><stylesheet>japi/css/style.css?v=2.10.0</stylesheet></action>
+            <action method="addCss"><stylesheet>japi/css/style.css?v=3.3.0</stylesheet></action>
             <action method="addJs"><script>vaimo/klarna/klarnautils.js</script><group>klarna</group></action>
             <action method="addItem"><type>skin_js</type><script>japi/js/vaimo/klarna/klarnautils.js</script><group>klarna</group></action>
             <action method="addJs"><script>vaimo/klarna/klarnacheckout.js</script><group>klarna</group></action>
