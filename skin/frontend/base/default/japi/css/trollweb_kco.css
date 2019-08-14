@@ -1,0 +1,114 @@
+.klarna-checkout {
+  padding: 1em;
+}
+#login-popup,
+#kco_login {
+  display: none;
+}
+.page-title {
+  padding: 0;
+}
+#login-popupi h2,
+#kco_login h2,
+#kco_email h2,
+#kco_postal h2,
+#kco_shipping_available h2,
+#kco_review h2,
+#newsletter_coupon_wrapper h2,
+#payment_kco h2 {
+  font-size: 1.2em;
+}
+#kco_review .cart #shopping-cart-table tr .product-name {
+  font-size: 1em;
+  font-weight: normal;
+}
+#kco_review .cart #shopping-cart-table tr .product-name a {
+  color: #333;
+}
+#kco_review .cart #shopping-cart-table td.input-wrapper {
+  text-align: center;
+}
+#kco_review a.btn-remove {
+  display: none;
+}
+#kco_newsletter label {
+  font-weight: normal;
+}
+#coupon_code_section label {
+  font-size: 0.9em;
+  font-weight: normal;
+}
+#coupon_code_section #coupon-code-form .input-box {
+  width: 100%;
+}
+.klarna-checkout .fancy-input .fancy-input__input {
+  border-width: 1px;
+  box-shadow: none;
+}
+.klarna-checkout .fancy-input .fancy-input__input:focus {
+  box-shadow: none;
+}
+#kco_login .buttons-set button,
+#coupon_code_section #coupon-code-form button,
+#kco_email .email-form button,
+#kco_postal .postal-form button,
+#kco_review .cart #shopping-cart-table tr .input-wrapper .qty-change,
+input#kco_newsletter_checkbox:checked + label:before {
+  color: #fff;
+  font-size: 1em;
+  font-weight: normal;
+  border: none;
+}
+span.error {
+  padding: 0.5em;
+  background: #EF5350;
+  color: white;
+  display: -ms-flexbox;
+  display: flex;
+  text-align: left;
+}
+#kco_postal .postal-form label {
+  font-size: 0.9em;
+  font-weight: normal;
+}
+#kco_review .cart #shopping-cart-table tr .input-wrapper .qty-change {
+  height: 30px;
+  line-height: 30px;
+  width: 30px;
+}
+#kco_shipping_available .sp-methods {
+  padding: 0;
+  border: 0;
+  background-color: transparent;
+}
+.kco_payment {
+  margin-top: 3rem;
+}
+#payment_kco .choose_payment li {
+  border: 1px solid #bbb6a5;
+  border-bottom: none;
+}
+.kco_payment_form .btn-checkout {
+  margin: 0;
+  width: 100%;
+  font-size: 1em;
+}
+.klarna-checkout .main-container.suspended::after {
+  position: fixed;
+}
+.klarna-checkout .fancy-input .fancy-input__label {
+  top: 5px;
+  font-size: 0.9em;
+}
+#payment_kco .choose_payment li label {
+  margin-bottom: 1px;
+}
+#kco_review .cart #shopping-cart-table tr {
+  border-bottom: 1px solid #ccc;
+}
+#kco_shipping_available .sp-methods label {
+  display: block;
+}
+#kco_form {
+  padding: 0;
+}

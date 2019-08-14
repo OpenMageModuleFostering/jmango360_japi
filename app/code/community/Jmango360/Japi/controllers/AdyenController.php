@@ -20,7 +20,21 @@ class Jmango360_Japi_AdyenController extends Mage_Core_Controller_Front_Action
         $order = Mage::getSingleton('sales/order');
         $order->loadByIncrementId($lastRealOrderId);
         if ($order->getId()) {
-            $checkoutSession->clear();
+            $quoteId = $checkoutSession->getLastQuoteId();
+            $quote = Mage::getSingleton('sales/quote')->load($quoteId);
+            if ($quote->getId()) {
+                $checkoutSession->setData('japi_quote_id', $quoteId);
+                $quote->setIsActive(true)->save();
+            }
+
+            if (Mage::helper('core')->isModuleEnabled('Flagbit_Checkout')) {
+                Mage::helper('flagbit_checkout')->storeAddressData('billing', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('shipping', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('payment', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('use_vat_id', null);
+                Mage::helper('flagbit_checkout')->storeAddressData('entitled', null);
+                Mage::helper('flagbit_checkout')->storeAddressData('customer', null);
+            }
 
             $this->loadLayout();
 
@@ -32,6 +46,7 @@ class Jmango360_Japi_AdyenController extends Mage_Core_Controller_Front_Action
                 sprintf('<meta name="%s" content="%s">', 'order-id', $order->getIncrementId()),
                 sprintf('<meta name="%s" content="%s">', 'order-amount', $order->getGrandTotal()),
                 sprintf('<meta name="%s" content="%s">', 'order-currency', $order->getOrderCurrency()->getCode()),
+                sprintf('<meta name="%s" content="%s">', 'order-amount-format', $order->formatPriceTxt($order->getGrandTotal()))
             );
             $metaBlock->setText(implode('', $texts));
             $content->append($metaBlock, 'order-info');

@@ -155,6 +155,9 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
     protected function _savePluginSettings()
     {
         $json = $this->_getRequest()->getParam('data');
+        if (stripos($_SERVER['HTTP_HOST'], 'popcorn.nl') !== false) {
+            $json = html_entity_decode($json);
+        }
 
         if (!$json) {
             throw new Jmango360_Japi_Exception(

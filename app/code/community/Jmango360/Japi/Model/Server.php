@@ -82,13 +82,17 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
                 $request->getActionName() != 'getCrossSell' &&
                 $request->getActionName() != 'getUpSell'
             ) {
-                $store->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
+                if (!strpos($_SERVER['HTTP_HOST'], 'motodiffusion')) {
+                    $store->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
+                }
             }
 
             /**
              * Bypass flat category check
              */
-            $store->setConfig(Mage_Catalog_Helper_Category_Flat::XML_PATH_IS_ENABLED_FLAT_CATALOG_CATEGORY, 0);
+            if (!strpos($_SERVER['HTTP_HOST'], 'motodiffusion')) {
+                $store->setConfig(Mage_Catalog_Helper_Category_Flat::XML_PATH_IS_ENABLED_FLAT_CATALOG_CATEGORY, 0);
+            }
 
             /**
              * MPLUGIN-2038: Bypass Netzarbeiter_NicerImageNames modify image url

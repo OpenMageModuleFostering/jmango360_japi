@@ -328,6 +328,9 @@ var JMAgreement = Class.create({
 
     initModals: function () {
         this.form.select('div.modal').each(function (modal) {
+            JMango(modal).find('a').click(function (e) {
+                e.preventDefault();
+            });
             JMango(modal).modal({
                 show: false
             });
@@ -612,5 +615,63 @@ document.observe('dom:loaded', function () {
              */
             $('shipping-method-buttons-container').show();
         };
+    }
+});
+
+Event.observe(document, "dom:loaded", function () {
+    if (typeof Checkout != 'undefined' && Checkout.prototype.disallowSection) {
+        Checkout.addMethods({
+            setStepResponse: function (response) {
+                //$$('.main-container').first().scrollTo();
+                if (response.update_section) {
+                    $('checkout-' + response.update_section.name + '-load').update(response.update_section.html);
+                    this.assignDisallowEvent('checkout-' + response.update_section.name + '-load');
+                }
+                //JMANGO360: Disable product's link in cart table
+                if ($$('.cart-table').length) {
+                    $$('.cart-table').each(function (table) {
+                        $(table).select('a').each(function (a) {
+                            $(a).observe('click', function (e) {
+                                e.preventDefault();
+                            });
+                        });
+                    });
+                }
+                //END
+                if (response.allow_sections) {
+                    response.allow_sections.each(function (e) {
+                        $('opc-' + e).addClassName('allow');
+                    });
+                }
+                if (response.duplicateBillingInfo) {
+                    this.syncBillingShipping = true;
+                    shipping.setSameAsBilling(true);
+                }
+                if (response.goto_section) {
+                    this.gotoSection(response.goto_section, false);
+                    //JMANGO360: Apply scroll to section
+                    var top = JMango('#opc-' + response.goto_section).offset().top;
+                    if (typeof scrollTo == 'function') {
+                        scrollTo(top);
+                    } else {
+                        JMango('html, body').animate({
+                            scrollTop: top
+                        });
+                    }
+                    //END
+                    if (response.messages) {
+                        response.messages.forEach(function (message, i) {
+                            jsHelper.displayMessage(message.message, message.type);
+                        });
+                    }
+                    return true;
+                }
+                if (response.redirect) {
+                    location.href = response.redirect;
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 });

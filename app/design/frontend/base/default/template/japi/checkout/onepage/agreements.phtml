@@ -30,7 +30,20 @@
  */
 ?>
 <?php if (!$this->getAgreements()) return; ?>
-<form action="" id="checkout-agreements" onsubmit="return false;">
+<?php
+/* @var $processor Mage_Cms_Model_Template_Filter */
+$processor = Mage::getModel('cms/template_filter');
+?>
+<form action="" id="checkout-agreements" class="checkout-agreements" onsubmit="return false;">
+    <?php if (Mage::helper('core')->isModuleEnabled('GGMGastro_CustomCheckoutFields')): ?>
+    <div class="commentbox">
+        <?php echo $this->getLayout()->createBlock('customcheckoutfields/commentbox_additional')->setTemplate('flagbit_checkout/commentbox.phtml')->toHtml(); ?>
+        <span><?php echo $this->__('Number of remaining letters') ?></span>: <span id="remainingLetters"><?php echo $this->getMaximumNumberOfLetters(); ?></span>
+        <script>
+            new CommentHandler(<?php echo $this->getMaximumNumberOfLetters(); ?>);
+        </script>
+    </div>
+    <?php endif; ?>
     <dl class="sp-methods">
         <?php foreach ($this->getAgreements() as $_a): ?>
             <dt>
@@ -54,14 +67,14 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <h1 class="modal-title" id="agreementModalLabel<?php echo $_a->getId() ?>">
-                                <?php echo $this->escapeHtml($_a->getName()) ?>
+                                <?php echo $this->escapeHtml($_a->getCheckboxText()) ?>
                             </h1>
                         </div>
                         <div class="modal-body">
                             <?php if ($_a->getIsHtml()): ?>
-                                <?php echo $_a->getContent() ?>
+                                <?php echo $processor->filter($_a->getContent()) ?>
                             <?php else: ?>
-                                <?php echo nl2br($this->escapeHtml($_a->getContent())) ?>
+                                <?php echo nl2br($this->escapeHtml($processor->filter($_a->getContent()))) ?>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -74,5 +87,19 @@
 <script type="text/javascript">
     //<![CDATA[
     new JMAgreement($('checkout-agreements'));
+    <?php if (strpos(Mage::getBaseUrl(), 'popcorn.nl') !== false): ?>
+    (function($){
+        $(function() {
+            $('#checkout-agreements dt').each(
+                function (index) {
+                    if (index > 0) {
+                        $(this).find('input[type=checkbox]').prop('checked', true);
+                        $(this).hide();
+                    }
+                }
+            );
+        });
+    })(jQuery);
+    <?php endif; ?>
     //]]>
 </script>

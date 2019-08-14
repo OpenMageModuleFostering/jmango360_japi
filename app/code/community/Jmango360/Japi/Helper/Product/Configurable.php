@@ -143,6 +143,36 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
             }
         }
 
+        /**
+         * Support Configurable Swatches
+         */
+        $optionLabels = array();
+        if ($this->isModuleEnabled('Mage_ConfigurableSwatches') && Mage::getStoreConfigFlag('configswatches/general/enabled')) {
+            $store = Mage::app()->getStore();
+            $imageW = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_width');
+            $store->setConfig(Mage_Catalog_Helper_Image::XML_NODE_PRODUCT_BASE_IMAGE_WIDTH, $imageW);
+            /* @var $mediaFallbackHelper Mage_ConfigurableSwatches_Helper_Mediafallback */
+            $mediaFallbackHelper = Mage::helper('configurableswatches/mediafallback');
+            $imageFallback = $mediaFallbackHelper->getConfigurableImagesFallbackArray($currentProduct, array('image'), true);
+            if (is_array($imageFallback['option_labels'])) {
+                foreach ($imageFallback['option_labels'] as $option_label => $option) {
+                    if (isset($option['configurable_product'][Mage_ConfigurableSwatches_Helper_Productimg::MEDIA_IMAGE_TYPE_BASE])) {
+                        $optionLabels[$option_label] = $option['configurable_product'][Mage_ConfigurableSwatches_Helper_Productimg::MEDIA_IMAGE_TYPE_BASE];
+                    } else {
+                        if (is_array($imageFallback[Mage_ConfigurableSwatches_Helper_Productimg::MEDIA_IMAGE_TYPE_BASE])) {
+                            $compatibleProducts = array_intersect(
+                                array_keys($imageFallback[Mage_ConfigurableSwatches_Helper_Productimg::MEDIA_IMAGE_TYPE_BASE]),
+                                $option['products']
+                            );
+                            if (count($compatibleProducts)) {
+                                $optionLabels[$option_label] = $imageFallback[Mage_ConfigurableSwatches_Helper_Productimg::MEDIA_IMAGE_TYPE_BASE][reset($compatibleProducts)];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         foreach ($this->getAllowAttributes($currentProduct) as $attribute) {
             $productAttribute = $attribute->getProductAttribute();
             if (!$productAttribute) continue;
@@ -178,21 +208,60 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
                         $productsIndex = array();
                     }
 
+                    /**
+                     * Support Configurable Swatches
+                     */
+                    if ($this->isModuleEnabled('Mage_ConfigurableSwatches') && Mage::getStoreConfigFlag('configswatches/general/enabled')) {
+                        $normalizeLabel = Mage_ConfigurableSwatches_Helper_Data::normalizeKey($value['label']);
+                    } else {
+                        $normalizeLabel = $value['label'];
+                    }
+
                     $info['options'][] = array(
                         'id' => $value['value_index'],
                         'label' => $value['label'],
                         'price' => $configurablePrice,
                         'oldPrice' => $this->_prepareOldPrice($currentProduct, $value['pricing_value'], $value['is_percent']),
+                        'image_url' => $this->_getImageUrl($currentProduct, $value['label']),
+                        'product_images' => isset($optionLabels[$normalizeLabel]) ? array($optionLabels[$normalizeLabel]) : array(),
                         'products' => $productsIndex,
                     );
+
                     $optionPrices[] = $configurablePrice;
                 }
             }
+
             if ($this->_validateAttributeInfo($info)) {
                 $attributes[] = $info;
             }
         }
+
         return $attributes;
+    }
+
+    /**
+     * Get image url form Configurable Swatches
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param string $label
+     * @return string
+     */
+    protected function _getImageUrl($product, $label)
+    {
+        if (!$product || !$label) return '';
+
+        if ($this->isModuleEnabled('Mage_ConfigurableSwatches') && Mage::getStoreConfigFlag('configswatches/general/enabled')) {
+            /** @var Mage_ConfigurableSwatches_Helper_Productimg $imgHelper */
+            $imgHelper = Mage::helper('configurableswatches/productimg');
+            /** @var Mage_ConfigurableSwatches_Helper_Swatchdimensions $dimHelper */
+            $dimHelper = Mage::helper('configurableswatches/swatchdimensions');
+            $swatchInnerWidth = $dimHelper->getInnerWidth(Mage_ConfigurableSwatches_Helper_Swatchdimensions::AREA_DETAIL);
+            $swatchInnerHeight = $dimHelper->getInnerHeight(Mage_ConfigurableSwatches_Helper_Swatchdimensions::AREA_DETAIL);
+            $swatchType = null;
+            return $imgHelper->getSwatchUrl($product, $label, $swatchInnerWidth, $swatchInnerHeight, $swatchType);
+        }
+
+        return '';
     }
 
     /**

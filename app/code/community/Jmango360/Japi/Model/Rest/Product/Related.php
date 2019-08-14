@@ -10,7 +10,9 @@ class Jmango360_Japi_Model_Rest_Product_Related extends Jmango360_Japi_Model_Res
             ->addAttributeToSelect('required_options')
             ->setPositionOrder()
             ->addStoreFilter();
-
+        if (Mage::helper('core')->isModuleEnabled('GGMGastro_Catalog')) {
+            $collection->getSelect()->order(new Zend_Db_Expr('RAND()'));
+        }
         if (Mage::helper('catalog')->isModuleEnabled('Mage_Checkout')) {
             Mage::getResourceSingleton('checkout/cart')->addExcludeProductFilter(
                 $collection,

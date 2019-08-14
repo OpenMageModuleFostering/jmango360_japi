@@ -15,7 +15,9 @@ if (@class_exists('Adyen_Payment_Model_Adyen_Abstract')) {
 
 class Jmango360_Japi_Model_Payment_Adyen_Pin extends Jmango360_Japi_Model_Payment_Adyen_Abstract
 {
-    protected $_code = 'jmango_payment_adyen_pin';
+    const CODE = 'jmango_payment_adyen_pin';
+
+    protected $_code = self::CODE;
     protected $_formBlockType = 'japi/payment_form';
     protected $_infoBlockType = 'japi/payment_info';
 
@@ -45,7 +47,10 @@ class Jmango360_Japi_Model_Payment_Adyen_Pin extends Jmango360_Japi_Model_Paymen
      */
     public function isAvailable($quote = null)
     {
-        return false;//Mage::app()->getRequest()->getModuleName() == 'japi';
+        return (
+                Mage::app()->getRequest()->getModuleName() == 'japi'
+                || strpos(Mage::app()->getRequest()->getHeader('Referer'), 'japi/checkout/onepage') !== false
+            ) && Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/adyen_pin');
     }
 
     /**

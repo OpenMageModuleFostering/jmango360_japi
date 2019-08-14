@@ -104,6 +104,19 @@ class Jmango360_Japi_Rest_MageController extends Jmango360_Japi_Controller_Abstr
         }
 
         $url = $this->getRequest()->getParam('url');
+
+        /**
+         * MPLUGIN-2279: Workaround for Flagbit_LanguageSelector and GGM
+         */
+        if ($helper->isModuleEnabled('Flagbit_LanguageSelector')) {
+            $storeCode = Mage::app()->getStore()->getCode();
+            if (strpos($url, '?') !== false) {
+                $url .= '&___store=' . $storeCode;
+            } else {
+                $url .= '?___store=' . $storeCode;
+            }
+        }
+
         if (strpos($url, 'http') === 0) {
             $this->_redirectUrl($url);
         } else {

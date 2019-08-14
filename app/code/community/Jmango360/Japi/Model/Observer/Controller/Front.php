@@ -21,6 +21,15 @@ class Jmango360_Japi_Model_Observer_Controller_Front
     {
         /* @var $helper Jmango360_Japi_Helper_Data */
         $helper = Mage::helper('japi');
+
+        /**
+         * Set current store if exist
+         */
+        $storeId = Mage::app()->getRequest()->getParam('store_id', null);
+        if ($storeId) {
+            Mage::app()->setCurrentStore($storeId);
+        }
+
         if ($helper->isNeedByPassSessionValidation() || $helper->isNeedByPassMIMT() || !$helper->isUseSidFrontend()) {
             /* @var $front Mage_Core_Controller_Varien_Front */
             $front = $observe->getEvent()->getFront();
@@ -31,15 +40,24 @@ class Jmango360_Japi_Model_Observer_Controller_Front
                 if (!$this->_getListModuleNeedToByPassSession() && ($route[2] == 'checkout' && $route[3] == 'onepage')) {
                     return;
                 }
+                if($store = Mage::app()->getRequest()->getParam('___store', false)) {
+                    Mage::app()->setCurrentStore(Mage::app()->getStore($store)->getId());
+                }
                 Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
             } elseif (count($route) > 3 && in_array('japi', $route)) {
                 if (!$this->_getListModuleNeedToByPassSession() && (in_array('checkout', $route) && in_array('onepage', $route))) {
                     return;
                 }
+                if($store = Mage::app()->getRequest()->getParam('___store', false)) {
+                    Mage::app()->setCurrentStore(Mage::app()->getStore($store)->getId());
+                }
                 Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
             } elseif (strpos(Mage::app()->getRequest()->getHeader('Referer'), 'japi/checkout/onepage') !== false) {
                 if (!$this->_getListModuleNeedToByPassSession()) {
                     return;
+                }
+                if($store = Mage::app()->getRequest()->getParam('___store', false)) {
+                    Mage::app()->setCurrentStore(Mage::app()->getStore($store)->getId());
                 }
                 Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
             }

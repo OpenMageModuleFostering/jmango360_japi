@@ -714,12 +714,18 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->isModuleEnabled('Experius_Geoipredirect')) {
             Mage::getSingleton('core/session')->setData('ipcheck_redirected', Mage::app()->getStore()->getId());
         }
+        $params = Mage::app()->getRequest()->getParams();
 
         if (Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/onepage')) {
-            $checkoutUrl = Mage::getUrl('japi/checkout/onepage', array('_secure' => true));
+            $checkoutUrl = Mage::getUrl('japi/checkout/onepage', array('_secure' => true, '_query' => $params));
             if (Mage::helper('core')->isModuleEnabled('Vaimo_Klarna')) {
                 if (Mage::getStoreConfigFlag('payment/vaimo_klarna_checkout/active')) {
-                    $checkoutUrl = Mage::getUrl('japi/klarna/checkout', array('_secure' => true));
+                    $checkoutUrl = Mage::getUrl('japi/klarna/checkout', array('_secure' => true, '_query' => $params));
+                }
+            }
+            if (Mage::helper('core')->isModuleEnabled('Trollweb_KCO')) {
+                if (Mage::getStoreConfigFlag('payment/kco_checkout/active')) {
+                    $checkoutUrl = Mage::getUrl('japi/trollweb', array('_secure' => true, '_query' => $params));
                 }
             }
         } else {
@@ -730,7 +736,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
             if (strpos($checkoutUrl, 'http') === 0) {
                 return $checkoutUrl;
             } else {
-                return Mage::getUrl($checkoutUrl);
+                return Mage::getUrl($checkoutUrl, array('_query' => $params));
             }
         }
 
@@ -1228,14 +1234,17 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function isAddressesReady()
     {
-        if ($isAddressesApiUpdate = Mage::getSingleton('core/session')->getData('is_address_update')) {
-            return $isAddressesApiUpdate;
-        }
-
         /** @var Mage_Checkout_Model_Session $checkoutSession */
         $checkoutSession = Mage::getSingleton('checkout/session');
         $quote = $checkoutSession->getQuote();
         $shippingAddress = $quote->getShippingAddress();
+
+        if (Mage::getSingleton('core/session')->getData('is_address_update')) {
+            if ($shippingAddress->getCountryId()) {
+                return true;
+            }
+        }
+
         if ($shippingAddress->getGroupedAllShippingRates()) {
             return true;
         }

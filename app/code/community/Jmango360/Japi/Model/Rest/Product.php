@@ -214,7 +214,13 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
 
         /* @var $helper Jmango360_Japi_Helper_Product */
         $helper = Mage::helper('japi/product');
-        $data['product'] = $helper->convertProductIdToApiResponseV2($product->getId());
+
+        $config = array();
+        if ($helper->isModuleEnabled('Algolia_Algoliasearch')) {
+            $config['no_apply_price'] = true;
+        }
+
+        $data['product'] = $helper->convertProductIdToApiResponseV2($product->getId(), $config);
         if (!$data['product']) {
             throw new Jmango360_Japi_Exception(
                 Mage::helper('japi')->__('Product not found'),

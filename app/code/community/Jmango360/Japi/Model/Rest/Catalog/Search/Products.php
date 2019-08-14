@@ -102,7 +102,9 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
 
         if ($coreHelper->isModuleEnabled('Smile_ElasticSearch')) {
             return Mage::app()->getLayout()->createBlock('Smile_ElasticSearch_Block_Catalogsearch_Layer');
-        } else if ($coreHelper->isModuleEnabled('Amasty_Shopby')) {
+        } elseif ($coreHelper->isModuleEnabled('ElasticSearch_Asn')){
+            return Mage::app()->getLayout()->createBlock('ElasticSearch_Asn_Block_Catalog_Layer_Elasticsearch');
+        } elseif ($coreHelper->isModuleEnabled('Amasty_Shopby')) {
             return Mage::app()->getLayout()->createBlock('Amasty_Shopby_Block_Search_Layer');
         } else {
             return Mage::app()->getLayout()->createBlock('Jmango360_Japi_Block_Catalogsearch_Layer');
@@ -161,6 +163,9 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
 
         if ($code == 'cat') {
             if ($helper->isModuleEnabled('Klevu_Search')) {
+                return false;
+            }
+            if ($helper->isModuleEnabled('GGMGastro_Catalog')) {
                 return false;
             }
         }

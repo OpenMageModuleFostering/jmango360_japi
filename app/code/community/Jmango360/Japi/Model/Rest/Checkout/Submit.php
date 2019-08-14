@@ -84,11 +84,6 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
         $this->validateOrder();
 
         /**
-         * Cancel order if order with this quote ID already exists
-         */
-        $makeCartInactiveAfterSubmit = $request->getParam('make_cart_inactive_after_submit', $this->_makeCartInactiveAfterSubmit);
-
-        /**
          * Flag as JMango360 order
          */
         $quote->setData('japi', 1);
@@ -99,19 +94,17 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
         $this->saveOrder();
 
         /**
-         * Inactivate card
-         *   -- This behaviour could be changed:
-         *   -- -- inactivating the card creates a new cart the next time the cart is touched
-         *   -- -- If anything goes wrong with the payment the cart is not automatically activated
-         *   -- -- another way to deal with this is to cancel the existing order the next time the App calls the submitOrder function
-         *   -- -- and automticaly create a new order.
-         *   -- -- In order to do this uncomment the "this->cancelOrder" above before the this->saveOrder
-         *   -- -- and switch off the setIsActive below.
-         *   -- -- setIsActive has to be added to the success function after payment
-         * Added a parameter so behaviour cab be inluenced by parameters in the call
+         * MPLUGIN-2211: Not inactive quote if checkout with "jmango_payment_adyen_pin"
          */
-        if ($makeCartInactiveAfterSubmit) {
-            $quote->setIsActive(false);
+        try {
+            $payment = $quote->getPayment();
+            if ($payment->getMethod() == Jmango360_Japi_Model_Payment_Adyen_Pin::CODE) {
+                $quote->setIsActive(true);
+                $checkoutSession = Mage::getSingleton('checkout/session');
+                $checkoutSession->setData('japi_quote_id', $quote->getId());
+            }
+        } catch (Exception $e) {
+
         }
 
         /**

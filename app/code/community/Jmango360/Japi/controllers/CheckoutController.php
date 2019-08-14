@@ -2,9 +2,22 @@
 /**
  * Copyright 2015 JMango360
  */
-include_once('Mage/Checkout/controllers/OnepageController.php');
 
-class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
+if (Mage::helper('core')->isModuleEnabled('Flagbit_Checkout')) {
+    include_once 'Flagbit/Checkout/controllers/OnepageController.php';
+
+    class Jmango360_Japi_Checkout_Abstract extends Flagbit_Checkout_OnepageController
+    {
+    }
+} else {
+    include_once 'Mage/Checkout/controllers/OnepageController.php';
+
+    class Jmango360_Japi_Checkout_Abstract extends Mage_Checkout_OnepageController
+    {
+    }
+}
+
+class Jmango360_Japi_CheckoutController extends Jmango360_Japi_Checkout_Abstract
 {
     /**
      * Make sure customer is valid, if logged in
@@ -101,8 +114,12 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
         $helper->checkValidSession();
 
         $checkoutUrl = $helper->getCheckoutUrl();
-        if ($checkoutUrl) $this->_redirectUrl($checkoutUrl);
-        else $this->_redirect('checkout/onepage', array('_secure' => true));
+        if ($checkoutUrl) {
+            $this->_redirectUrl($checkoutUrl);
+        } else {
+            $params = $this->getRequest()->getParams();
+            $this->_redirect('checkout/onepage', array('_secure' => true, '_query' => $params));
+        }
     }
 
     /**
@@ -161,6 +178,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
         $this->loadLayout();
         $this->_updateLayout();
         $this->getLayout()->getBlock('head')->setTitle($this->__('Checkout'));
+        $this->_appendPopupUrls();
         $this->_initLayoutMessages(array('checkout/session'));
         $this->renderLayout();
     }
@@ -528,6 +546,76 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Flagbit_Checkout')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addCss\"><stylesheet>css/flagbit_checkout.css</stylesheet></action>
+</reference>
+<reference name=\"content\">
+    <block type=\"page/html_wrapper\" name=\"checkout.progress.wrapper\" before=\"-\" translate=\"label\">
+        <action method=\"setElementId\"><value>checkout-progress-wrapper</value></action>
+        <block type=\"checkout/onepage_progress\" name=\"checkout.progress\" before=\"-\" template=\"flagbit_checkout/progress.phtml\"/>
+    </block>
+</reference>
+<reference name=\"checkout.onepage\">
+    <action method=\"setTemplate\"><template>japi/flagbit_checkout/onepage.phtml</template></action>
+    <action method=\"setTemplate\" ifconfig=\"kickstarter_checkout/settings/compact_mode\"><template>japi/flagbit_checkout/onepage_compact.phtml</template></action>
+</reference>
+<reference name=\"checkout.onepage.billing\">
+    <action method=\"setTemplate\"><template>flagbit_checkout/billing.phtml</template></action>
+    <action method=\"setTemplate\" ifconfig=\"kickstarter_checkout/settings/compact_mode\"><template>flagbit_checkout/billing_compact.phtml</template></action>
+    <block type=\"magesetup/checkout_agreements\" name=\"magesetup.checkout.billing.agreements\">
+        <action method=\"setTemplate\" ifconfig=\"kickstarter_checkout/review/agreements_on_billing\"><template>magesetup/checkout/onepage/agreements_plain.phtml</template></action>
+    </block>
+    <action method=\"append\" ifconfig=\"kickstarter_checkout/settings/compact_mode\">
+        <block>checkout.onepage.payment</block>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.payment\">
+    <action method=\"setTemplate\"><template>checkout/onepage/payment.phtml</template></action>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('GGMGastro_CustomCheckoutFields')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><script>GGMGastro/CustomCheckoutFields/AdditionalFields.js</script></action>
+    <action method=\"addItem\"><type>skin_js</type><name>js/override.js</name></action>
+    <action method=\"removeItem\"><type>skin_css</type><name>css/magesetup/checkout.css</name></action>
+    <action method=\"addCss\"><stylesheet>css/partial/checkout.css</stylesheet><params>media=\"screen\"</params></action>
+</reference>
+<reference name=\"checkout.onepage.billing\">
+    <block type=\"customcheckoutfields/options\" name=\"customcheckoutfields.options\">
+        <action method=\"setTemplate\"><template>ggmgastro_customcheckoutfields/options.phtml</template></action>
+        <block type=\"cms/block\" name=\"partial_delivery_info\" as=\"partial_delivery_info\" output=\"toHtml\">
+            <action method=\"setBlockId\"><block_id>partial_delivery_info</block_id></action>
+        </block>
+        <block type=\"cms/block\" name=\"neutral_bill_info\" as=\"neutral_bill_info\" output=\"toHtml\">
+            <action method=\"setBlockId\"><block_id>neutral_bill_info</block_id></action>
+        </block>
+        <block type=\"cms/block\" name=\"separate_invoice_info\" as=\"separate_invoice_info\" output=\"toHtml\">
+            <action method=\"setBlockId\"><block_id>separate_invoice_info</block_id></action>
+        </block>
+    </block>
+</reference>";
+        }
+
+        if (Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/adyen_pin')
+            && Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/adyen_pin_only')) {
+            $xml .= "
+<reference name=\"root\">
+    <action method=\"addBodyClass\"><name>adyen-pin-only</name></action>
+</reference>";
+        }
+        if ($helper->isModuleEnabled('Dhl_Magentolws')) {
+            $xml .= "<reference name=\"head\">"
+                . "<action method=\"addItem\"><type>js</type><name>lib/jquery/jquery-1.10.2.js</name></action>"
+                . "<action method=\"addItem\"><type>js</type><name>dhl/magentolws/venobox.min.js</name><params><![CDATA[ name=\"zjs_last\" ]]></params></action>"
+                . "<action method=\"addItem\"><type>js</type><name>dhl/magentolws/location_picker.js</name></action>"
+                . "<action method=\"addCss\"><stylesheet>css/dhl/magentolws/style.css</stylesheet></action>"
+            . "</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();
@@ -627,46 +715,50 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
      */
     public function savePaymentAction()
     {
-        if ($this->_expireAjax()) {
-            return;
-        }
-
-        try {
-            if (!$this->getRequest()->isPost()) {
-                $this->_ajaxRedirectResponse();
+        if (Mage::helper('core')->isModuleEnabled('GGMGastro_CustomCheckoutFields')) {
+            return parent::savePaymentAction();
+        } else {
+            if ($this->_expireAjax()) {
                 return;
             }
 
-            $data = $this->getRequest()->getPost('payment', array());
-            $result = $this->getOnepage()->savePayment($data);
+            try {
+                if (!$this->getRequest()->isPost()) {
+                    $this->_ajaxRedirectResponse();
+                    return;
+                }
 
-            // get section and redirect data
-            $redirectUrl = $this->getOnepage()->getQuote()->getPayment()->getCheckoutRedirectUrl();
-            if (empty($result['error'])) {
-                $result['goto_section'] = 'review';
-                $result['update_section'] = array(
-                    'name' => 'review',
-                    'html' => $this->_getReviewHtml()
-                );
+                $data = $this->getRequest()->getPost('payment', array());
+                $result = $this->getOnepage()->savePayment($data);
+
+                // get section and redirect data
+                $redirectUrl = $this->getOnepage()->getQuote()->getPayment()->getCheckoutRedirectUrl();
+                if (empty($result['error'])) {
+                    $result['goto_section'] = 'review';
+                    $result['update_section'] = array(
+                        'name' => 'review',
+                        'html' => $this->_getReviewHtml()
+                    );
+                }
+                if ($redirectUrl) {
+                    $result['redirect'] = $redirectUrl;
+                }
+            } catch (Mage_Payment_Exception $e) {
+                if ($e->getFields()) {
+                    $result['fields'] = $e->getFields();
+                }
+                $result['error'] = $e->getMessage();
+            } catch (Mage_Core_Exception $e) {
+                $result['error'] = $e->getMessage();
+            } catch (Exception $e) {
+                Mage::logException($e);
+                $result['error'] = $this->__('Unable to set Payment Method.');
             }
-            if ($redirectUrl) {
-                $result['redirect'] = $redirectUrl;
-            }
-        } catch (Mage_Payment_Exception $e) {
-            if ($e->getFields()) {
-                $result['fields'] = $e->getFields();
-            }
-            $result['error'] = $e->getMessage();
-        } catch (Mage_Core_Exception $e) {
-            $result['error'] = $e->getMessage();
-        } catch (Exception $e) {
-            Mage::logException($e);
-            $result['error'] = $this->__('Unable to set Payment Method.');
+
+            /* @var $helper Mage_Core_Helper_Data */
+            $helper = Mage::helper('core');
+            $this->getResponse()->setBody($helper->jsonEncode($result));
         }
-
-        /* @var $helper Mage_Core_Helper_Data */
-        $helper = Mage::helper('core');
-        $this->getResponse()->setBody($helper->jsonEncode($result));
     }
 
     /**
@@ -864,5 +956,24 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
         } else {
             return parent::_getPaymentMethodsHtml();
         }
+    }
+
+    /**
+     * Append all url need open in a popup on custom checkout page
+     */
+    protected function _appendPopupUrls()
+    {
+        $urls = explode("\n", Mage::getStoreConfig('japi/jmango_rest_checkout_settings/klarna_popup_urls'));
+        if (!count($urls)) return;
+
+        $urlsString = implode(';', $urls);
+        $this->getResponse()->setHeader('Klarna-Popup-Urls', $urlsString, true);
+
+        $head = $this->getLayout()->getBlock('head');
+        if (!$head) return;
+
+        $block = $this->getLayout()->createBlock('core/text');
+        $block->setText(sprintf('<meta name="%s" content="%s">', 'Klarna-Popup-Urls', $urlsString));
+        $head->append($block, 'Klarna-Popup-Urls');
     }
 }

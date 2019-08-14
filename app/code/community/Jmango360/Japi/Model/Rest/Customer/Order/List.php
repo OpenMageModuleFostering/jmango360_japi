@@ -306,6 +306,14 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
 
         if (!empty($totalsBlock)) {
             /* @var $totalsBlock Mage_Sales_Block_Order_Totals */
+
+            /**
+             * MPLUGIN-2242: Support CP_Rushorder
+             */
+            if ($helper->isModuleEnabled('CP_Rushorder')) {
+                $totalsBlock->setChild('rushorder', $helper->getBlock('rushorder/sales_order_rushorder'));
+            }
+
             $totalsBlock->setOrder($order);
             $totalsBlock->toHtml();
 

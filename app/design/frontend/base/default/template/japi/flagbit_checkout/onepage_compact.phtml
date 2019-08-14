@@ -1,0 +1,48 @@
+<script type="text/javascript" src="<?php echo $this->getJsUrl('varien/accordion.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getJsUrl('flagbit/libs/accordion.js') ?>"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/opcheckout_compact.js') ?>"></script>
+<script type="text/javascript">countryRegions = <?php echo $this->helper('directory')->getRegionJson() ?></script>
+<ol class="opc" id="checkoutSteps">
+    <?php $i=0; foreach($this->getSteps() as $_stepId => $_stepInfo): ?>
+        <?php if (!$this->getChild($_stepId) || !$this->getChild($_stepId)->isShow()): continue; endif; $i++ ?>
+        <li id="opc-<?php echo $_stepId ?>" class="opc-<?php echo $_stepId ?> section<?php echo !empty($_stepInfo['allow'])?' allow':'' ?><?php echo !empty($_stepInfo['complete'])?' saved':'' ?><?php if (Mage::helper('flagbit_checkout')->isCompactMode()): ?> compact<?php endif; ?>">
+            <div class="step-title">
+                <span class="number"><?php echo $i ?></span>
+                <h2><?php echo $_stepInfo['label'] ?></h2>
+            </div>
+            <div id="checkout-step-<?php echo $_stepId ?>" class="step a-item" style="display:none;">
+                <?php echo $this->getChildHtml($_stepId) ?>
+            </div>
+        </li>
+    <?php endforeach ?>
+</ol>
+<script type="text/javascript">
+    //<![CDATA[
+    var accordion = new Accordion('checkoutSteps', '.step-title', true);
+    var checkout = new Checkout(accordion,{
+        review: '<?php echo $this->getUrl('checkout/onepage/review') ?>',
+        saveMethod: '<?php echo $this->getUrl('checkout/onepage/saveMethod') ?>',
+        failure: '<?php echo $this->getUrl('checkout/cart') ?>'}
+    );
+    <?php if($this->getActiveStep()): ?>
+    checkout.accordion.openSection('opc-<?php echo $this->getActiveStep() ?>');
+    <?php endif ?>
+    checkout.assignDisallowEvent('tab-content-item-address');
+    //]]>
+</script>
+<script type="text/javascript">
+    Checkout.prototype.gotoSection = function(section,reloadProgressBlock) {
+        if (reloadProgressBlock) {
+            this.reloadProgressBlock(this.currentStep);
+        }
+        this.currentStep = section;
+        var sectionElement = $('opc-' + section);
+        sectionElement.addClassName('allow');
+        this.accordion.openSection('opc-' + section);
+        if(!reloadProgressBlock) {
+            this.updateProgressBlock();
+        }
+    };
+</script>
+
+

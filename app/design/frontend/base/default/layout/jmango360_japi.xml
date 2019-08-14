@@ -52,7 +52,7 @@
                 <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/modal.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
-                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.5.1</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.5.6</file></action>
                 <action method="addJs" ifconfig="giftvoucher/general/active"><script>magestore/giftvoucher/giftvoucher.js</script></action>
                 <action method="addJs" ifconfig="rewardpoints/general/enable"><script>magestore/rewardpoints.js</script></action>
             </block>
@@ -95,11 +95,20 @@
                     <block type="core/text_list" name="checkout.onepage.shipping_method.advanced" as="advanced"/>
                 </block>
                 <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="japi/checkout/onepage/payment.phtml">
-                    <block type="checkout/onepage_payment_methods" name="checkout.onepage.payment.methods" as="methods" template="japi/checkout/onepage/payment/info.phtml"/>
+                    <block type="japi/checkout_onepage_payment_methods" name="checkout.onepage.payment.methods" as="methods" template="japi/checkout/onepage/payment/info.phtml"/>
                     <block type="core/template" name="checkout.onepage.payment.additional" as="additional" />
                     <block type="core/template" name="checkout.onepage.payment.methods_additional" as="methods_additional" />
                 </block>
                 <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="japi/checkout/onepage/review.phtml"/>
+            </block>
+        </reference>
+        <reference name="checkout.onepage">
+            <block type="japi/checkout_onepage_olifant" name="checkout.onepage.olifant" as="olifant">
+                <block type="core/template" name="rewards_js_points_captions" as="rewards_cartpoints_spender_js" template="rewards/js/captions.phtml" />
+                <block type="rewards/checkout_cart" name="rewards_points_cart_minibox" as="rewards_cartpoints_spender" template="rewards/checkout/cartmini.phtml" >
+                    <block type="rewards/checkout_cart_slider" name="points_cart_box.slider" as="points_slider" template="olifant/rewards-slider.phtml" />
+                    <block type="core/template" name="points_cart_box.js" as="minicart_js" template="rewards/checkout/minicart_js.phtml" />
+                </block>
             </block>
         </reference>
     </japi_checkout_onepage>
@@ -201,7 +210,7 @@
         <update handle="japi_customer_default"/>
         <reference name="content">
             <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
-            <block type="customer/form_register" name="customer_form_register" template="japi/customer/form/register.phtml">
+            <block type="japi/customer_form_register" name="customer_form_register" template="japi/customer/form/register.phtml">
                 <block type="page/html_wrapper" name="customer.form.register.fields.before" as="form_fields_before" translate="label">
                     <label>Form Fields Before</label>
                 </block>
@@ -348,7 +357,7 @@
 
     <japi_kco_index>
         <update handle="japi_checkout_default"/>
-
+        <update handle="nwtkco_checkout_index"/>
         <label>NWT Klarna Checkout Page</label>
 
         <reference name="root">
@@ -425,4 +434,99 @@
             </block>
         </reference>
     </japi_kco_thankyou>
+
+    <japi_trollweb_index>
+        <update handle="japi_checkout_onepage"/>
+
+        <reference name="root">
+            <action method="addBodyClass">
+                <classname>klarna-checkout</classname>
+            </action>
+        </reference>
+
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/trollweb/kco/checkout.js</name></action>
+            <action method="addItem"><type>skin_css</type><name>css/trollweb/kco/checkout.css</name></action>
+        </reference>
+
+        <reference name="checkout.onepage">
+            <action method="setTemplate">
+                <template>trollweb/kco/onepage.phtml</template>
+            </action>
+
+            <block type="checkout/cart" name="checkout.cart">
+                <block type="core/text_list" name="checkout.cart.before" as="before"/>
+                <block name="formkey" type="core/template" template="core/formkey.phtml" />
+                <action method="setCartTemplate"><value>trollweb/kco/cart.phtml</value></action>
+                <action method="setEmptyTemplate"><value>checkout/cart/noItems.phtml</value></action>
+                <action method="chooseTemplate"/>
+                <action method="addItemRender"><type>default</type><block>checkout/cart_item_renderer</block><template>trollweb/kco/cart/item/default.phtml</template></action>
+                <action method="addItemRender"><type>grouped</type><block>checkout/cart_item_renderer_grouped</block><template>trollweb/kco/cart/item/default.phtml</template></action>
+                <action method="addItemRender"><type>configurable</type><block>checkout/cart_item_renderer_configurable</block><template>trollweb/kco/cart/item/default.phtml</template></action>
+                <action method="addItemRender"><type>bundle</type><block>bundle/checkout_cart_item_renderer</block><template>trollweb/kco/cart/item/default.phtml</template></action>
+                <action method="addItemRender"><type>downloadable</type><block>downloadable/checkout_cart_item_renderer</block><template>trollweb/kco/cart/item/default.phtml</template></action>
+                <block type="checkout/cart_totals" name="checkout.cart.totals" as="totals" template="checkout/cart/totals.phtml"/>
+                <block type="core/text_list" name="checkout.cart.after" as="after"/>
+            </block>
+
+            <block type="trollweb_kco/coupon" name="checkout.kco.coupon" as="kco.coupon" template="trollweb/kco/coupon.phtml"/>
+            <block type="core/text_list" name="checkout.kco.additional" as="kco.additional"/>
+
+            <block type="trollweb_kco/payment" name="checkout.kco.payment" as="kco.payment" template="trollweb/kco/payment.phtml">
+                <block type="trollweb_kco/checkout" name="checkout.kco" as="kco" template="trollweb/kco/checkout.phtml"/>
+                <block type="trollweb_kco/paymentform" name="kco.payment.form" as="kco.payment.form" template="trollweb/kco/payment_form.phtml">
+                    <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="checkout/onepage/agreements.phtml"/>
+                </block>
+            </block>
+
+            <block type="trollweb_kco/email" name="checkout.kco.email.input" as="kco.email" template="trollweb/kco/emailinput.phtml"/>
+            <block type="trollweb_kco/postal" name="checkout.kco.postal.input" as="kco.postal" template="trollweb/kco/postalinput.phtml"/>
+            <block type="trollweb_kco/newsletter" name="checkout.kco.newsletter" as="kco.newsletter" template="trollweb/kco/newsletter.phtml"/>
+
+            <action method="unsetChild" ifconfig="payment/kco_checkout/disable_coupon_code_input">
+                <child>kco.coupon</child>
+            </action>
+            <action method="unsetChild" ifconfig="payment/kco_checkout/disable_newsletter">
+                <child>kco.newsletter</child>
+            </action>
+        </reference>
+
+        <reference name="checkout.onepage.review">
+            <block type="checkout/onepage_review_info" name="checkout.onepage.review.info" as="info" template="checkout/onepage/review/info.phtml">
+                <action method="addItemRender">
+                    <type>default</type>
+                    <block>checkout/cart_item_renderer</block>
+                    <template>checkout/onepage/review/item.phtml</template>
+                </action>
+                <action method="addItemRender">
+                    <type>grouped</type>
+                    <block>checkout/cart_item_renderer_grouped</block>
+                    <template>checkout/onepage/review/item.phtml</template>
+                </action>
+                <action method="addItemRender">
+                    <type>configurable</type>
+                    <block>checkout/cart_item_renderer_configurable</block>
+                    <template>checkout/onepage/review/item.phtml</template>
+                </action>
+                <action method="addItemRender">
+                    <type>bundle</type>
+                    <block>bundle/checkout_cart_item_renderer</block>
+                    <template>trollweb/kco/cart/item/default.phtml</template>
+                </action>
+                <action method="addItemRender">
+                    <type>downloadable</type>
+                    <block>downloadable/checkout_cart_item_renderer</block>
+                    <template>trollweb/kco/cart/item/default.phtml</template>
+                </action>
+                <block type="checkout/cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="checkout/onepage/review/totals.phtml"/>
+                <block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before" translate="label">
+                    <label>Items Before</label>
+                </block>
+                <block type="core/text_list" name="checkout.onepage.review.info.items.after" as="items_after" translate="label">
+                    <label>Items After</label>
+                </block>
+                <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="checkout/onepage/agreements.phtml"/>
+            </block>
+        </reference>
+    </japi_trollweb_index>
 </layout>

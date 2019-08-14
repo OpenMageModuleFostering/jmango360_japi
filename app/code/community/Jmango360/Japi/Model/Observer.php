@@ -2,6 +2,18 @@
 
 class Jmango360_Japi_Model_Observer
 {
+    public function GGMGastro_CustomCheckoutFields__agreements($observe)
+    {
+        $block = $observe->getBlock();
+        if (strpos(Mage::app()->getRequest()->getServer('HTTP_REFERER'), 'japi/checkout/onepage') !== false) {
+            if ($block instanceof GGMGastro_CustomCheckoutFields_Block_Commentbox_Additional) {
+                if ($block->getTemplate() == 'ggmgastro_customcheckoutfields/agreements.phtml') {
+                    $block->setTemplate('japi/checkout/onepage/agreements.phtml');
+                }
+            }
+        }
+    }
+
     public function TIG_PostNL__addressBookPostcodeCheck($observe)
     {
         if (Mage::app()->getRequest()->getModuleName() != 'japi') return;
@@ -732,6 +744,35 @@ class Jmango360_Japi_Model_Observer
             }
         }
 
+        if (Mage::helper('core')->isModuleEnabled('Flagbit_Checkout')) {
+            if ($request->getModuleName() == 'checkout' && $request->getActionName() == 'saveBilling') {
+                if (Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/adyen_pin')
+                    && Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/adyen_pin_only')) {
+                    if (strpos($request->getServer('HTTP_REFERER'), 'japi/checkout/onepage') !== false) {
+                        $store = Mage::app()->getStore();
+                        /** @var Mage_Payment_Helper_Data $paymentHelper */
+                        $paymentHelper = Mage::helper('payment');
+                        $storePayments = $paymentHelper->getPaymentMethods($store);
+                        foreach ($storePayments as $code => $methodConfig) {
+                            if ($code == Jmango360_Japi_Model_Payment_Adyen_Pin::CODE) continue;
+                            $configPath = sprintf('%s/model', Mage_Payment_Helper_Data::XML_PATH_PAYMENT_METHODS . '/' . $code);
+                            $store->setConfig($configPath, null);
+                        }
+                    }
+                }
+            } elseif ($request->getModuleName() == 'customer' && $request->getActionName() == 'edit') {
+                if (strpos($request->getServer('HTTP_REFERER'), 'japi/checkout/onepage') !== false) {
+                    $request
+                        ->initForward()
+                        ->setModuleName('japi')
+                        ->setControllerName('customer')
+                        ->setActionName('address')
+                        ->setParam('is_checkout', 1)
+                        ->setDispatched(false);
+                }
+            }
+        }
+
         return $this;
     }
 
@@ -771,6 +812,62 @@ class Jmango360_Japi_Model_Observer
             $order = $observer->getEvent()->getOrder();
             $paymentId = $order->getPayment()->getAdditionalInformation(Jmango360_Japi_Model_Payment::PAYPAL_PAYMENT_ID);
             $order->addStatusHistoryComment(sprintf('Paypal payment ID (%s) verified.', $paymentId));
+        }
+    }
+
+    public function japiCatalogProductLoadAfter(Varien_Event_Observer $observer)
+    {
+        /**
+         * MPLUGIN-2086: Support MadeByMouses_DynamicOptions
+         */
+        if (Mage::helper('core')->isModuleEnabled('MadeByMouses_DynamicOptions')) {
+            $controller = Mage::app()->getFrontController();
+            $action = $controller->getAction();
+
+            $allowedActions = array('japi_rest_cart_updateCart', 'japi_rest_cart_updateCartItem');
+
+            if ($action && in_array($action->getFullActionName(), $allowedActions)) {
+                /** @var Mage_Catalog_Model_Product $product */
+                $product = $observer->getProduct();
+                if (!$product || !$product->getId()) {
+                    return $this;
+                }
+
+                $request = $controller->getRequest();
+                $options = $request->getParam('options', array());
+
+                /** @var Jmango360_Japi_Helper_Product_Options $helper */
+                $helper = Mage::helper('japi/product_options');
+                $dynamicOptions = $helper->getDynamicOptionsFromMadeByMouses();
+
+                if (count($options)) {
+                    $additionalOptions = array();
+                    foreach ($options as $optionId => $optionValue) {
+                        if (empty($optionValue) || $optionId > 0) {
+                            continue;
+                        }
+
+                        $optionKey = null;
+                        if ($optionId < 0) {
+                            foreach ($dynamicOptions as $key => $dynamicOption) {
+                                if ($dynamicOption['jidx'] == $optionId) {
+                                    $optionKey = $key;
+                                }
+                            }
+                        }
+
+                        if ($optionKey) {
+                            $dynamicOption = Mage::helper('dynamicoptions')->getLabels($optionKey, $optionValue);
+                            if ($dynamicOption) {
+                                $additionalOptions[] = $dynamicOption;
+                            }
+                        }
+                    }
+                    if (count($additionalOptions)) {
+                        $product->addCustomOption('additional_options', serialize($additionalOptions));
+                    }
+                }
+            }
         }
     }
 }

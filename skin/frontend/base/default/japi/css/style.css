@@ -101,9 +101,6 @@ a:hover {
   padding: 0;
   margin: 0;
 }
-.opc .section:first-child .step-title {
-  border-top: 1px solid #d9d9d9;
-}
 .opc .step > form,
 .opc .step > .order-review {
   padding: 1em 0 0 0;

@@ -17,6 +17,14 @@ if (Mage::helper('core')->isModuleEnabled('Nedstars_Checkout') && @class_exists(
 
 class Jmango360_Japi_Block_Checkout_Onepage_Shipping extends Jmango360_Japi_Block_Checkout_Onepage_Shipping_Abstract
 {
+    public function __construct()
+    {
+        if (Mage::helper('core')->isModuleEnabled('Massamarkt_Core')) {
+            $this->setTemplate('japi/checkout/onepage/massamarkt/shipping.phtml');
+        }
+        parent::__construct();
+    }
+
     public function getAddress()
     {
         if (is_null($this->_address)) {

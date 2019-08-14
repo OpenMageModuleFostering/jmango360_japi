@@ -40,6 +40,24 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
                 return $helper->getProductCollectionFromSolrBridgeSolrsearch();
             }
 
+            /**
+             * Support Algolia_Algoliasearch
+             */
+            if ($helper->isModuleEnabled('Algolia_Algoliasearch')) {
+                try {
+                    /** @var Algolia_Algoliasearch_Helper_Config $config */
+                    $config = Mage::helper('algoliasearch/config');
+                    $storeId = Mage::app()->getStore()->getId();
+                    if ($config->getApplicationID() && $config->getAPIKey() && $config->isEnabledFrontEnd($storeId)) {
+                        /** @var Jmango360_Japi_Helper_Search_Algolia $algoliaHelper */
+                        $algoliaHelper = Mage::helper('japi/search_algolia');
+                        return $algoliaHelper->getSearchResult();
+                    }
+                } catch (Exception $e) {
+
+                }
+            }
+
             if ($searchHelper->isMinQueryLength()) {
                 $query->setId(0)
                     ->setIsActive(1)

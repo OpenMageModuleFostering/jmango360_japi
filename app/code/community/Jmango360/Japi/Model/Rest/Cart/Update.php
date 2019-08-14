@@ -267,30 +267,50 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
 
     public function emptyCart()
     {
-        /* @var $cart Mage_Checkout_Model_Cart */
-        $cart = Mage::getSingleton('checkout/cart');
-        $cart->truncate()->save();
         /* @var $session Mage_Checkout_Model_Session */
         $session = Mage::getSingleton('checkout/session');
-        $session->setCartWasUpdated(true);
-        /* @var $quote Mage_Sales_Model_Quote */
-        $quote = $session->getQuote();
-        $quote->removePayment()->save();
-        $quote->getShippingAddress()->setShippingMethod('')->save();
-        if ($quote->getCheckoutMethod() != Mage_Sales_Model_Quote::CHECKOUT_METHOD_LOGIN_IN)
-        {
-            $quote->setIsActive(true)
-                ->setCustomerId(null)
-                ->setCustomerEmail(null)
-                ->setCustomerFirstname(null)
-                ->setCustomerMiddlename(null)
-                ->setCustomerLastname(null)
-                ->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID)
-                ->setIsPersistent(false);
-            foreach($quote->getAllAddresses() as $address){
-                $address->isDeleted(true);
+        if ($quoteId = $session->getData('japi_quote_id')) {
+            $quote = Mage::getSingleton('sales/quote')->load($quoteId);
+            if ($quote->getId()) {
+                $quote->setIsActive(false)->save();
             }
-            $quote->collectTotals()->save();
+            $session->clear();
+            $session->unsetData('japi_quote_id');
+        } else {
+            /* @var $cart Mage_Checkout_Model_Cart */
+            $cart = Mage::getSingleton('checkout/cart');
+            $cart->truncate()->save();
+            $session->setCartWasUpdated(true);
+            /* @var $quote Mage_Sales_Model_Quote */
+            $quote = $session->getQuote();
+            $quote->removePayment()->save();
+            $quote->getShippingAddress()->setShippingMethod('')->save();
+
+            /**
+             * MPLUGIN-2167: Clear data stored by Flagbit_Checkout
+             */
+            if ($quote->getCheckoutMethod() != Mage_Sales_Model_Quote::CHECKOUT_METHOD_LOGIN_IN) {
+                $quote->setIsActive(true)
+                    ->setCustomerId(null)
+                    ->setCustomerEmail(null)
+                    ->setCustomerFirstname(null)
+                    ->setCustomerMiddlename(null)
+                    ->setCustomerLastname(null)
+                    ->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID)
+                    ->setIsPersistent(false);
+                foreach ($quote->getAllAddresses() as $address) {
+                    $address->isDeleted(true);
+                }
+                $quote->collectTotals()->save();
+            }
+            if (Mage::helper('core')->isModuleEnabled('Flagbit_Checkout')) {
+                Mage::helper('flagbit_checkout')->storeAddressData('billing', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('shipping', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('payment', array());
+                Mage::helper('flagbit_checkout')->storeAddressData('use_vat_id', null);
+                Mage::helper('flagbit_checkout')->storeAddressData('entitled', null);
+                Mage::helper('flagbit_checkout')->storeAddressData('customer', null);
+            }
         }
 
         $data = $this->_getCart();

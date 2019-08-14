@@ -13,12 +13,76 @@ class Jmango360_Japi_Helper_Product_Options extends Mage_Core_Helper_Abstract
     public function getOptionList(Mage_Catalog_Model_Product $product)
     {
         $result = array();
+
         /** @var $option Mage_Catalog_Model_Product_Option */
         foreach ($product->getProductOptionsCollection() as $option) {
             if (in_array($option->getType(), $this->excludeTypes)) continue;
             $result[] = $this->_getOptionInfo($product, $option);
         }
+
+        if ($this->isModuleEnabled('MadeByMouses_DynamicOptions')) {
+            $options = $this->getDynamicOptionsFromMadeByMouses();
+            if (count($options)) {
+                $dynamicOptions = array();
+                $i = 0;
+                foreach ($options as $optionKey => $option) {
+                    $optionData = array(
+                        'option_id' => $option['jidx'],
+                        'title' => @$option['label'],
+                        'type' => 'drop_down',
+                        'is_require' => 0,
+                        'sort_order' => $i++,
+                        'additional_fields' => array()
+                    );
+                    if (!isset($option['values'][0])) {
+                        $optionData['additional_fields'][] = array(
+                            'value_id' => 0,
+                            'title' => $this->__('Select a value'),
+                            'price' => 0,
+                            'price_type' => 'fixed',
+                            'sku' => null,
+                            'sort_order' => 0
+                        );
+                    }
+                    if (is_array($option['values'])) {
+                        $j = 0;
+                        foreach ($option['values'] as $key => $value) {
+                            $optionData['additional_fields'][] = array(
+                                'value_id' => $key,
+                                'title' => $value,
+                                'price' => 0,
+                                'price_type' => 'fixed',
+                                'sku' => null,
+                                'sort_order' => $j++
+                            );
+                        }
+                    }
+                    $dynamicOptions[] = $optionData;
+                }
+                $result = array_merge($result, $dynamicOptions);
+            }
+        }
+
         return $result;
+    }
+
+    /**
+     * Get options from MadeByMouses_DynamicOptions
+     * Also convert option_id from string to int (negative) for mobile work
+     *
+     * @return array
+     */
+    public function getDynamicOptionsFromMadeByMouses()
+    {
+        /** @var MadeByMouses_DynamicOptions_Block_List $block */
+        $block = Mage::app()->getLayout()->createBlock('dynamicoptions/list');
+        $options = $block->getDynamicOptions();
+        $i = -1;
+        foreach ($options as $key => $option) {
+            $options[$key]['jkey'] = $key;
+            $options[$key]['jidx'] = $i--;
+        }
+        return $options;
     }
 
     /**

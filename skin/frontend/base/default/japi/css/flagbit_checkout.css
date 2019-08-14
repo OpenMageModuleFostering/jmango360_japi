@@ -1,0 +1,278 @@
+/** Flagbit_Checkout **************************************************************************************************/
+.step-title span.number {
+  width: 26px;
+  height: 26px;
+  color: #fff;
+  background: #333;
+  display: inline-block;
+  line-height: 26px;
+  text-align: center;
+}
+.step-title span.number + h2 {
+  display: inline-block;
+}
+#checkout-progress-wrapper {
+  display: none;
+}
+#co-billing-form #customer-options {
+  display: none;
+}
+.section .step-title {
+  display: block !important;
+  margin-bottom: 0;
+}
+#tab-content-item-login {
+  display: none;
+}
+.tax-container label.tax-text {
+  display: block;
+}
+#tab-content-item-address ul .form-row:first-child {
+  padding: 0;
+}
+#opc-billing .checkout-panel,
+#opc-billing .billing-address-select,
+#opc-billing #billing-new-address-form,
+#opc-billing #tab-content-item-address fieldset.shippingaddress,
+#opc-billing #tab-content-item-address fieldset.register,
+#opc-billing #tab-content-item-address fieldset.newsletter,
+#opc-billing #tab-content-item-address fieldset.agreements,
+#opc-billing .customer-account-advantages-wrapper,
+#opc-billing .checkout-customer-banner {
+  padding: 1em 0.5em;
+}
+#opc-billing fieldset.agreements label {
+  font-weight: normal;
+  margin: 0;
+}
+#opc-billing fieldset.agreements input.checkbox {
+  display: inline-block;
+  margin: 0;
+}
+#opc-billing fieldset.agreements ul li.form-row {
+  padding-bottom: 0.5em;
+}
+#opc-billing fieldset.shippingaddress input#ship_different,
+#opc-billing fieldset.shippingaddress input#register,
+#opc-billing fieldset.shippingaddress input#newsletter,
+#opc-billing fieldset.register input#ship_different,
+#opc-billing fieldset.register input#register,
+#opc-billing fieldset.register input#newsletter,
+#opc-billing fieldset.newsletter input#ship_different,
+#opc-billing fieldset.newsletter input#register,
+#opc-billing fieldset.newsletter input#newsletter {
+  width: auto;
+}
+fieldset.newsletter input {
+  width: auto !important;
+}
+fieldset.newsletter .label {
+  padding: 0;
+  color: #333;
+  font-size: 100%;
+  white-space: normal;
+  text-align: left;
+  font-weight: normal;
+}
+.opc-payment fieldset > .sp-methods {
+  box-shadow: none;
+}
+.shipping .sp-methods input[type=radio] {
+  display: inline;
+}
+.shipping .sp-methods label {
+  display: inline;
+}
+.payment .sp-methods {
+  box-shadow: none;
+}
+#payment_form_bankpayment table label {
+  display: inline;
+}
+.opc-payment .list-payments .radio {
+  margin-top: 5px;
+}
+.payment #order-comment {
+  margin: 0px;
+}
+#guarantee ul li {
+  display: table;
+}
+.paypal-express-review .buttons-set button,
+.paypal-express-review .buttons-set .please-wait,
+#opc-review .buttons-set button,
+#opc-review .buttons-set .please-wait,
+.paypal-express-review .buttons-set button,
+.opc .buttons-set button {
+  float: none;
+}
+#opc-payment-compact .buttons-set {
+  display: none;
+}
+#opc-payment,
+#opc-review {
+  display: block;
+}
+#checkout-review-table .product-review-image {
+  width: 22% !important;
+  padding: 0 0 0.5em 0;
+  vertical-align: top;
+}
+#checkout-review-table .product-review-image img {
+  width: 100%;
+  height: auto;
+}
+#checkout-review-table td .cell-label {
+  display: none;
+}
+#checkout-review-table tbody .product-review-description {
+  vertical-align: top;
+  padding-left: 1em;
+}
+#checkout-review-table tbody .product-review-description h3 {
+  font-size: 1em;
+}
+#checkout-review-table tbody .product-review-description .product-name {
+  margin-bottom: 5px;
+}
+#checkout-review-table tbody .product-price,
+#checkout-review-table tbody .product-review-qty,
+#checkout-review-table tbody .product-review-price {
+  vertical-align: top;
+}
+#checkout-review-table tbody tr {
+  padding: 0.5em 0;
+}
+.forgot-link {
+  display: none;
+}
+#order-comment {
+  margin: 1em 0 0;
+}
+#order-comment h3 {
+  margin-bottom: 10px;
+}
+.paypal-express-review h4,
+.paypal-express-review h5,
+.opc h4,
+.opc h5 {
+  margin-bottom: 10px;
+}
+#opc-review .checkout-agreements .agree input {
+  width: auto;
+  display: inline;
+}
+#opc-review .checkout-agreements .agree label {
+  display: inline;
+  font-weight: normal;
+}
+.paypal-express-review .totals-container .totals-block table,
+#opc-review .totals-container .totals-block table {
+  float: none;
+}
+.opc-payment li.shipping,
+.opc-payment li.payment {
+  padding: 1em;
+  margin-bottom: 1em;
+}
+.opc-payment div.guarantee {
+  margin-bottom: 0;
+}
+.adyen-pin-only .opc-payment li.payment {
+  display: none;
+}
+.modal-agreement a[href="#top"] {
+  display: none;
+}
+.paypal-express-review #checkout-agreements.mandatory li,
+#opc-review #checkout-agreements.mandatory li {
+  border: none;
+}
+#opc-review .modal-agreement .modal-body ul li {
+  padding: 0;
+  background: none;
+  margin: 0;
+}
+.buttons-set button {
+  padding: 10px;
+  border: none;
+  width: 100%;
+  font-size: 1em;
+}
+.totals-container button[type="submit"] {
+  display: none;
+}
+#opc-billing fieldset.shippingaddress input#ship_different {
+  margin-top: 0.5rem;
+}
+.cart-table .product-name a {
+  color: #333;
+}
+.cart-table .product-name .additional-info {
+  font-size: 90%;
+}
+.opc-billing .billing-address-select h3 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+.opc-payment .buttons-set .button,
+.opc-payment .buttons-set .please-wait {
+  float: none;
+}
+.totals-block tr td:last-child {
+  text-align: right;
+}
+#opc-review #review-top {
+  overflow: visible;
+}
+#opc-review #review-top #checkout-progress-wrapper {
+  display: block;
+}
+#opc-review #review-top #checkout-progress-wrapper h4 {
+  display: none;
+}
+#opc-review #review-top .opc-block-progress-review .col-1 > div,
+#opc-review #review-top .opc-block-progress-review .col-2 > div,
+#opc-review #review-top .opc-block-progress-review .col-3 > div {
+  padding: 1em;
+  margin-bottom: 1em;
+}
+#opc-review #review-top .opc-block-progress-review .col-1 a,
+#opc-review #review-top .opc-block-progress-review .col-2 a,
+#opc-review #review-top .opc-block-progress-review .col-3 a {
+  color: #337ab7;
+}
+#opc-review #review-top #payment-progress-opcheckout .changelink {
+  display: none;
+}
+#opc-review .commentbox {
+  margin-bottom: 1em;
+}
+#opc-review .commentbox h3 {
+  font-size: 18px;
+}
+.tax-container.inactive {
+  display: none;
+}
+.tax-container label em {
+  color: #DF280A;
+  float: none !important;
+}
+.form-list .customer-dob .validation-advice {
+  float: left;
+}
+/** IPAD **************************************************************************************************************/
+@media only screen and (min-device-width: 320px) and (max-device-width: 736px) {
+  #checkout-review-table tr,
+  #checkout-review-table .product-price,
+  #checkout-review-table .product-review-qty,
+  #checkout-review-table .product-review-price {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+  #checkout-review-table td .cell-label {
+    display: inline-block;
+  }
+}

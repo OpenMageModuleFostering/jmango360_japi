@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.5.5</version>
+            <version>3.6.0</version>
         </Jmango360_Japi>
     </modules>
 
@@ -30,6 +30,11 @@
                     <price>Jmango360_Japi_Model_Magpleasure_Tierprices_Price</price>
                 </rewrite>
             </tierprices>
+            <languageselector>
+                <rewrite>
+                    <observer>Jmango360_Japi_Model_Flagbit_LanguageSelector_Observer</observer>
+                </rewrite>
+            </languageselector>
         </models>
         <resources>
             <japi_setup>
@@ -66,6 +71,11 @@
             <japi>
                 <class>Jmango360_Japi_Helper</class>
             </japi>
+            <configurableswatches>
+                <rewrite>
+                    <mediafallback>Jmango360_Japi_Helper_ConfigurableSwatches_Mediafallback</mediafallback>
+                </rewrite>
+            </configurableswatches>
         </helpers>
         <events>
             <controller_front_init_before>
@@ -198,6 +208,11 @@
                         <class>japi/observer</class>
                         <method>TIG_PostNL__addDeliveryOptions</method>
                     </tig_postnl_checkout_deliveryoptions>
+                    <customcheckoutfields_commentbox_additional>
+                        <type>signleton</type>
+                        <class>japi/observer</class>
+                        <method>GGMGastro_CustomCheckoutFields__agreements</method>
+                    </customcheckoutfields_commentbox_additional>
                 </observers>
             </core_block_abstract_to_html_before>
             <customer_register_success>
@@ -236,6 +251,15 @@
                     </japi_sales_model_service_quote_submit_before>
                 </observers>
             </sales_model_service_quote_submit_before>
+            <catalog_product_load_after>
+                <observers>
+                    <japi_catalog_product_load_after>
+                        <type>model</type>
+                        <class>japi/observer</class>
+                        <method>japiCatalogProductLoadAfter</method>
+                    </japi_catalog_product_load_after>
+                </observers>
+            </catalog_product_load_after>
         </events>
         <routers>
             <japi>
@@ -398,6 +422,8 @@
                 <checkout_url></checkout_url>
                 <klarna_popup_urls></klarna_popup_urls>
                 <enable_coupon>1</enable_coupon>
+                <adyen_pin>0</adyen_pin>
+                <adyen_pin_only>1</adyen_pin_only>
             </jmango_rest_checkout_settings>
             <jmango_rest_mobile_settings>
                 <ios_scheme></ios_scheme>

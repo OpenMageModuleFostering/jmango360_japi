@@ -8,7 +8,6 @@ $buttonBgColor = '#d3d3d3';
 $buttonFgColor = '#000000';
 try {
     $data = Mage::helper('core')->jsonDecode($data);
-    $barStyle = isset($data['titleBar']) ? $data['titleBar'] : array();
     $buttonStyle = isset($data['actionbutton']) ? $data['actionbutton'] : array();
     $buttonBgColor = isset($buttonStyle['bgColor']) ? $buttonStyle['bgColor'] : $buttonBgColor;
     $buttonFgColor = isset($buttonStyle['fgColor']) ? $buttonStyle['fgColor'] : $buttonFgColor;
@@ -19,7 +18,7 @@ $customCss = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/custom_css
 $TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
 ?>
 <link type="text/css" rel="stylesheet" media="all"
-      href="<?php echo $this->getSkinUrl('japi/css/style.css?v=3.5.4') ?>"/>
+      href="<?php echo $this->getSkinUrl('japi/css/style.css?v=3.5.6') ?>"/>
 
 <?php if (Mage::helper('japi')->isModuleEnabled('GoMage_Checkout')): ?>
     <link type="text/css" rel="stylesheet" media="all"
@@ -30,6 +29,11 @@ $TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
     <link type="text/css" rel="stylesheet" media="all"
           href="<?php echo $this->getSkinUrl('japi/css/send-cloud.css') ?>"/>
 <?php endif;//END if (Mage::helper('japi')->isModuleEnabled('SendCloud_Integration')) ?>
+
+<?php if (Mage::helper('core')->isModuleEnabled('Trollweb_KCO')): ?>
+    <link type="text/css" rel="stylesheet" media="all"
+          href="<?php echo $this->getSkinUrl('japi/css/trollweb_kco.css?v=2') ?>"/>
+<?php endif ?>
 
 <style type="text/css">
     .ladda-button[data-color=jmango] {
@@ -120,6 +124,22 @@ $TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
     }
 
     <?php endif; ?>
+</style>
 
+<?php if (Mage::helper('core')->isModuleEnabled('Flagbit_Checkout')): ?>
+    <link type="text/css" rel="stylesheet" media="all"
+          href="<?php echo $this->getSkinUrl('japi/css/flagbit_checkout.css?v=9') ?>"/>
+    <style type="text/css">
+        .buttons-set button {
+            background: <?php echo $buttonBgColor ?>;
+        }
+
+        .buttons-set button span {
+            color: <?php echo  $buttonFgColor ?>;
+        }
+    </style>
+<?php endif ?>
+
+<style type="text/css">
     <?php echo $customCss ?>
 </style>

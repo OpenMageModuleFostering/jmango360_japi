@@ -186,7 +186,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $request = Mage::helper('japi')->getRequest();
 
         /* @var $toolBarBlock Mage_Catalog_Block_Product_List_Toolbar */
-        $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
+        if ($this->isModuleEnabled('Amasty_Sorting')) {
+            $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
+        } else {
+            $toolBarBlock = Mage::helper('japi')->getBlock('Mage_Catalog_Block_Product_List_Toolbar');
+        }
 
         if ($limit = $request->getParam('limit')) {
             $toolBarBlock->setDefaultListPerPage($limit);
@@ -248,8 +252,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
          * Always add sort by 'entity_id' for website http://www.gopro-mania.nl
          */
         if ($field == 'position' && ($_isUseFlatOnWeb || $this->isModuleEnabled('Samiflabs_Shopby'))) {
-            $collection->getSelect()->order('cat_index_position ' . strtoupper($direction));
-            $collection->setOrder('entity_id', 'asc');
+            if (!strpos(Mage::getBaseUrl(), 'bloomfashion.nl') && !strpos($_SERVER['HTTP_HOST'], 'motodiffusion')) {
+                $collection->getSelect()->order('cat_index_position ' . strtoupper($direction));
+                $collection->setOrder('entity_id', 'asc');
+            }
+        }
+        /**
+         * MPLUGIN-2154: Fix bloomfashion.nl ignore sort
+         */
+        if ($field && strpos(Mage::getBaseUrl(), 'bloomfashion.nl') !== false) {
+            if ($field == 'price') {
+                $collection->setOrder($toolBarBlock->getCurrentOrder(), $toolBarBlock->getCurrentDirection());
+                $collection->setOrder('entity_id', 'asc');
+            } elseif ($field != 'position') {
+                $collection->unshiftOrder($toolBarBlock->getCurrentOrder(), $toolBarBlock->getCurrentDirection());
+                $collection->setOrder('entity_id', 'asc');
+            }
         }
         /**
          * Fix list order when sort by position
@@ -263,20 +281,40 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         } else {
             $_ignoreOrder = array('position', 'entity_id', 'relevance');
         }
+        if (strpos($_SERVER['HTTP_HOST'], 'motodiffusion')) {
+            array_push(
+                $_ignoreOrder,
+                array('highlited_product', 'rewardpoints_spend', 'rating_summary')
+            );
+        }
+        if ($this->isModuleEnabled('GGMGastro_Catalog')) {
+            array_push(
+                $_ignoreOrder,
+                array('popularity_by_reviews', 'popularity_by_rating', 'popularity_by_sells')
+            );
+        }
         if (!in_array($field, $_ignoreOrder)) {
             if ($request->getParam('category_id')) {
                 if ($toolBarBlock->getCurrentOrder() != 'position')
                     $collection->setOrder('position', 'asc');
             }
+            /**
+             * Always add sort by 'entity_id' for website http://www.gopro-mania.nl
+             */
             if ($this->isModuleEnabled('Samiflabs_Shopby')) {
-                //Always add sort by 'entity_id' for website http://www.gopro-mania.nl
                 $collection->setOrder('entity_id', 'asc');
             }
+            /**
+             * Always add sort by 'entity_id' for website http://www.plusman.nl
+             */
             if ($this->isModuleEnabled('Plusman_Custom')) {
-                //Always add sort by 'entity_id' for website http://www.plusman.nl
                 $collection->setOrder('entity_id', 'asc');
             }
-            if (stripos($_SERVER['HTTP_HOST'], 'motodiffusion') >= 0) {
+
+            /**
+             * This code not affect floyd.no product ordering, it crazy
+             */
+            if (strpos(Mage::getBaseUrl(), 'floyd.no') !== false) {
                 $collection->setOrder('entity_id', 'asc');
             }
         }
@@ -416,13 +454,20 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             ->setStoreId(Mage::app()->getStore()->getId())
             ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes())
             ->addFieldToFilter('type_id', array('in' => array('simple', 'configurable', 'grouped', 'bundle')))
-            ->addMinimalPrice()
-            ->addFinalPrice()
-            ->addTaxPercents()
+            //->addMinimalPrice()
+            //->addFinalPrice()
+            //->addTaxPercents()
             ->addIdFilter($product);
 
         if (!isset($config['no_apply_hide_on_app'])) {
             $this->applyHideOnAppFilter($collection);
+        }
+
+        if (!isset($config['no_apply_price'])) {
+            $collection
+                ->addMinimalPrice()
+                ->addFinalPrice()
+                ->addTaxPercents();
         }
 
         Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($collection);
@@ -529,12 +574,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
     /**
      * @param Mage_Catalog_Model_Resource_Product_Collection $collection
-     * @param bool $details
+     * @param bool $details Is get product details request
+     * @param bool $includePrice Should include price in SQL query
      * @return array
      */
-    public function convertProductCollectionToApiResponseV2(Mage_Catalog_Model_Resource_Product_Collection $collection, $details = false)
+    public function convertProductCollectionToApiResponseV2(Mage_Catalog_Model_Resource_Product_Collection $collection, $details = false, $includePrice = true)
     {
-        $collection->applyFrontendPriceLimitations();
+        if ($includePrice) {
+            $collection->applyFrontendPriceLimitations();
+        }
 
         if ($details) {
             $attributeDetails = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/attribute_on_details');
@@ -559,7 +607,6 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         if ($attributeTag) {
             $collection->addAttributeToSelect($attributeTag);
         }
-
 
         // Append review data
         $this->addProductReview($collection);
@@ -782,23 +829,76 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             if (in_array($attributeCode, array('short_description', 'description'))) {
                 if ($attribute->getData('is_wysiwyg_enabled') == 1) {
                     $html = $this->_getCustomHtmlStyle();
-                    if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                    if ($attributeCode == 'description' && strpos($_SERVER['HTTP_HOST'], 'buyyourwine') !== false) {
                         $html .= $productHelper->productAttribute($product, $product->getData('about'), 'about');
                     } else {
                         $html .= $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
                     }
                     if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
-                        $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                        $html .= '<br />' . $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                    }
+                    /**
+                     * MPLUGIN-2275: GGM "short_description", "description"
+                     * MPLUGIN-2287: GGM "important" data
+                     */
+                    if ($attributeCode == 'description' && $this->isModuleEnabled('Flagbit_DynamicTabs')) {
+                        $html .= $productHelper->productAttribute($product, $product->getData('technical'), 'technical');
+                        $html .= '<br/><b>' . $this->__('Important') . '</b><br/><br/>';
+                        $html .= nl2br($productHelper->productAttribute($product, $product->getData('important'), 'important'));
+                    }
+                    if ($attributeCode == 'short_description' && $this->isModuleEnabled('GGMGastro_Catalog')) {
+                        $html = $this->_getCustomHtmlStyle();
+                        $html .= $this->_addDeliveryTimeHtmlGGMGastro($product);
+                        $html .= $this->_addTaxHtmlGGMGastro($product);
+                        if ($product->getBstock() == 1) {
+                            $html .= $product->getBstockDescription();
+                        } else {
+                            if (Mage::app()->getStore()->getId() == 1) {
+                                $html .= "
+<ul>
+<li>Leasing möglich</li>
+<li>Bezahlung per Rechnung möglich</li>
+<li>12 Monate Gewährleistung & Garantie auf Ersatzteile</li>
+<li><a href=\"". $this->_getUrl('service-ggm') ."\" target=\"new\" >14 Tage Rückgaberecht → Mehr Info</a></li>";
+                                if (method_exists($product, 'getbestellartikel')) {
+                                    if ($product->getbestellartikel() == 1) {
+                                        $html .= "<li>Bestellartikel → Bitte beachten Sie die gesonderten Rückgabebedingungen</li>";
+                                    }
+                                }
+
+                                $html .= "</ul>";
+                            }
+                        }
+                    }
+
+                    /**
+                     * MPLUGIN-2284: popcorn.nl show Article number on short_description
+                     */
+                    if ($attributeCode == 'short_description' && strpos($_SERVER['HTTP_HOST'], 'popcorn.nl') !== false) {
+                        $html .= '<strong>' . $productHelper->__("SKU:") . $product->getSku() . '</strong><br />';
+                    }
+                    /**
+                     * JM-250: Support Amasty Brand
+                     */
+                    if ($attributeCode == 'description' && strpos(Mage::getBaseUrl(), 'abcleksaker') !== false) {
+                        $html .= $this->_getAmastyBrand($product);
                     }
                     $result[$attributeCode] = $this->_cleanHtml($html);
                 } else {
-                    if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                    if ($attributeCode == 'description' && strpos($_SERVER['HTTP_HOST'], 'buyyourwine') !== false) {
                         $html = $product->getData('about');
+                    }
+                    if ($attributeCode == 'short_description' && strpos($_SERVER['HTTP_HOST'], 'popcorn.nl') !== false) {
+                        /**
+                         * MPLUGIN-2284: popcorn.nl show Article number on short_description
+                         */
+                        $html = '<strong>' . $productHelper->__("SKU:") . $product->getSku() . '</strong><br />';
+                        $html .= $product->getData($attributeCode);
                     } else {
                         $html = $product->getData($attributeCode);
                     }
                     if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
-                        $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                        $html .= '<br />' . $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
                     }
                     $result[$attributeCode] = $html;
                 }
@@ -839,11 +939,16 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 }
                 if ($attribute->getIsVisibleOnFront()) {
                     if (is_string($value) && strlen($value)) {
-                        $result['additional_information'][] = array(
-                            'label' => $attribute->getStoreLabel(),
-                            'value' => $value,
-                            'code' => $attributeCode
-                        );
+                        /**
+                         * MPLUGIN-2275: GGM short_description vs description
+                         */
+                        if (!$this->isModuleEnabled('Flagbit_DynamicTabs')) {
+                            $result['additional_information'][] = array(
+                                'label' => $attribute->getStoreLabel(),
+                                'value' => $value,
+                                'code' => $attributeCode
+                            );
+                        }
                     }
                 }
             } elseif ($attributeCode == $attributeListing) {
@@ -914,6 +1019,173 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         return $result;
+    }
+
+    protected function _addDeliveryTimeHtmlGGMGastro($product)
+    {
+        if (!Mage::getStoreConfigFlag('catalog/price/display_delivery_time_on_categories')) {
+            return '';
+        }
+        $website_id = Mage::app()->getWebsite()->getId();
+        $pathInfo = Mage::app()->getRequest()->getPathInfo();
+        $html = '';
+        if ($product->getDeliveryTime()) {
+            $helperdelivery = Mage::helper('magesetup');
+            if($product->getBstock() == '1'){
+                $html = '<p class="delivery-time" style="color: red;">';
+                $html .= $helperdelivery->__('Selbstabholung');
+                $html .= '</p>';
+            }else{
+                if($product->getDeliveryTimeSpan()){
+                    if($product->getDeliveryTimeSpanDays()){
+                        $html = '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                        $html .= $helperdelivery->__('Delivery Time') . ': ' . $product->getDeliveryTimeSpan();
+                        $html .= '</p>';
+                    }else{
+                        $html = '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                        $html .= $helperdelivery->__('Deliverable') . ': ' . $product->getDeliveryTimeSpan();
+                        $html .= '</p>';
+                        $html .= '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                        $html .= $helperdelivery->__('In stock') . ': ca. ' . $product->getDeliveryTime();
+                        $html .= '</p>';
+                    }
+                }else{
+                    if($website_id!=2){
+                        $del = $product->getDeliveryTime();
+
+                        if($del[0]!="2"){
+                            $html = '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                            $html .= $helperdelivery->__('Delivery Time') . ': ' . $product->getDeliveryTime();
+                            $html .= '</p>';
+                        }else{
+                            if($del == "2 - 5 Werktage"){
+                                $html = '<p class="delivery-time delivery-time-color-green">';
+                                $html .= $helperdelivery->__('Delivery Time') . ': ' . $product->getDeliveryTime();
+                                $html .= '</p>';
+                            }
+                            else {
+                                $html = '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                                $html .= $helperdelivery->__('Delivery Time') . ': ' . $product->getDeliveryTime();
+                                $html .= '</p>';
+                            }
+                        }
+                    }else{
+                        $del = $product->getDeliveryTime();
+
+                        if($del[0]!="3"){
+                            $html = '<p class="delivery-time delivery-time-color-'. $product->getDeliveryTimeColor() . '">';
+                            $html .= $helperdelivery->__('Delivery Time') . ': ' . $product->getDeliveryTime();
+                            $html .= '</p>';
+                        }else{
+                            $html = '<p class="delivery-time" style="color: red;">';
+                            $html .= $helperdelivery->__('out of stock, please ask for the delivery time');
+                            $html .= '</p>';
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return $html;
+    }
+
+    protected function _addTaxHtmlGGMGastro($product)
+    {
+        $html = '';
+        try {
+            $_priceBlock = new FireGento_MageSetup_Block_Catalog_Product_Price;
+            $_priceBlock->setData('product', $product);
+            $htmlTemplate = new Mage_Core_Block_Template;
+            $htmlTax = $htmlTemplate->setTemplate('magesetup/price_info.phtml')
+                ->setFormattedTaxRate($_priceBlock->getFormattedTaxRate())
+                ->setIsIncludingTax($_priceBlock->isIncludingTax())
+                ->setIsIncludingShippingCosts($_priceBlock->isIncludingShippingCosts())
+                ->setIsShowShippingLink($_priceBlock->isShowShippingLink())
+                ->setIsShowWeightInfo($_priceBlock->getIsShowWeightInfo())
+                ->setFormattedWeight($_priceBlock->getFormattedWeight())
+                ->setBstock($_priceBlock->getBstock())
+                ->setNoShippingPriceMessage($_priceBlock->getNoShippingPriceMessage())
+                ->toHtml();
+            $html .= $htmlTax;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return $html;
+    }
+
+    protected function _addLeasingButtonGGMGastro($product)
+    {
+        $html = '';
+        try {
+            Mage::register('product', $product);
+            $htmlTemplate = new Mage_Core_Block_Template;
+            $htmlLeasingButton = $htmlTemplate->setTemplate('flagbit/catalog/product/view/leasing/button.phtml')
+                ->toHtml();
+            $html .= $htmlLeasingButton;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return $html;
+    }
+    /**
+     * Get Amasty brand information
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return string
+     */
+    protected function _getAmastyBrand($product)
+    {
+        $html = '';
+        $brandAttr = Mage::getStoreConfig('amshopby/brands/attr', Mage::app()->getStore()->getStoreId());
+        $brandAttrValue = $product->getData($brandAttr);
+        if ($brandAttr && $brandAttrValue) {
+            $brand = false;
+
+            $filters = Mage::getResourceModel('amshopby/filter_collection')->addTitles();
+            foreach ($filters as $filter) {
+                $code = $filter->getAttributeCode();
+                if (!$code || ($code != $brandAttr)) {
+                    continue;
+                }
+                $optionCollection = Mage::getResourceModel('amshopby/value_collection')
+                    ->addPositions()
+                    ->addValue()
+                    ->addFieldToFilter('filter_id', $filter->getId())
+                    ->addFieldToFilter('option_id', $brandAttrValue)
+                    ->getFirstItem();
+                if ($optionCollection) {
+                    $brand = $optionCollection;
+                }
+            }
+
+            if ($brand && $brand->getId()) {
+                $img = false;
+                if ($brand->getImgMedium()) {
+                    $img = $brand->getImgMedium();
+                } elseif ($brand->getImgBig()) {
+                    $img = $brand->getImgBig();
+                } elseif ($brand->getImgSmall()) {
+                    $img = $brand->getImgSmall();
+                }
+
+                if ($img) {
+                    $img = Mage::getBaseUrl('media') . 'amshopby/' . $img;
+                }
+
+                $html .= sprintf('<b>%s</b><br/>', $this->__('Brand'));
+                if ($img) {
+                    $html .= sprintf('<img src="%s"/>', $img);
+                } else {
+                    $html .= sprintf('<p>%s</p>', $this->escapeHtml($brand->getCurrentTitle()));
+                }
+                if ($brand->getCurrentDescr()) {
+                    $html .= $this->escapeHtml($brand->getCurrentDescr());
+                }
+            }
+        }
+
+        return $html;
     }
 
     /**
@@ -1032,13 +1304,13 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                  * MPLUGIN-1031: Validate data of attribute
                  * Return empty data if value of attribute null or contains only html tags
                  */
-                if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                if ($attributeCode == 'description' && strpos($_SERVER['HTTP_HOST'], 'buyyourwine') !== false) {
                     $attrContent = $productHelper->productAttribute($product, $product->getData('about'), 'about');
                 } else {
                     $attrContent = $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
                 }
                 if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
-                    $attrContent .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                    $attrContent .= '<br />' . $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
                 }
                 if (!$attrContent || $attrContent == '' || trim(strip_tags($attrContent)) == '') {
                     $result[$attributeCode] = '';
@@ -1048,9 +1320,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                     $result[$attributeCode] = $this->_cleanHtml($html);
                 }
             } else {
-                $html = ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) ? $product->getData('about') : $product->getData($attributeCode);
+                $html = ($attributeCode == 'description' && strpos($_SERVER['HTTP_HOST'], 'buyyourwine') !== false) ? $product->getData('about') : $product->getData($attributeCode);
                 if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
-                    $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                    $html .= '<br />' . $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
                 }
                 $result[$attributeCode] = $html;
             }
@@ -1162,6 +1434,12 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         if ($custtomCss = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/custom_css')) {
             $css .= str_replace("\n", '', $custtomCss);
         }
+        /**
+         * MPLUGIN-2275: Stylish
+         */
+        if ($this->isModuleEnabled('Flagbit_DynamicTabs')) {
+            $css .= 'table tr th,table tr td{width:50%!important;text-align:left!important}';
+        }
         $css .= '</style>';
 
         return $css;
@@ -1179,7 +1457,12 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         if (!$html) return $html;
 
         $html = str_replace('&nbsp; ', ' ', str_replace('&nbsp;&nbsp;', ' ', $html));
-        $html = nl2br($html);
+        /**
+         * MPLUGIN-2275: Do not mess with webview
+         */
+        if (!$this->isModuleEnabled('Flagbit_DynamicTabs')) {
+            $html = nl2br($html);
+        }
 
         return $html;
     }
@@ -2076,6 +2359,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             } else {
                 return $product->getPrice();
             }
+        } elseif (
+            $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+            && $this->isModuleEnabled('Ayasoftware_SimpleProductPricing')
+        ) {
+            $prices = Mage::helper('spp')->getCheapestChildPrice($product);
+            if (is_array($prices)) {
+                return $prices['Min']['price'];
+            }
+            return $product->getPrice();
         } else {
             return $product->getPrice();
         }
@@ -2424,19 +2716,16 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         // If there are no filters, return empty array.
         if (empty($filters)) return $attributes;
 
-        foreach($filters as $filter)
-        {
-            $key = (string) $filter['key'];
-            $attributes[$key] = array('label' => (string) $filter['label']);
+        foreach ($filters as $filter) {
+            $key = (string)$filter['key'];
+            $attributes[$key] = array('label' => (string)$filter['label']);
             $attributes[$key]['options'] = array();
-            if($filter['options'])
-            {
-                foreach($filter['options'] as $option)
-                {
+            if ($filter['options']) {
+                foreach ($filter['options'] as $option) {
                     $attributes[$key]['options'][] = array(
-                        'label' => trim((string) $option['name']),
-                        'count' => trim((string) $option['count']),
-                        'selected' => trim((string) $option['selected'])
+                        'label' => trim((string)$option['name']),
+                        'count' => trim((string)$option['count']),
+                        'selected' => trim((string)$option['selected'])
                     );
                 }
             }

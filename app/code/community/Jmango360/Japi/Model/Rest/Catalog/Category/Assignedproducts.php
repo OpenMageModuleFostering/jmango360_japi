@@ -65,6 +65,9 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
          * MPLUGIN-1601: Support Amasty_Shopby
          */
         if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')) {
+            if (strpos($_SERVER['HTTP_HOST'], 'dangerousminds') !== false) {
+                return Mage::helper('japi')->getBlock('Amasty_Shopby_Block_Catalog_Layer_View_Top');
+            }
             return Mage::helper('japi')->getBlock('Amasty_Shopby_Block_Catalog_Layer_View');
         }
 
@@ -99,13 +102,18 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
     protected function _getFilters()
     {
         $data = array();
+
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+
+        if ($helper->isModuleEnabled('GGMGastro_Catalog')) {
+            return $data;
+        }
+
         $block = $this->_getLayerBlock();
         $filters = $block->getFilters();
 
         if (!$filters || !is_array($filters)) return $data;
-
-        /* @var $helper Jmango360_Japi_Helper_Data */
-        $helper = Mage::helper('japi');
 
         foreach ($filters as $key => $filter) {
             /* @var $filter Mage_Catalog_Block_Layer_Filter_Abstract */
@@ -117,7 +125,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
             ) {
                 continue;
             }
-            if ($filter->getItemsCount() && $helper->isFilterEnabled($filter, $block)) {
+            if ($helper->isFilterEnabled($filter, $block) && $filter->getItemsCount()) {
                 $filterData = $this->_filterToArray($filter);
                 if (!empty($filterData['items'])) $data[] = $filterData;
             }
@@ -139,6 +147,14 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
         $data['code'] = $filter->getAttributeModel()->getAttributeCode();
         if ($filter instanceof Amasty_Shopby_Block_Catalog_Layer_Filter_Attribute) {
             foreach ($filter->getItemsAsArray() as $item) {
+                if (empty($item['id'])) {
+                    foreach ($filter->getItems() as $oItem) {
+                        if ($oItem->getLabel() == $item['label']) {
+                            $item['id'] = $oItem->getValue();
+                            break;
+                        }
+                    }
+                }
                 $data['items'][] = array(
                     'count' => $item['countValue'],
                     'label' => $item['label'],
@@ -147,15 +163,17 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
                 );
             }
         } elseif ($filter instanceof Mage_Catalog_Block_Layer_Filter_Price) {
-            if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')
-                && class_exists('Amasty_Shopby_Model_Catalog_Layer_Filter_Price')
-            ) {
+            if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby') && class_exists('Amasty_Shopby_Model_Catalog_Layer_Filter_Price')) {
                 if ((defined('Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT') && $filter->hasDisplayType() == Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT)
                     || (defined('Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN') && $filter->hasDisplayType() == Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN)
                 ) {
                     foreach ($filter->getItems() as $item) {
                         $data['items'][] = $this->_itemToArray($item, $data['code']);
                     }
+                }
+            } else {
+                foreach ($filter->getItems() as $item) {
+                    $data['items'][] = $this->_itemToArray($item, $data['code']);
                 }
             }
         } else {
@@ -197,7 +215,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
 
         $data = array();
         $data['count'] = (int)$item->getCount();
-        $data['label'] = $_label;
+        $data['label'] = strip_tags($_label);
         $data['value'] = $_value;
         $data['url'] = null;
 

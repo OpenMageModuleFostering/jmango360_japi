@@ -36,7 +36,9 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>This username will be checked from every App while a session is set up between the App and the Magento store.</comment>
+                            <comment>This username will be checked from every App while a session is set up between the
+                                App and the Magento store.
+                            </comment>
                         </apiuser>
                         <apikey translate="label comment" module="japi">
                             <label>Api Key</label>
@@ -45,7 +47,9 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>This key will be checked from every App while a session is set up between the App and the Magento store.</comment>
+                            <comment>This key will be checked from every App while a session is set up between the App
+                                and the Magento store.
+                            </comment>
                         </apikey>
                         <use_token translate="label comment" module="japi">
                             <label>Use token for Api communications</label>
@@ -132,7 +136,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Enable this option to choose whether or not this product is visible in the app</comment>
+                            <comment>Enable this option to choose whether or not this product is visible in the app
+                            </comment>
                         </visible_on_app>
                         <!--default_direction translate="label comment" module="japi">
                             <label>Override Default Sort Direction</label>
@@ -265,7 +270,7 @@
                             </depends>
                         </checkout_url-->
                         <klarna_popup_urls translate="label comment" module="japi">
-                            <label>Klarna Popup URLs</label>
+                            <label>Popup URLs</label>
                             <frontend_type>textarea</frontend_type>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
@@ -295,6 +300,29 @@
                             <can_be_empty>1</can_be_empty>
                             <comment>This code will automatically fill the coupon field on JMango360 Checkout page</comment>
                         </coupon_code-->
+                        <!--adyen_pin translate="label comment" module="japi">
+                            <label>Enable Adyen Terminal Payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </adyen_pin>
+                        <adyen_pin_only translate="label comment" module="japi">
+                            <label>Only show Adyen Terminal Payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <depends>
+                                <adyen_pin>1</adyen_pin>
+                            </depends>
+                        </adyen_pin_only-->
                     </fields>
                 </jmango_rest_checkout_settings>
                 <!--jmango_rest_mobile_settings translate="label" module="japi">
@@ -1035,7 +1063,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment><![CDATA[Enter each line a query string.<br>Example: Filter|ContentLocale:eq:nl_NL,en_GB]]></comment>
+                            <comment>
+                                <![CDATA[Enter each line a query string.<br>Example: Filter|ContentLocale:eq:nl_NL,en_GB]]></comment>
                             <depends>
                                 <enable>1</enable>
                             </depends>
@@ -1047,7 +1076,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Customize the terms and conditions that your users will see for all submissions</comment>
+                            <comment>Customize the terms and conditions that your users will see for all submissions
+                            </comment>
                             <depends>
                                 <enable>1</enable>
                             </depends>
@@ -1125,11 +1155,35 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <can_be_empty>1</can_be_empty>
-                            <comment>List of modules need bypass session validation. Enter each line a module name, ex "TIG_PostNL"</comment>
+                            <comment>List of modules need bypass session validation. Enter each line a module name, ex
+                                "TIG_PostNL"
+                            </comment>
                         </exclude_modules>
                     </fields>
                 </jmango_rest_developer_settings>
             </groups>
         </japi>
+        <payment>
+            <groups>
+                <jmango_payment_adyen_pin type="group" translate="label">
+                    <label>Adyen Payment Terminal by JMango360</label>
+                    <frontend_type>text</frontend_type>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <sort_order>220</sort_order>
+                    <fields>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                    </fields>
+                </jmango_payment_adyen_pin>
+            </groups>
+        </payment>
     </sections>
 </config>

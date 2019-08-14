@@ -6,17 +6,27 @@
 if (Mage::helper('core')->isModuleEnabled('Nedstars_Checkout') && @class_exists('Nedstars_Checkout_Block_Onepage_Billing')) {
     class Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract extends Nedstars_Checkout_Block_Onepage_Billing
     {
-
+    }
+} elseif (@class_exists('Flagbit_Checkout_Block_Onepage_Billing')) {
+    class Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract extends Flagbit_Checkout_Block_Onepage_Billing
+    {
     }
 } else {
     class Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract extends Mage_Checkout_Block_Onepage_Billing
     {
-
     }
 }
 
 class Jmango360_Japi_Block_Checkout_Onepage_Billing extends Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract
 {
+    public function __construct()
+    {
+        if (Mage::helper('core')->isModuleEnabled('Massamarkt_Core')) {
+            $this->setTemplate('japi/checkout/onepage/massamarkt/billing.phtml');
+        }
+        parent::__construct();
+    }
+
     public function getAddress()
     {
         if (is_null($this->_address)) {

@@ -11,8 +11,10 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
     public function registerAction()
     {
         $this->loadLayout();
+        $this->_updateLayoutRegister();
         $this->getLayout()->getBlock('head')->setTitle($this->__('Create New Customer Account'));
         $session = $this->_getSession();
+        $session->setBeforeAuthUrl($this->_getUrl('*/*/register', array('_secure' => true)));
         if ($session->getIsSubmit()) {
             $session->setIsSubmit(false);
             $this->getResponse()->setHeader('JM-Account-Id', $session->getCustomerId());
@@ -465,6 +467,28 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
         }
 
         return $this->_redirect('*/*/address', array('_secure' => true, '_current' => true));
+    }
+
+    protected function _updateLayoutRegister()
+    {
+        $xml = '';
+
+        if (Mage::helper('core')->isModuleEnabled('GGMGastro_CustomCheckoutFields')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><script>GGMGastro/CustomCheckoutFields/AdditionalFields.js</script></action>
+</reference>
+<reference name=\"customer_form_register\">
+    <action method=\"setTemplate\"><template>persistent/customer/form/register.phtml</template></action>
+</reference>";
+        }
+
+        try {
+            $this->getLayout()->getUpdate()->addUpdate($xml);
+            $this->generateLayoutXml()->generateLayoutBlocks();
+        } catch (Exception $e) {
+            Mage::logException($e);
+        }
     }
 
     protected function _updateLayout()
