@@ -44,7 +44,7 @@
                 <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/modal.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
-                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=2.9.2</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.0.4</file></action>
             </block>
             <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
                 <label>Page Top</label>
@@ -86,6 +86,8 @@
                 </block>
                 <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="japi/checkout/onepage/payment.phtml">
                     <block type="checkout/onepage_payment_methods" name="checkout.onepage.payment.methods" as="methods" template="japi/checkout/onepage/payment/info.phtml"/>
+                    <block type="core/template" name="checkout.onepage.payment.additional" as="additional" />
+                    <block type="core/template" name="checkout.onepage.payment.methods_additional" as="methods_additional" />
                 </block>
                 <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="japi/checkout/onepage/review.phtml"/>
             </block>

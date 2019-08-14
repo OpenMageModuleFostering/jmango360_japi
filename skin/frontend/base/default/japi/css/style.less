@@ -266,6 +266,11 @@ a, a:focus, a:hover {
 }
 
 .modal-agreement {
+  .modal-title {
+    font-size: 30px;
+    line-height: 1;
+  }
+
   .modal-dialog {
     margin: 0;
 
@@ -1261,6 +1266,196 @@ span.price {
     label {
       vertical-align: middle;
       margin: 0;
+    }
+  }
+}
+
+/******** Kega_Checkout ***********/
+.personal.register-form {
+  > h3 {
+    margin-bottom: 10px;
+  }
+  ul li.clearfix {
+    margin: 1em 0;
+  }
+}
+
+.customer-name-middlename.field-count-3 > div {
+  margin-top: 1em;
+}
+
+.adresssearch-address-order {
+  .address-street, .address-city {
+    margin-top: 1em;
+  }
+  .address-autofill > label {
+    display: block;
+    em {
+      float: none;
+    }
+  }
+  .address-postcode label, .street-number label, .street-addition label {
+    display: none;
+  }
+  .address-postcode, .street-number, .street-addition {
+    width: 32%;
+    display: inline-block;
+    vertical-align: top;
+  }
+  input.small {
+    font-size: 100%;
+  }
+}
+
+.billing-address-details.register-form {
+  #store_pickup_id_wrapper,
+  #store_pickup_id_wrapper input,
+  #additional_data_wrapper,
+  #additional_data_wrapper input {
+    display: none;
+  }
+
+  label[for="billing:telephone"] {
+    margin-top: 1em;
+  }
+
+  .new-account-guest-checkout-options {
+    display: none;
+  }
+
+  .control.field.newsletter {
+    input, label {
+      display: inline;
+    }
+  }
+}
+
+.shipping-methods {
+  .shipping-intro {
+    padding: 1em;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+  .shipping-container {
+    h3 {
+      font-size: 1em;
+      font-weight: bold;
+    }
+    .shipping-address-form {
+      padding: 0 1em 0 2em;
+      margin-left: 5px;
+    }
+    .store-pickup-fieldset {
+      > ul li {
+        padding: 0 !important;
+        margin-bottom: 1em;
+      }
+      label[for="store-pickup-store-select"] {
+        display: block;
+      }
+      .store-pickup-postcode-search {
+        > div {
+          width: 49%;
+          display: inline-block;
+        }
+        button.store-pickup-find {
+          padding: 4px 5px;
+        }
+      }
+      .store-pickup-results .store {
+        span {
+          display: block;
+        }
+        span.name {
+          font-weight: bold;
+          display: inline;
+        }
+      }
+    }
+    .shipping_method_kega_tnt_direct {
+      .address-view {
+        padding: 0;
+      }
+      .shipping-new-address-form {
+        padding: 0;
+      }
+      fieldset ul li {
+        padding: 0;
+      }
+      .customer-name-middlename > div:first-child {
+        margin-top: 0;
+      }
+      label[for="shipping:kega_tnt_direct-company"],
+      label[for="shipping:kega_tnt_direct-telephone"],
+      label[for="shipping:kega_tnt_direct-postcode"] {
+        margin: 1em 0 0 0;
+        display: block;
+        em {
+          float: none;
+        }
+      }
+      .use-billing-address-link {
+        padding: 1em 1em 0 0;
+      }
+    }
+  }
+}
+
+#checkout-payment-method-load {
+  h3.header {
+    margin-bottom: 10px;
+  }
+  .address-wrapper {
+    p.header {
+      font-weight: bold;
+    }
+    address {
+      margin: 0;
+      span {
+        display: block;
+      }
+    }
+    > div {
+      margin-bottom: 1em;
+      border: 1px solid #d9d9d9;
+      padding: 1em;
+    }
+  }
+  .payment-details {
+    h3 {
+      font-size: 1em;
+      text-transform: uppercase;
+    }
+    dl {
+      border: 1px solid #d9d9d9;
+      dt {
+        border-bottom: 1px solid #d9d9d9;
+        padding: .5em;
+        display: table;
+        width: 100%;
+        &:last-child {
+          border-bottom: none;
+        }
+        input {
+          display: table-cell;
+        }
+        label {
+          display: table-cell;
+          width: 100%;
+          padding-left: 10px;
+          span {
+            font-weight: normal;
+          }
+        }
+      }
+      dd {
+        &.active {
+          padding: 1em;
+          border-bottom: 1px solid #d9d9d9;
+        }
+      }
     }
   }
 }

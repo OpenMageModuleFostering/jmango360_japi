@@ -10,6 +10,10 @@ class Jmango360_Japi_Model_Rest_Product_List extends Jmango360_Japi_Model_Rest_C
         $helper = Mage::helper('japi/product');
 
         if (is_object($category) && $category->getId()) {
+            if ($helper->isModuleEnabled('Emico_Tweakwise')) {
+                return $helper->getProductCollectionFromEmicoTweakwise();
+            }
+
             $block = $this->_getListBlock();
             $productCollection = $block->getLayer()->getProductCollection();
             Mage::helper('japi/product')->applyHideOnAppFilter($productCollection);

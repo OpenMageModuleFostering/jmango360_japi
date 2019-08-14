@@ -2,16 +2,10 @@
 /**
  * Copyright 2016 JMango360
  */
+?>
+<?php
 /* @var $this Jmango360_Japi_Block_Banner */
-
-$request = Mage::app()->getRequest();
-if ($request->getModuleName() == 'japi') return;
-
-/* @var $server Jmango360_Japi_Model_Server */
-$server = Mage::getSingleton('japi/server');
-if ($server->getIsRest()) return;
-
-if (!Mage::getStoreConfigFlag('japi/jmango_smart_app_banner/enable')) return;
+if (!$this->isShow()) return;
 ?>
 <meta name="apple-itunes-app"
       content="app-id=<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/ios_app_id') ?>">

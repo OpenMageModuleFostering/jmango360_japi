@@ -110,6 +110,12 @@ class Jmango360_Japi_Model_Observer
         }
     }
 
+    protected function _getOrderIncrementIdById($orderId)
+    {
+        if (!$orderId) return null;
+        return Mage::getResourceModel('sales/order')->getIncrementId($orderId);
+    }
+
     public function setOrderIdToHeader()
     {
         /* @var $server Jmango360_Japi_Model_Server */
@@ -118,6 +124,9 @@ class Jmango360_Japi_Model_Observer
             /* @var $session Mage_Checkout_Model_Session */
             $session = Mage::getSingleton('checkout/session');
             $lastRealOrderId = $session->getLastRealOrderId();
+            if (!$lastRealOrderId) {
+                $lastRealOrderId = $this->_getOrderIncrementIdById($session->getLastOrderId());
+            }
             if ($lastRealOrderId) {
                 Mage::app()->getFrontController()->getResponse()->setHeader('Last-Real-Order-Id', $lastRealOrderId, true);
             }
@@ -139,6 +148,9 @@ class Jmango360_Japi_Model_Observer
             /* @var $session Mage_Checkout_Model_Session */
             $session = Mage::getSingleton('checkout/session');
             $lastRealOrderId = $session->getLastRealOrderId();
+            if (!$lastRealOrderId) {
+                $lastRealOrderId = $this->_getOrderIncrementIdById($session->getLastOrderId());
+            }
             if ($lastRealOrderId) {
                 $block = $layout->createBlock('core/text');
                 $block->setText(sprintf('<meta name="%s" content="%s">', 'last-real-order-id', $lastRealOrderId));
@@ -543,22 +555,6 @@ class Jmango360_Japi_Model_Observer
     }
 
     /**
-     * Support TIG_PostNL
-     *
-     * @param Varien_Event_Observer $observer
-     * @return $this
-     */
-    public function TIG_PostNL__saveOrderOptions(Varien_Event_Observer $observer)
-    {
-        if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL'))
-            return $this;
-
-        /* @var $obj TIG_PostNL_Model_DeliveryOptions_Observer_UpdatePostnlOrder */
-        $obj = Mage::getSingleton('postnl_deliveryoptions/observer_updatePostnlOrder');
-        $obj->saveOptions($observer);
-    }
-
-    /**
      * Support Vaimo_Klarna
      *
      * @param Varien_Event_Observer $observer
@@ -626,6 +622,64 @@ class Jmango360_Japi_Model_Observer
 
         if (method_exists($obj, 'applyLandingPageModelRewrites')) {
             $obj->applyLandingPageModelRewrites($observer);
+        }
+    }
+
+    /**
+     * MPLUGIN-1412: Support Kega_Checkout
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function controllerActionPredispatchCheckoutOnepageSaveShippingMethod(Varien_Event_Observer $observer)
+    {
+        if (Mage::helper('core')->isModuleEnabled('Kega_Checkout')) {
+            /* @var $obj Kega_Checkout_Model_Onepage_Observer */
+            $obj = Mage::getSingleton('kega_checkout/onepage_observer');
+
+            if (method_exists($obj, 'correctAddressData')) {
+                $obj->correctAddressData($observer);
+            }
+
+            if (method_exists($obj, 'saveShippingAddress')) {
+                $obj->saveShippingAddress($observer);
+            }
+        }
+
+        if (Mage::helper('core')->isModuleEnabled('Kega_StorePickup')) {
+            /* @var $obj Kega_StorePickup_Model_Observer */
+            $obj = Mage::getSingleton('storepickup/observer');
+
+            if (method_exists($obj, 'saveStorePickupToQuote')) {
+                $obj->saveStorePickupToQuote($observer);
+            }
+        }
+    }
+
+    /**
+     * Support TIG_PostNL
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function controllerActionPostdispatchCheckoutOnepageSaveShippingMethod(Varien_Event_Observer $observer)
+    {
+        if (Mage::helper('core')->isModuleEnabled('TIG_PostNL')) {
+            /* @var $obj TIG_PostNL_Model_DeliveryOptions_Observer_UpdatePostnlOrder */
+            $obj = Mage::getSingleton('postnl_deliveryoptions/observer_updatePostnlOrder');
+
+            if (method_exists($obj, 'saveOptions')) {
+                $obj->saveOptions($observer);
+            }
+        }
+
+        if (Mage::helper('core')->isModuleEnabled('Kega_Checkout')) {
+            /* @var $obj Kega_Checkout_Model_Onepage_Observer */
+            $obj = Mage::getSingleton('kega_checkout/onepage_observer');
+
+            if (method_exists($obj, 'applyShippingErrors')) {
+                $obj->applyShippingErrors($observer);
+            }
         }
     }
 }

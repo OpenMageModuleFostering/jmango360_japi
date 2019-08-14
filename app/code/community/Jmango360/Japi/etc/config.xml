@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.0.3</version>
+            <version>3.0.4</version>
         </Jmango360_Japi>
     </modules>
 
@@ -93,21 +93,20 @@
                     </vaimo_klarna>
                 </observers>
             </controller_action_predispatch_checkout_klarna_success>
-            <!--controller_action_predispatch_japi_checkout_onepage>
+            <controller_action_predispatch_japi_checkout_saveShippingMethod>
                 <observers>
-                    <vaimo_klarna>
-                        <type>singleton</type>
+                    <kega_checkout_correctaddressdata>
                         <class>japi/observer</class>
-                        <method>Vaimo_Klarna__checkLaunchKlarnaCheckout</method>
-                    </vaimo_klarna>
+                        <method>controllerActionPredispatchCheckoutOnepageSaveShippingMethod</method>
+                    </kega_checkout_correctaddressdata>
                 </observers>
-            </controller_action_predispatch_japi_checkout_onepage-->
+            </controller_action_predispatch_japi_checkout_saveShippingMethod>
             <controller_action_postdispatch_japi_checkout_saveShippingMethod>
                 <observers>
                     <tig_postnl>
                         <type>singleton</type>
                         <class>japi/observer</class>
-                        <method>TIG_PostNL__saveOrderOptions</method>
+                        <method>controllerActionPostdispatchCheckoutOnepageSaveShippingMethod</method>
                     </tig_postnl>
                 </observers>
             </controller_action_postdispatch_japi_checkout_saveShippingMethod>

@@ -93,10 +93,23 @@ if (typeof Checkout !== "undefined") {
             }
 
             ['billing', 'shipping'].each(function (section) {
-                $(section + '-buttons-container').select('button').each(function (button) {
+                $(section + '-buttons-container') && $(section + '-buttons-container').select('button').each(function (button) {
                     $(button).setAttribute('id', section + '-button');
                     this.getLaddaButton(button);
                 }.bind(this));
+            }.bind(this));
+
+            /**
+             * Kega_Checkout: Bind some shortcut links
+             */
+            document.on('click', '#edit-billing-address', function () {
+                this.gotoSection('billing');
+            }.bind(this));
+            document.on('click', '#edit-shipping-address', function () {
+                this.gotoSection('billing');
+            }.bind(this));
+            document.on('click', '#edit-shipping-method', function () {
+                this.gotoSection('shipping_method');
             }.bind(this));
         },
 
@@ -149,7 +162,7 @@ if (typeof Checkout !== "undefined") {
         },
 
         allowSection: function (section) {
-            $('opc-' + section).addClassName('allow');
+            $('opc-' + section) && $('opc-' + section).addClassName('allow');
             this.accordion.find('#checkout-step-' + section).collapse({
                 parent: this.accordion,
                 toggle: false
@@ -391,6 +404,49 @@ if (typeof Payment !== 'undefined') {
 
         checkout.setStepResponse(response);
         //checkout.setPayment();
+    };
+
+    /**
+     * Kega_Checkout: Add additional validation functions to payment step
+     */
+    Payment.prototype.addMoreValidateFunction = function (code, func) {
+        if (!this.moreValidateFunc) this.moreValidateFunc = $H({});
+        this.moreValidateFunc.set(code, func);
+    };
+
+    /**
+     * Kega_Checkout: Validate additional validation functions
+     */
+    Payment.prototype.moreValidate = function () {
+        var validateResult = true;
+        if (!this.moreValidateFunc) this.moreValidateFunc = $H({});
+        (this.moreValidateFunc).each(function (validate) {
+            if ((validate.value)() == false) {
+                validateResult = false;
+            }
+        }.bind(this));
+        return validateResult;
+    };
+
+    /**
+     * Kega_Checkout: Run additional validations
+     */
+    Payment.prototype.save = function () {
+        if (checkout.loadWaiting != false) return;
+        var validator = new Validation(this.form);
+        if (this.validate() && this.moreValidate() && validator.validate()) {
+            checkout.setLoadWaiting('payment');
+            var request = new Ajax.Request(
+                this.saveUrl,
+                {
+                    method: 'post',
+                    onComplete: this.onComplete,
+                    onSuccess: this.onSave,
+                    onFailure: checkout.ajaxFailure.bind(checkout),
+                    parameters: Form.serialize(this.form)
+                }
+            );
+        }
     };
 }
 

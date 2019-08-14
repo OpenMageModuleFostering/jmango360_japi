@@ -373,14 +373,43 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      * Apply filter 'hide_in_jm360'
      *
      * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     * @return Mage_Catalog_Model_Resource_Product_Collection|null
      */
     public function applyHideOnAppFilter($collection)
     {
-        if (!$collection) return;
+        if (!$collection) return null;
+
         $collection->addAttributeToFilter(array(
             array('attribute' => 'hide_in_jm360', 'null' => true),
             array('attribute' => 'hide_in_jm360', 'eq' => 0)
         ), null, 'left');
+
+        return $collection;
+    }
+
+    /**
+     * Apply filter product types: simple, configurable, grouped, bundle
+     *
+     * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     * @return Mage_Catalog_Model_Resource_Product_Collection|null
+     */
+    public function applySupportedProductTypes($collection)
+    {
+        if (!$collection) return null;
+
+        /* @var $resource Mage_Core_Model_Resource */
+        $resource = Mage::getSingleton('core/resource');
+        $collection->getSelect()
+            ->join(
+                array('p' => $resource->getTableName('catalog/product')),
+                sprintf(
+                    'e.entity_id = p.entity_id AND p.type_id IN (%s)',
+                    join(',', array('"simple"', '"configurable"', '"grouped"', '"bundle"'))
+                ),
+                null
+            );
+
+        return $collection;
     }
 
     /**
@@ -930,6 +959,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
     /**
      * Remove: &nbsp;
+     * Convert: nl2br
      *
      * @param string $html
      * @return string
@@ -937,7 +967,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected function _cleanHtml($html)
     {
         if (!$html) return $html;
-        return str_replace('&nbsp; ', ' ', str_replace('&nbsp;&nbsp;', ' ', $html));
+
+        $html = str_replace('&nbsp; ', ' ', str_replace('&nbsp;&nbsp;', ' ', $html));
+        $html = nl2br($html);
+
+        return $html;
     }
 
     /**
@@ -1758,5 +1792,160 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     public function getProductImage($product)
     {
         return $this->_getProductImage($product);
+    }
+
+    /**
+     * Support Emico_Tweakwise catalog storage engine
+     *
+     * @param bool $isSearch Is search API
+     * @return array
+     * @throws Jmango360_Japi_Exception
+     */
+    public function getProductCollectionFromEmicoTweakwise($isSearch = false)
+    {
+        if (!$this->isModuleEnabled('Emico_Tweakwise') || !$this->isModuleEnabled('Emico_TweakwiseExport')) {
+            throw new Jmango360_Japi_Exception(
+                $this->__('Module(s) %s not found.', 'Emico_Tweakwise, Emico_TweakwiseExport'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        /* @var $emicoExportHelper Emico_TweakwiseExport_Helper_Data */
+        $emicoExportHelper = Mage::helper('emico_tweakwiseexport');
+
+        /* @var $layer Emico_Tweakwise_Model_Catalog_Layer */
+        $layer = Mage::getSingleton('emico_tweakwise/catalog_layer');
+
+        $products = $layer->getProducts();
+        $ids = array();
+        foreach ($products as $product) {
+            if ($product instanceof Emico_Tweakwise_Model_Bus_Type_Item) {
+                $ids[] = $emicoExportHelper->fromStoreId($product->getId());
+            } elseif ($product->getId()) {
+                $ids[] = $product->getId();
+            }
+        }
+
+        if (empty($ids)) {
+            $ids[] = 0;
+        }
+
+        /* @var $category Mage_Catalog_Model_Category */
+        if ($isSearch) {
+            $category = Mage::getModel('catalog/category');
+        } else {
+            $category = Mage::registry('current_category');
+        }
+
+        /* @var $productCollection Mage_Catalog_Model_Resource_Product_Collection */
+        $productCollection = Mage::getResourceModel('catalog/product_collection')
+            ->setStoreId(Mage::app()->getStore()->getId())
+            ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes())
+            ->addMinimalPrice()
+            ->addFinalPrice()
+            ->addTaxPercents()
+            ->addIdFilter($ids);
+
+        if ($category->getId()) {
+            $productCollection->addCategoryFilter($category)
+                ->addUrlRewrite($category->getId());
+        }
+
+        Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($productCollection);
+        Mage::getSingleton('catalog/product_visibility')->addVisibleInCatalogFilterToCollection($productCollection);
+        $this->applySupportedProductTypes($productCollection);
+        $this->applyHideOnAppFilter($productCollection);
+
+        /**
+         * Keep collection ordered
+         */
+        $orderString = array('CASE e.entity_id');
+        foreach ($ids as $i => $id) {
+            $orderString[] = 'WHEN ' . $id . ' THEN ' . $i;
+        }
+        $orderString[] = 'END';
+        $orderString = implode(' ', $orderString);
+        $productCollection->getSelect()->order(new Zend_Db_Expr($orderString));
+
+        if (!$productCollection->getSize()) {
+            $data['message'] = Mage::helper('japi')->__($isSearch ? 'Your search returns no results.' : 'No products found.');
+        }
+
+        /**
+         * Get filters (facets)
+         */
+        $requestParams = Mage::helper('japi')->getRequest()->getParams();
+        foreach ($layer->getFacets() as $facet) {
+            if ($facet->getFacetSettings()->getIsVisible()) {
+                if (!$facet->isCategory() && !$facet->isTree() && !$facet->isSlider()) {
+                    if (count($facet->getAttributes()) > 0) {
+                        $facetSettings = $facet->getFacetSettings();
+                        $code = $facetSettings->getUrlKey();
+
+                        /**
+                         * Simple logic to not support multiselect filter
+                         */
+                        if (array_key_exists($code, $requestParams)) continue;
+
+                        $filter = array(
+                            'name' => Mage::helper('catalog')->__($facetSettings->getTitle()),
+                            'code' => $code
+                        );
+                        foreach ($facet->getAttributes() as $item) {
+                            $label = Zend_Filter::filterStatic(
+                                $facetSettings->getPrefix() . ' ' . $item->getTitle() . ' ' . $facetSettings->getPostfix(),
+                                'StringTrim'
+                            );
+                            $filter['items'][] = array(
+                                'label' => $label,
+                                'value' => $item->getTitle(),
+                                'count' => $item->getNumberOfResults()
+                            );
+                        }
+
+                        $data['filters'][] = $filter;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Get paging data
+         */
+        $responseProperties = $layer->getTweakwiseResponse()->getProperties();
+        $toolbarInfo = array(
+            'current_page_num' => $responseProperties->getCurrentPage(),
+            'last_page_num' => $responseProperties->getNumberOfPages(),
+            'current_limit' => $responseProperties->getPageSize(),
+            'available_limit' => null,
+            'current_order' => null,
+            'current_direction' => null
+        );
+        foreach ($responseProperties->getSortFields() as $sortField) {
+            $toolbarInfo['available_orders'][$sortField->getTitle()] = Mage::helper('catalog')->__($sortField->getDisplayTitle());
+            if ($sortField->getIsSelected()) {
+                $toolbarInfo['current_order'] = $sortField->getTitle();
+                $toolbarInfo['current_direction'] = strtolower($sortField->getOrder());
+            }
+        }
+        if (empty($toolbarInfo['available_orders'])) {
+            $toolbarInfo['available_orders'] = null;
+        }
+        if (empty($toolbarInfo['current_order'])) {
+            foreach ($responseProperties->getSortFields() as $sortField) {
+                if ($responseProperties->getPageUrl() == $sortField->getUrl()) {
+                    $toolbarInfo['current_order'] = $sortField->getTitle();
+                    $toolbarInfo['current_direction'] = strtolower($sortField->getOrder());
+                }
+            }
+        }
+        $data['toolbar_info'] = $toolbarInfo;
+
+        /**
+         * Get products data
+         */
+        $data['products'] = $this->convertProductCollectionToApiResponseV2($productCollection);
+
+        return $data;
     }
 }

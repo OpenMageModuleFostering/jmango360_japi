@@ -339,6 +339,77 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Kega_Checkout')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <name>js/kega_theme/vendor/magnific.popup.min.js</name>
+    </action>
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <name>js/kega_checkout/main.js</name>
+    </action>
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <name>js/kega_form/main.js</name>
+    </action>
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <name>js/terstal_form/main.js</name>
+    </action>
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <name>js/kega_form/address-search.js</name>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.billing\">
+    <action method=\"setTemplate\">
+        <template>kega_checkout/onepage/billing.phtml</template>
+    </action>
+    <block type=\"checkout/onepage\" name=\"newsletter_subscription\"
+        template=\"kega_checkout/onepage/newsletter_subscription.phtml\" />
+    <block type=\"core/text_list\" name=\"checkout_billing_before_form\"/>
+    <block type=\"core/text_list\" name=\"checkout_after_before_form\"/>
+</reference>
+<reference name=\"checkout.onepage.shipping_method\">
+    <remove name=\"checkout.onepage.shipping_method.additional\"/>
+</reference>
+<reference name=\"checkout.onepage.shipping_method.available\">
+    <action method=\"setTemplate\">
+        <template>kega_checkout/onepage/shipping_method/available.phtml</template>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.payment\">
+    <action method=\"setTemplate\">
+        <template>japi/kega_checkout/onepage/payment.phtml</template>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.payment.additional\">
+    <block type=\"checkout/agreements\" name=\"checkout.onepage.agreements\" as=\"additional\"
+        template=\"japi/checkout/onepage/agreements.phtml\"/>
+</reference>
+<reference name=\"before_body_end\">
+    <block type=\"kega_form/attributes\" name=\"kega.form.attributes\" template=\"kega_form/attributes.phtml\"/>
+    <block type=\"kega_form/address_search\" name=\"address_search\" template=\"kega_form/address-search.phtml\"/>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Kega_StorePickup')) {
+            $xml .= "
+<reference name=\"head\">
+<block type=\"core/template\" name=\"google.maps.js\" template=\"kega_store/js/maps.phtml\"/>
+<action method=\"addItem\">
+    <type>skin_js</type>
+    <name>js/kega_storepickup/main.js</name>
+</action>
+</reference>
+<reference name=\"checkout.onepage.shipping_method.available\">
+    <block type=\"storepickup/checkout_onepage_shipping_storepickup_storelist\" name=\"kega_storepickup_delivery\"
+           template=\"kega_storepickup/form.phtml\"/>
+</reference>";
+        }
+
         if (Mage::getEdition() == Mage::EDITION_ENTERPRISE) {
             $xml .= "
 <reference name=\"content\">

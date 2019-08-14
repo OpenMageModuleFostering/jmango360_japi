@@ -11,10 +11,16 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
         $searchHelper = Mage::helper('catalogsearch');
         /* @var $query Mage_CatalogSearch_Model_Query */
         $query = $searchHelper->getQuery();
+        /* @var $helper Jmango360_Japi_Helper_Product */
+        $helper = Mage::helper('japi/product');
 
         $query->setStoreId(Mage::app()->getStore()->getId());
         $data = array();
         if ($query->getQueryText() != '') {
+            if ($helper->isModuleEnabled('Emico_Tweakwise')) {
+                return $helper->getProductCollectionFromEmicoTweakwise(true);
+            }
+
             if ($searchHelper->isMinQueryLength()) {
                 $query->setId(0)
                     ->setIsActive(1)
@@ -29,12 +35,10 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
                 $query->prepare();
             }
 
-            $helper = Mage::helper('japi/product');
-            /* @var $helper Jmango360_Japi_Helper_Product */
             $block = $this->_getSearchLayerBlock();
             /* @var $productCollection Mage_Catalog_Model_Resource_Product_Collection */
             $productCollection = $block->getLayer()->getProductCollection();
-            Mage::helper('japi/product')->applyHideOnAppFilter($productCollection);
+            $helper->applyHideOnAppFilter($productCollection);
 
             /* @var $resource Mage_Core_Model_Resource */
             $resource = Mage::getSingleton('core/resource');
