@@ -11,6 +11,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
     const URL_STAGING = 'https://stg.api.bazaarvoice.com/';
     const URL_PRODUCTION = 'https://api.bazaarvoice.com/';
     const API_VERSION = '5.4';
+    const XML_PATH_FQ = 'japi/jmango_rest_bazaarvoice_settings/fq';
 
     const DEFAULT_LIMIT = 99;
     const DEFAULT_SORT = 'relevancy';
@@ -121,15 +122,14 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         }
         $locale = Mage::app()->getLocale()->getLocaleCode();
         $apikey = $this->_getApiKey();
+        $filters = array(sprintf('productid:eq:%s', join(',', array_keys($productIds))));
+        $filters = array_merge($filters, $this->_getAdditinalFilters());
         $url = $this->_getApiUrl('data/batch.json', array(
             'passkey' => $apikey,
             'apiVersion' => self::API_VERSION,
             'resource.q0' => 'statistics',
             'stats.q0' => 'reviews',
-            'filter.q0' => array(
-                sprintf('contentlocale:eq:%s', $locale),
-                sprintf('productid:eq:%s', join(',', array_keys($productIds)))
-            ),
+            'filter.q0' => $filters,
             'filter_reviews.q0' => sprintf('contentlocale:eq:%s', $locale)
         ));
 
@@ -189,15 +189,14 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         }
 
         $productId = $this->getBvProductId($product);
+        $filters = array(sprintf('ProductId:%s', $productId));
+        $filters = array_merge($filters, $this->_getAdditinalFilters());
 
         $apiKey = $this->_getApiKey();
         $url = $this->_getApiUrl('data/reviews.json', array(
             'apiVersion' => '5.4',
             'passkey' => $apiKey,
-            'Filter' => array(
-                sprintf('ProductId:%s', $productId),
-                sprintf('ContentLocale:eq:%s', Mage::app()->getLocale()->getLocaleCode())
-            ),
+            'Filter' => $filters,
             'Sort' => $this->_getReviewsSort(),
             'Offset' => $this->_getReviewsOffset(),
             'Limit' => $this->_getReviewsLimit(),
@@ -929,7 +928,33 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
     protected function _getReviewsSort()
     {
+        $fq = Mage::getStoreConfig(self::XML_PATH_FQ);
+        $lines = explode("\n", $fq);
+        foreach ($lines as $line) {
+            if (!$line) continue;
+            list($param, $value) = explode('|', $line);
+            if ($param && $param == 'Sort' && $value) {
+                return $value;
+            }
+        }
+
         return sprintf('%s:%s', self::DEFAULT_SORT, self::DEFAULT_DIR);
+    }
+
+    protected function _getAdditinalFilters()
+    {
+        $fq = Mage::getStoreConfig(self::XML_PATH_FQ);
+        $lines = explode("\n", $fq);
+        $filters = array();
+        foreach ($lines as $line) {
+            if (!$line) continue;
+            list ($param, $value) = explode('|', $line);
+            if ($param && $param == 'Filter' && $value) {
+                $filters[] = $value;
+            }
+        }
+
+        return $filters;
     }
 
     protected function _getApiUrl($uri = null, $params = array())

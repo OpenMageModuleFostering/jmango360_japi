@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.5.0</version>
+            <version>3.5.1</version>
         </Jmango360_Japi>
     </modules>
 
@@ -463,6 +463,7 @@
                 <tc></tc>
                 <rating_label></rating_label>
                 <displaycode></displaycode>
+                <fq></fq>
             </jmango_rest_bazaarvoice_settings>
             <jmango_rest_developer_settings>
                 <enable>0</enable>

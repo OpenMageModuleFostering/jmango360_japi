@@ -114,10 +114,17 @@ if (typeof Checkout !== "undefined") {
             }
 
             ['billing', 'shipping'].each(function (section) {
-                $(section + '-buttons-container') && $(section + '-buttons-container').select('button').each(function (button) {
-                    $(button).setAttribute('id', section + '-button');
-                    this.getLaddaButton(button);
-                }.bind(this));
+                /**
+                 * Fix site with double #ID, you evil.
+                 */
+                if ($$('#' + section + '-buttons-container').length) {
+                    $$('#' + section + '-buttons-container').each(function (buttonsSection) {
+                        $(buttonsSection).select('button').each(function (button) {
+                            $(button).setAttribute('id', section + '-button');
+                            this.getLaddaButton(button);
+                        }.bind(this));
+                    }.bind(this));
+                }
             }.bind(this));
 
             /**
@@ -291,7 +298,24 @@ if (typeof Checkout !== "undefined") {
 
             if (typeof shippingMethod == 'undefined') return;
             checkout.gotoSection('shipping_method');
-            shippingMethod.load(this.shippingMethodUrl);
+            this.loadShippingMethod(this.shippingMethodUrl);
+        },
+
+        loadShippingMethod: function (url) {
+            if (this.loadWaiting != false || !url) return;
+            var additionalElm = $('onepage-checkout-shipping-method-additional-load');
+            additionalElm && additionalElm.hide();
+            checkout.setLoadWaiting('shipping-method');
+            new Ajax.Request(url, {
+                method: 'get',
+                onComplete: function () {
+                    checkout.setLoadWaiting(false);
+                    additionalElm && additionalElm.show();
+                },
+                onSuccess: function (transport) {
+                    billing && billing.nextStep(transport);
+                }
+            });
         }
     });
 }
@@ -396,23 +420,6 @@ if (typeof ShippingMethod !== 'undefined') {
         checkout.setShippingMethod();
 
         payment.initWhatIsCvvListeners();
-    };
-
-    ShippingMethod.prototype.load = function (url) {
-        if (checkout.loadWaiting != false || !url) return;
-        var additionalElm = $('onepage-checkout-shipping-method-additional-load');
-        additionalElm && additionalElm.hide();
-        checkout.setLoadWaiting('shipping-method');
-        new Ajax.Request(url, {
-            method: 'get',
-            onComplete: function () {
-                checkout.setLoadWaiting(false);
-                additionalElm && additionalElm.show();
-            },
-            onSuccess: function (transport) {
-                billing && billing.nextStep(transport);
-            }
-        });
     };
 }
 

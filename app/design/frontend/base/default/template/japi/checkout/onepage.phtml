@@ -69,13 +69,10 @@
         editAddressUrl: '<?php echo $this->getUrl('japi/customer/address', array('_secure' => true)) ?>'
     });
     <?php if (!$error): ?>
-        <?php if (Mage::getSingleton('core/session')->getData('is_address_update')): ?>
-            <?php if ($this->getQuote()->getBillingAddress()->getCountryId()): ?>
-                <?php Mage::getSingleton('core/session')->setData('is_address_update', false) ?>
-                document.observe("dom:loaded", function () {
-                    checkout.gotoShippingMethodSection();
-                });
-            <?php endif ?>
+        <?php if (Mage::helper('japi')->isAddressesReady()): ?>
+            document.observe("dom:loaded", function () {
+                checkout.gotoShippingMethodSection();
+            });
         <?php elseif (Mage::getSingleton('core/session')->getData('is_shipping_address_update')): ?>
             <?php Mage::getSingleton('core/session')->unsetData('is_shipping_address_update') ?>
             document.observe("dom:loaded", function () {

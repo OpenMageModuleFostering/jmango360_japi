@@ -1208,4 +1208,35 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfigFlag('japi/jmango_rest_bazaarvoice_settings/enable');
     }
+
+    /**
+     * Get layout direction RTL or LTR
+     *
+     * @return string|null
+     */
+    public function getLayoutDir()
+    {
+        if (Mage::app()->getLocale()->getLocaleCode() == 'ar_SA') {
+            return 'rtl';
+        }
+    }
+
+    /**
+     * Check if we should bypass billing & shipping address step on Onestep checkout
+     *
+     * @return bool
+     */
+    public function isAddressesReady()
+    {
+        if ($isAddressesApiUpdate = Mage::getSingleton('core/session')->getData('is_address_update')) {
+            return $isAddressesApiUpdate;
+        }
+        /** @var Mage_Checkout_Model_Session $checkoutSession */
+        $checkoutSession = Mage::getSingleton('checkout/session');
+        if ($address = $checkoutSession->getQuote()->getBillingAddress()) {
+            return (bool)$address->getCustomerAddressId();
+        }
+
+        return false;
+    }
 }

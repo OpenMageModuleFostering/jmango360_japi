@@ -129,6 +129,7 @@ a:hover {
 }
 .sp-methods dd {
   background: #fafafa;
+  margin: 0;
 }
 .sp-methods dd ul li {
   padding: 1em;
@@ -143,7 +144,7 @@ a:hover {
   color: #737373;
   display: table-cell;
   width: 100%;
-  padding: 0 0 0 0.5em;
+  padding: 0 0.5em;
 }
 .sp-methods label .price {
   color: #4d4d4d;
@@ -183,8 +184,7 @@ a:hover {
   padding-top: 0;
 }
 .jm-item td {
-  padding-top: 1em;
-  padding-left: 1em;
+  padding: 0 1em;
   vertical-align: top;
 }
 .jm-item td:first-child {
@@ -213,7 +213,7 @@ a:hover {
   border-radius: 8px;
 }
 .jm-item .jm-item-detail {
-  padding-left: 1em;
+  padding: 0 1em;
 }
 .jm-item .jm-item-detail .jm-item-desc {
   font-size: 0.9em;
@@ -1539,4 +1539,25 @@ label[for="s_method_socolissimosimplicite_socolissimosimplicite"] {
 }
 #socolissimosimplicite_iframe_wrapper iframe {
   width: 100%;
+}
+/** RTL LAYOUT **/
+.rtl .opc .section .step-title .section-control {
+  left: 0;
+  right: auto;
+}
+.rtl .opc .section .step-number-wrapper {
+  padding: 0 0.5em;
+}
+.rtl .opc .section .ladda-button .ladda-spinner {
+  margin-left: -15px;
+}
+.rtl .opc .section .sp-methods label .price {
+  float: left;
+}
+.rtl .opc .section .jm-item .jm-item-img .jm-item-qty {
+  left: -0.75em;
+  right: auto;
+}
+.rtl .opc .section .sp-methods .section-control {
+  float: left;
 }

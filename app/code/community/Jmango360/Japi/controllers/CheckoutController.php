@@ -489,6 +489,33 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Borgione_General')) {
+            $xml .= "
+<reference name=\"checkout.onepage.billing\">
+    <action method=\"setTemplate\">
+        <template>persistent/checkout/onepage/billing.phtml</template>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.shipping\">
+    <action method=\"setTemplate\">
+        <template>checkout/onepage/shipping.phtml</template>
+    </action>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('DPD_Shipping')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addCss\"><stylesheet>css/dpd/shipping.css</stylesheet></action>
+    <action method=\"addJs\"><script>dpd/shipping.js</script></action>
+    <action method=\"addJs\"><script>prototype/window.js</script></action>
+    <action method=\"addJs\"><script>dpd/window/shipping.js</script></action>
+    <action method=\"addCss\"><name>css/dpd/window.css</name></action>
+    <action method=\"addJs\"><file helper=\"dpd/data/getOnestepCheckoutJs\"/></action>
+    <block type=\"core/template\" name=\"gmapsapi\" template=\"dpd/gmapsapi.phtml\"/>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();

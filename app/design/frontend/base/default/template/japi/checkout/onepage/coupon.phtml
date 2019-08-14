@@ -39,7 +39,11 @@ $couponCode = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/coupon_co
             <ul class="form-list collapse<?php echo strlen($couponCode) || strlen($this->getCouponCode()) ? ' in' : '' ?>"
                 id="coupon-content">
                 <li>
-                    <label for="coupon_code"><?php echo $this->__('Enter your coupon code if you have one.') ?></label>
+                    <?php if (strpos(Mage::getUrl(), 'deleukstetaartenshop.nl') !== false): ?>
+                        <label for="coupon_code"><?php echo $this->__('Voer hier je kortingscode in (Cadeaubon via de website)') ?></label>
+                    <?php else: ?>
+                        <label for="coupon_code"><?php echo $this->__('Enter your coupon code if you have one.') ?></label>
+                    <?php endif; ?>
                     <input type="hidden" name="remove" id="remove-coupone" value="0"/>
                     <div class="input-box">
                         <input class="input-text" id="coupon_code" name="coupon_code" type="text"
