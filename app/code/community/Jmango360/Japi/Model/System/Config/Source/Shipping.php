@@ -14,10 +14,12 @@ class Jmango360_Japi_Model_System_Config_Source_Shipping
             $title = Mage::getStoreConfig("carriers/$carrierCode/title");
             $group = array();
             $methods = $carrier->getAllowedMethods();
-            if (is_array($methods)) {
+            if (!empty($methods)) {
                 foreach ($carrier->getAllowedMethods() as $methodCode => $method) {
                     $group[] = array('value' => $carrierCode . '_' . $methodCode, 'label' => $method);
                 }
+            } else {
+                $group[] = array('value' => $carrierCode, 'label' => $carrierCode);
             }
             $options[] = array('value' => !empty($group) ? $group : $carrierCode, 'label' => $title ? $title : $carrierCode);
         }

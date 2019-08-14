@@ -84,7 +84,7 @@ function japiSubmitUrl(url){
     setLocation(url);
 }
 function japiChangeLog(el){
-    if (el.value == "japi.log" || el.value == "japi_cron.log"){
+    if (el.value.indexOf("japi") === 0){
         enableElement($("' . $this->_element->getHtmlId() . '_clear' . '"));
     }else{
         disableElement($("' . $this->_element->getHtmlId() . '_clear' . '"));

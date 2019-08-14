@@ -34,10 +34,15 @@ if (version_compare(Mage::getVersion(), '1.7.0', '<') || ((version_compare(Mage:
 
 ?>
 <?php if($isTwoColumnLayout) : ?>
-    <img class="klarna_product-image" src="<?php echo $this->helper('catalog/image')->init($_item->getProduct(), 'thumbnail')->resize(50,50); ?>" width="50" height="50" alt="<?php echo $this->htmlEscape($this->getImageLabel($_item, 'small_image')) ?>" title="<?php echo $this->htmlEscape($this->getImageLabel($_item, 'small_image')) ?>"/>
+    <img class="klarna_product-image" src="<?php echo $this->helper('catalog/image')->init($_item->getProduct(), 'thumbnail')->resize(130); ?>" width="" height="" alt="<?php echo $this->htmlEscape($this->getImageLabel($_item, 'small_image')) ?>" title="<?php echo $this->htmlEscape($this->getImageLabel($_item, 'small_image')) ?>"/>
+
+    <div class="klarna_product-qty">
+        <span><?php echo $this->getQty() ?></span>
+    </div>
 
     <div class="klarna_product-details">
-        <a href="<?php echo $this->getProductUrl(); ?>" class="klarna_product-name"><?php echo $this->htmlEscape($_item->getProduct()->getName()) ?></a>
+        <!--a href="<?php echo $this->getProductUrl(); ?>" class="klarna_product-name"><?php echo $this->htmlEscape($_item->getProduct()->getName()) ?></a-->
+        <span class="klarna_product-name"><?php echo $this->htmlEscape($_item->getProduct()->getName()) ?></span>
 
         <?php // Display product price ?>
         <?php if ($canApplyMsrp): ?>
@@ -119,8 +124,7 @@ if (version_compare(Mage::getVersion(), '1.7.0', '<') || ((version_compare(Mage:
         <?php endif; // Can apply msrp end ?>
 
         <div class="klarna_product-option klarna_product-quantity">
-            <span class="klarna_option-label"><?php echo $this->__('Quantity') ?>:</span>
-            <input id="cart_item_qty_<?php echo $_item->getId(); ?>" class="qty-input klarna_input-text" name="cart[<?php echo $_item->getId() ?>][qty]" data-itemid="<?php echo $_item->getId(); ?>" value="<?php echo $this->getQty() ?>" size="4" title="<?php echo $this->__('Qty') ?>" maxlength="12" readonly/>
+            <input type="hidden" id="cart_item_qty_<?php echo $_item->getId(); ?>" name="cart[<?php echo $_item->getId() ?>][qty]" data-itemid="<?php echo $_item->getId(); ?>" value="<?php echo $this->getQty() ?>" size="4" title="<?php echo $this->__('Qty') ?>" />
             <input type="hidden" id="cart_item_qty_org_<?php echo $_item->getId(); ?>" name="org_qty_<?php echo $_item->getId() ?>" class="org_qty_<?php echo $_item->getId(); ?>" data-itemid="<?php echo $_item->getId(); ?>" value="<?php echo $this->getQty() ?>" />
         </div>
 
@@ -142,14 +146,11 @@ if (version_compare(Mage::getVersion(), '1.7.0', '<') || ((version_compare(Mage:
 
         <?php endif; ?>
     </div>
-    <div class="klarna_product-remove">
-        <a href="#" class="remove-item" role="removeproduct" title="<?php echo $this->__('Remove item')?>" data-itemid="<?php echo $_item->getId(); ?>">&times;</a>
-    </div>
 <?php else : ?>
 
     <tr id="cart_item_<?php echo $_item->getId(); ?>" data-itemid="<?php echo $_item->getId(); ?>">
         <td><a href="#" class="remove-item" title="<?php echo $this->__('Remove item')?>" data-itemid="<?php echo $_item->getId(); ?>"><?php echo $this->__('Remove item')?></a></td>
-        <td><?php if ($this->hasProductUrl()):?><a href="<?php echo $this->getProductUrl() ?>" title="<?php echo $this->htmlEscape($this->getProductName()) ?>" class="product-image"><?php endif;?><img src="<?php echo $this->getProductThumbnail()->resize(59); ?>" width="59" height="59" alt="<?php echo $this->htmlEscape($this->getProductName()) ?>" /><?php if ($this->hasProductUrl()):?></a><?php endif;?></td>
+        <td><?php if ($this->hasProductUrl()):?><a href="<?php echo $this->getProductUrl() ?>" title="<?php echo $this->htmlEscape($this->getProductName()) ?>" class="product-image"><?php endif;?><img src="<?php echo $this->getProductThumbnail()->resize(130); ?>" width="" height="" alt="<?php echo $this->htmlEscape($this->getProductName()) ?>" /><?php if ($this->hasProductUrl()):?></a><?php endif;?></td>
         <td class="product_name">
             <?php if ($this->hasProductUrl()):?>
                 <a href="<?php echo $this->getProductUrl() ?>"><?php echo $this->htmlEscape($this->getProductName()) ?></a>

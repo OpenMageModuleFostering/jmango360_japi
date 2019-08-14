@@ -31,6 +31,9 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         'prefix', 'firstname', 'middlename', 'suffix', 'lastname', 'company', 'street', 'city', 'country_id',
         'region', 'region_id', 'postcode', 'telephone', 'fax', 'vat_id'
     );
+    protected $_excludeSettingGroups = array(
+        'jmango_rest_api', 'jmango_rest_developer_settings', 'jmango_smart_app_banner'
+    );
 
     public function dispatch()
     {
@@ -151,21 +154,39 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
      */
     protected function _savePluginSettings()
     {
-        $data = array();
-        $groups = $this->_getRequest()->getParam('groups');
+        $json = $this->_getRequest()->getParam('data');
 
-        if (isset($_FILES['groups']['name']) && is_array($_FILES['groups']['name'])) {
-            /**
-             * Carefully merge $_FILES and $_POST information
-             * None of '+=' or 'array_merge_recursive' can do this correct
-             */
-            foreach ($_FILES['groups']['name'] as $groupName => $group) {
-                if (is_array($group)) {
-                    foreach ($group['fields'] as $fieldName => $field) {
-                        if (!empty($field['value'])) {
-                            $groups[$groupName]['fields'][$fieldName] = array('value' => $field['value']);
-                        }
-                    }
+        if (!$json) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Data invalid.'),
+                Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+            );
+        }
+
+        try {
+            $array = Mage::helper('core')->jsonDecode($json);
+        } catch (Exception $e) {
+            throw new Jmango360_Japi_Exception(
+                $e->getMessage(),
+                Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+            );
+        }
+
+        if (!is_array($array) || empty($array['settings'])) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Data invalid.'),
+                Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+            );
+        }
+
+        $groups = array();
+        foreach ($array['settings'] as $section) {
+            if (!is_array($section)) continue;
+            foreach ($section as $group => $fields) {
+                if (!isset($groups[$group])) $groups[$group] = array();
+                if (!is_array($fields)) continue;
+                foreach ($fields as $key => $value) {
+                    $groups[$group]['fields'][$key] = array('value' => $value);
                 }
             }
         }
@@ -174,15 +195,20 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             $section = 'japi';
 
             $storeId = $this->_getRequest()->getParam('store_id');
-            $storeModel = Mage::app()->getStore($storeId);
-            if (!$storeModel->getId()) {
-                throw new Jmango360_Japi_Exception(
-                    Mage::helper('japi')->__('Store not found.'),
-                    Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
-                );
+            if (is_numeric($storeId) && $storeId > -1) {
+                $storeModel = Mage::app()->getStore($storeId);
+                if (!$storeModel->getId()) {
+                    throw new Jmango360_Japi_Exception(
+                        Mage::helper('japi')->__('Store not found.'),
+                        Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+                    );
+                }
+                $website = $storeModel->getWebsite()->getCode();
+                $store = $storeModel->getCode();
+            } else {
+                $website = null;
+                $store = null;
             }
-            $website = $storeModel->getWebsite()->getCode();
-            $store = $storeModel->getCode();
 
             Mage::getSingleton('adminhtml/config_data')
                 ->setSection($section)
@@ -204,7 +230,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             Mage::dispatchEvent("admin_system_config_changed_section_{$section}",
                 array('website' => $website, 'store' => $store)
             );
-            $data['message'][] = (Mage::helper('japi')->__('The configuration has been saved.'));
+            $data['message'][] = Mage::helper('japi')->__('The configuration has been saved.');
         } catch (Exception $e) {
             throw new Jmango360_Japi_Exception(
                 $e->getMessage(),
@@ -278,6 +304,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             foreach ($xmlData['default'] as $section => $sections) {
                 if (!isset($data[$section])) $data[$section] = array();
                 foreach ($sections as $group => $groups) {
+                    if (in_array($group, $this->_excludeSettingGroups)) continue;
                     if (!isset($data[$section][$group])) $data[$section][$group] = array();
                     foreach ($groups as $field => $value) {
                         $path = sprintf('%s/%s/%s', $section, $group, $field);

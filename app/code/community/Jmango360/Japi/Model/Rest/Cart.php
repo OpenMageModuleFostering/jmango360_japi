@@ -396,18 +396,11 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
 
     protected function _validateQuote($return = false)
     {
-        $quote = $this->getQuote()->collectTotals();
+        $quote = $this->getQuote();
 
-        /*if (!$quote->getItemsCount()) {
-            $message = Mage::helper('japi')->__('Cart is empty.');
-            if ($return)
-                return $message;
-            else
-                throw new Jmango360_Japi_Exception(
-                    $message,
-                    Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
-                );
-        }*/
+        if (!Mage::helper('core')->isModuleEnabled('Amasty_Promo')) {
+            $quote->collectTotals();
+        }
 
         if ($quote->getHasError()) {
             $messages = array();

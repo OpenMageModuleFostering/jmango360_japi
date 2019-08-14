@@ -41,7 +41,11 @@
 		</form>
 	<?php else: ?>
 		<?php if ($isTwoColumnLayout) : ?>
-			<h2 class="klarna_block-title"><?php echo $this->__('Order Summary'); ?></h2>
+			<h2 class="klarna_block-title">
+                <?php echo $this->__('Order Summary'); ?>
+                <a href="#" onclick="japiKlarnaToggleOrderSummary(true, this); return false;"><?php echo $this->__('Hide Details'); ?></a>
+                <a href="#" onclick="japiKlarnaToggleOrderSummary(false, this); return false;" style="display: none"><?php echo $this->__('Show Details'); ?></a>
+            </h2>
 		<?php endif; ?>
 
 		<?php if(!$this->hasError()): ?>
@@ -56,6 +60,7 @@
 
 		<?php echo $this->getChildHtml('form_before') ?>
 
+        <div class="klarna_cart_wrapper">
 		<form id="klarna_cart" class="klarna_cart" action="<?php echo $this->getUrl('checkout/klarna/cartUpdatePost') ?>" method="post">
 			<input type="hidden" name="return_url" value="<?php echo $this->getUrl('checkout/klarna') ?>"/>
 			<input type="hidden" id="klarna_cart_reload" name="klarna_cart_reload" value="<?php echo $this->getUrl('japi/klarna/getKlarnaWrapperHtml', $cartUpdateParams) ?>"/>
@@ -125,6 +130,7 @@
 		</form>
 
 		<?php echo $this->getChildHtml('totals'); ?>
+        </div>
 
 		<?php if(!$this->hasError()): ?>
 		<ul class="checkout-types">

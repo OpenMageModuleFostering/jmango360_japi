@@ -190,6 +190,7 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
     {
         if (!$storeId) return;
         if ($storeId == Mage::app()->getStore()->getId()) return;
+        if ($storeId == -1) return;
 
         // Reset store ID
         Mage::app()->setCurrentStore($storeId);

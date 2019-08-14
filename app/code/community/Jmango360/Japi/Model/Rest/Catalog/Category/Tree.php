@@ -91,7 +91,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
 
             $data[$index] = $category->getData();
             $data[$index]['thumbnail'] = $this->_getThumbnailUrl($category);
-            $data[$index]['image'] = $category->getImageUrl() ? $category->getImageUrl() : '';
+            $data[$index]['image'] = $this->_getImageUrl($category);
             //Backwards compatibility
             $data[$index]['category_id'] = $data[$index]['entity_id'];
             $data[$index]['children'] = array();
@@ -110,6 +110,20 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
     }
 
     /**
+     * Retrieve image URL
+     *
+     * @param $category Mage_Catalog_Model_Category
+     * @return string
+     */
+    protected function _getImageUrl($category)
+    {
+        if ($image = $category->getImage()) {
+            return Mage::getBaseUrl('media') . 'catalog/category/' . urlencode($image);
+        }
+        return '';
+    }
+
+    /**
      * Retrieve thumbnail URL
      *
      * @param $category Mage_Catalog_Model_Category
@@ -118,7 +132,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
     protected function _getThumbnailUrl($category)
     {
         if ($image = $category->getData('thumbnail')) {
-            return Mage::getBaseUrl('media') . 'catalog/category/' . $image;
+            return Mage::getBaseUrl('media') . 'catalog/category/' . urlencode($image);
         } else {
             if (!$category->getImageUrl()) {
                 return $this->_getImageFromChildrenProduct($category);

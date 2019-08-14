@@ -14,7 +14,7 @@
                 <jmango_rest_api translate="label" module="japi">
                     <label>Connection credentials</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
+                    <show_in_website>1</show_in_website>
                     <show_in_store>0</show_in_store>
                     <sort_order>10</sort_order>
                     <fields>
@@ -62,11 +62,11 @@
                 <jmango_rest_catalog_settings translate="label" module="japi">
                     <label>Catalogue Settings</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
+                    <show_in_website>1</show_in_website>
                     <show_in_store>0</show_in_store>
                     <sort_order>20</sort_order>
                     <fields>
-                        <include_all_active translate="label comment" module="japi">
+                        <!--include_all_active translate="label comment" module="japi">
                             <label>Include all active categories</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -123,7 +123,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Custom CSS for product description</comment>
-                        </custom_css>
+                        </custom_css-->
                         <visible_on_app translate="label comment" module="japi">
                             <label>On Manage Products enable Hide on App</label>
                             <frontend_type>select</frontend_type>
@@ -134,18 +134,7 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enable this option to choose whether or not this product is visible in the app</comment>
                         </visible_on_app>
-                        <!--<available_order translate="label" module="japi">-->
-                            <!--<label>Available Orders</label>-->
-                            <!--<frontend_type>multiselect</frontend_type>-->
-                            <!--<source_model>japi/system_config_source_catalog_sortby</source_model>-->
-                            <!--<sort_order>80</sort_order>-->
-                            <!--<show_in_default>1</show_in_default>-->
-                            <!--<show_in_website>1</show_in_website>-->
-                            <!--<show_in_store>1</show_in_store>-->
-                            <!--<can_be_empty>1</can_be_empty>-->
-                            <!--<comment>Select attribute(s) that need to adjust the sort direction</comment>-->
-                        <!--</available_order>-->
-                        <default_direction translate="label comment" module="japi">
+                        <!--default_direction translate="label comment" module="japi">
                             <label>Override Default Sort Direction</label>
                             <frontend_type>select</frontend_type>
                             <source_model>japi/system_config_source_catalog_direction</source_model>
@@ -154,14 +143,14 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Choose to use direction here instead of mobile default sort direction.</comment>
-                        </default_direction>
+                        </default_direction-->
                     </fields>
                 </jmango_rest_catalog_settings>
-                <jmango_app_login_settings translate="label" module="japi">
+                <!--jmango_app_login_settings translate="label" module="japi">
                     <label>Mobile App Login Settings</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>30</sort_order>
                     <fields>
                         <require_login translate="label comment" module="japi">
@@ -175,15 +164,15 @@
                             <comment>This will prevent mobile app user using app without an account.</comment>
                         </require_login>
                     </fields>
-                </jmango_app_login_settings>
+                </jmango_app_login_settings-->
                 <jmango_rest_checkout_settings translate="label" module="japi">
                     <label>Mobile App Checkout Settings</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
+                    <show_in_website>1</show_in_website>
                     <show_in_store>0</show_in_store>
                     <sort_order>40</sort_order>
                     <fields>
-                        <shipping_excluded translate="label comment" module="japi">
+                        <!--shipping_excluded translate="label comment" module="japi">
                             <label>Excluded shipping methods</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>japi/system_config_source_shipping</source_model>
@@ -254,7 +243,7 @@
                             <depends>
                                 <onepage>0</onepage>
                             </depends>
-                        </checkout_url>
+                        </checkout_url-->
                         <klarna_popup_urls translate="label comment" module="japi">
                             <label>Klarna Popup URLs</label>
                             <frontend_type>textarea</frontend_type>
@@ -267,11 +256,11 @@
                         </klarna_popup_urls>
                     </fields>
                 </jmango_rest_checkout_settings>
-                <jmango_rest_gallery_settings translate="label" module="japi">
+                <!--jmango_rest_gallery_settings translate="label" module="japi">
                     <label>Product image gallery settings</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>50</sort_order>
                     <fields>
                         <image_width translate="label comment" module="japi">
@@ -349,12 +338,12 @@
                             <comment>Choose what kind of image of product that I would like to show in product listing in mobile app.</comment>
                         </image_default_listing>
                     </fields>
-                </jmango_rest_gallery_settings>
-                <jmango_rest_stock_settings translate="label" module="japi">
+                </jmango_rest_gallery_settings-->
+                <!--jmango_rest_stock_settings translate="label" module="japi">
                     <label>Stock Settings</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>60</sort_order>
                     <fields>
                         <display_product_stock_status translate="label comment" module="japi">
@@ -367,7 +356,7 @@
                             <show_in_store>1</show_in_store>
                         </display_product_stock_status>
                     </fields>
-                </jmango_rest_stock_settings>
+                </jmango_rest_stock_settings-->
                 <jmango_rest_sales_settings translate="label" module="japi">
                     <label>Sales Settings</label>
                     <show_in_default>1</show_in_default>
@@ -404,18 +393,7 @@
                             <show_in_store>1</show_in_store>
                             <comment>Select to view which customers are from JMango360</comment>
                         </display_customer_from>
-                        <!--attributes translate="label" module="japi">
-                            <label>Select customer attributes</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>japi/system_config_source_customer_attributes</source_model>
-                            <sort_order>10</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                            <comment>Select one or more attributes to include to customer registration form in mobile app</comment>
-                        </attributes!-->
-                        <enable_address translate="label comment" module="japi">
+                        <!--enable_address translate="label comment" module="japi">
                             <label>Enable additional fields on sign up form</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -425,17 +403,6 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enable additional fields on sign up form</comment>
                         </enable_address>
-                        <!--address_attributes translate="label" module="japi">
-                            <label>Select address attributes</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>japi/system_config_source_address_attributes</source_model>
-                            <sort_order>30</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                            <comment>Select one or more attributes to include to customer registration form in mobile app</comment>
-                        </address_attributes-->
                         <street2_label translate="label comment" module="japi">
                             <label>Street Address #2 Label</label>
                             <frontend_type>text</frontend_type>
@@ -502,7 +469,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Set if the street address field is required input.</comment>
-                        </street4_require>
+                        </street4_require-->
                     </fields>
                 </jmango_rest_customer_settings>
                 <jmango_smart_app_banner translate="label" module="japi">
@@ -699,8 +666,8 @@
                 <jmango_rest_developer_settings translate="label" module="japi">
                     <label>Developer</label>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <sort_order>100</sort_order>
                     <fields>
                         <enable translate="label comment" module="japi">

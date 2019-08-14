@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>2.9.4</version>
+            <version>3.0.0.1</version>
         </Jmango360_Japi>
     </modules>
 
@@ -80,6 +80,9 @@
     </global>
 
     <frontend>
+        <secure_url>
+            <customer>/japi/</customer>
+        </secure_url>
         <events>
             <controller_action_predispatch_checkout_klarna_success>
                 <observers>

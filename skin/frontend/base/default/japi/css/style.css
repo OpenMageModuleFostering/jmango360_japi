@@ -804,38 +804,225 @@ span.price {
   background: none;
 }
 /******** Vaimo_Klarna ************/
-.klarna_wrapper .page-title {
+.checkout-klarna-index .page-title {
   padding: 0 10px;
 }
-.klarna_wrapper .klarna_totals {
+.checkout-klarna-index .klarna_totals {
   margin: 20px 0 0 0;
 }
-.klarna_wrapper #klarna_methods {
+.checkout-klarna-index #klarna_methods {
   margin: 0;
   padding: 0 10px;
 }
-.klarna_wrapper .klarna_loader {
+.checkout-klarna-index .klarna_loader {
   position: fixed;
 }
-.klarna_wrapper .messages > li {
+.checkout-klarna-index .messages > li {
   padding: 10px;
 }
-.klarna_wrapper .messages span {
+.checkout-klarna-index .messages span {
   font-size: 12px;
 }
-.klarna_wrapper .klarna_totals td * {
-  font-size: 12px;
-}
-.klarna_wrapper .sp-methods dd ul li {
+.checkout-klarna-index .sp-methods dd ul li {
   margin: 0;
   padding: 0;
 }
-.klarna_wrapper .klarna_product-remove {
+.checkout-klarna-index .klarna_product-remove {
   display: none;
 }
-.klarna_wrapper input.input-text {
+.checkout-klarna-index .klarna_block {
+  margin-bottom: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.checkout-klarna-index .klarna_block a {
+  color: #0089cf;
+}
+.checkout-klarna-index input.input-text {
+  font-size: 14px;
+  border-color: #cbcbcb;
+  border-radius: 4px;
+  margin: 0;
+}
+.checkout-klarna-index button.button-action {
+  box-shadow: none;
+  border-radius: 4px;
+  font-size: 14px !important;
+  height: 44px;
+  line-height: 1;
+  width: 100%;
+}
+.checkout-klarna-index .klarna_block .klarna_block-title,
+.checkout-klarna-index .klarna_block > h3 {
+  margin: 8px 0 10px 0;
+}
+.checkout-klarna-index .klarna_block .klarna_block-title a,
+.checkout-klarna-index .klarna_block > h3 a {
+  float: right;
+  font-weight: normal;
+}
+.checkout-klarna-index .klarna_block label {
   font-size: 14px;
 }
-.klarna_wrapper .klarna_other-payment-methods {
+.checkout-klarna-index .klarna_block > h3 {
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: none;
+}
+.checkout-klarna-index .klarna_other-payment-methods {
   display: none;
+}
+.checkout-klarna-index #klarna_coupon .display-table {
+  display: table;
+  width: 100%;
+}
+.checkout-klarna-index #klarna_coupon .display-table > div {
+  display: table-cell;
+  vertical-align: top;
+}
+.checkout-klarna-index #klarna_coupon .display-table > div:last-child {
+  width: 33%;
+  padding-left: 2%;
+}
+.checkout-klarna-index #klarna_shipping ul {
+  background: #fff;
+  border: 1px solid #cbcbcb;
+  border-radius: 4px;
+  padding: 0;
+}
+.checkout-klarna-index #klarna_shipping ul li {
+  padding: 1em;
+  margin: 0;
+  display: block;
+  width: 100%;
+  border-bottom: 1px solid #cbcbcb;
+}
+.checkout-klarna-index #klarna_shipping ul li:last-child {
+  border: none;
+}
+.checkout-klarna-index #klarna_shipping ul li input {
+  margin: 0 0.5em 0 0;
+  vertical-align: middle;
+}
+.checkout-klarna-index #klarna_shipping ul li label {
+  font-size: 14px;
+  vertical-align: middle;
+  display: inline;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart_wrapper {
+  border: 1px solid #cbcbcb;
+  border-radius: 4px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart_wrapper.klarna_compact .klarna_cart,
+.checkout-klarna-index #klarna_cart-container .klarna_cart_wrapper.klarna_compact table tbody {
+  display: none;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart_wrapper.klarna_compact .klarna_totals {
+  background: #fff;
+}
+.checkout-klarna-index #klarna_cart-container #klarna_cart,
+.checkout-klarna-index #klarna_cart-container #klarna_totals {
+  margin: 0;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals {
+  padding: 1em;
+  border-radius: 4px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals table td {
+  text-transform: none;
+  font-size: 13px;
+  padding: 0.5em 0;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals table td .price {
+  font-size: 13px;
+  font-weight: bold;
+  display: block;
+  text-align: right;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals table tfoot td {
+  font-size: 14px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals table tfoot td .price {
+  font-size: 14px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product {
+  padding: 1.5em;
+  border-bottom: 1px solid #cbcbcb;
+  margin: 0;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product:after {
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+  visibility: hidden;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-image-wrapper {
+  position: relative;
+  float: left;
+  width: 25%;
+  margin-right: 1em;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-qty {
+  position: absolute;
+  top: 0.6em;
+  left: 0.6em;
+  background: #419bf9;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-qty span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-details {
+  display: block;
+  margin-left: 30%;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-details .price {
+  font-size: 14px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-option {
+  color: #4d4d4d;
+  margin-bottom: 2px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_option-label,
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_option-value {
+  display: inline;
+  font-size: 14px;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product .klarna_product-name {
+  font-weight: bold;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_cart-items .klarna_product img {
+  border: 1px solid #ededed;
+  vertical-align: top;
+  width: 25%;
+  height: auto;
+  float: left;
+}
+.checkout-klarna-index #klarna_cart-container .klarna_totals {
+  border: none;
+  background: #fbfbfb;
+}
+.checkout-klarna-index .klarna_msg {
+  margin: 0 12px;
+}
+.checkout-klarna-index #klarna-checkout-reward input,
+.checkout-klarna-index #klarna-checkout-customer-balance input,
+.checkout-klarna-index #klarna-checkout-newsletter-container input {
+  display: inline;
+  margin: 0 5px 0 0;
+  vertical-align: middle;
+}
+.checkout-klarna-index #klarna-checkout-reward label,
+.checkout-klarna-index #klarna-checkout-customer-balance label,
+.checkout-klarna-index #klarna-checkout-newsletter-container label {
+  vertical-align: middle;
+  margin: 0;
 }

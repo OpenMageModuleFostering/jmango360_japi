@@ -983,7 +983,7 @@ span.price {
 }
 
 /******** Vaimo_Klarna ************/
-.klarna_wrapper {
+.checkout-klarna-index {
   .page-title {
     padding: 0 10px;
   }
@@ -1011,14 +1011,6 @@ span.price {
     }
   }
 
-  .klarna_totals {
-    td {
-      * {
-        font-size: 12px;
-      }
-    }
-  }
-
   .sp-methods dd ul li {
     margin: 0;
     padding: 0;
@@ -1028,11 +1020,247 @@ span.price {
     display: none;
   }
 
+  .klarna_block {
+    margin-bottom: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+
+    a {
+      color: #0089cf;
+    }
+  }
+
   input.input-text {
     font-size: 14px;
+    border-color: #cbcbcb;
+    border-radius: 4px;
+    margin: 0;
+  }
+
+  button.button-action {
+    box-shadow: none;
+    border-radius: 4px;
+    font-size: 14px !important;
+    height: 44px;
+    line-height: 1;
+    width: 100%;
+  }
+
+  .klarna_block {
+    .klarna_block-title, > h3 {
+      margin: 8px 0 10px 0;
+
+      a {
+        float: right;
+        font-weight: normal;
+      }
+    }
+
+    label {
+      font-size: 14px;
+    }
+
+    > h3 {
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: none;
+    }
   }
 
   .klarna_other-payment-methods {
     display: none;
+  }
+
+  #klarna_coupon .display-table {
+    display: table;
+    width: 100%;
+
+    > div {
+      display: table-cell;
+      vertical-align: top;
+
+      &:last-child {
+        width: 33%;
+        padding-left: 2%;
+      }
+    }
+  }
+
+  #klarna_shipping {
+    ul {
+      background: #fff;
+      border: 1px solid #cbcbcb;
+      border-radius: 4px;
+      padding: 0;
+
+      li {
+        padding: 1em;
+        margin: 0;
+        display: block;
+        width: 100%;
+        border-bottom: 1px solid #cbcbcb;
+
+        &:last-child {
+          border: none;
+        }
+
+        input {
+          margin: 0 0.5em 0 0;
+          vertical-align: middle;
+        }
+
+        label {
+          font-size: 14px;
+          vertical-align: middle;
+          display: inline;
+        }
+      }
+    }
+  }
+
+  #klarna_cart-container {
+    .klarna_cart_wrapper {
+      border: 1px solid #cbcbcb;
+      border-radius: 4px;
+
+      &.klarna_compact {
+        .klarna_cart, table tbody {
+          display: none;
+        }
+
+        .klarna_totals {
+          background: #fff;
+        }
+      }
+    }
+
+    #klarna_cart, #klarna_totals {
+      margin: 0;
+    }
+
+    .klarna_totals {
+      padding: 1em;
+      border-radius: 4px;
+
+      table {
+        td {
+          text-transform: none;
+          font-size: 13px;
+          padding: 0.5em 0;
+
+          .price {
+            font-size: 13px;
+            font-weight: bold;
+            display: block;
+            text-align: right;
+          }
+        }
+
+        tfoot td {
+          font-size: 14px;
+          .price {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+
+    .klarna_cart-items {
+      .klarna_product {
+        padding: 1.5em;
+        border-bottom: 1px solid #cbcbcb;
+        margin: 0;
+
+        &:after {
+          display: block;
+          font-size: 0;
+          content: " ";
+          clear: both;
+          height: 0;
+          visibility: hidden;
+        }
+
+        .klarna_product-image-wrapper {
+          position: relative;
+          float: left;
+          width: 25%;
+          margin-right: 1em;
+        }
+
+        .klarna_product-qty {
+          position: absolute;
+          top: 0.6em;
+          left: 0.6em;
+          background: #419bf9;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          text-align: center;
+          line-height: 28px;
+
+          span {
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+          }
+        }
+
+        .klarna_product-details {
+          display: block;
+          margin-left: 30%;
+
+          .price {
+            font-size: 14px;
+          }
+        }
+
+        .klarna_product-option {
+          color: #4d4d4d;
+          margin-bottom: 2px;
+        }
+
+        .klarna_option-label,
+        .klarna_option-value {
+          display: inline;
+          font-size: 14px;
+        }
+
+        .klarna_product-name {
+          font-weight: bold;
+        }
+
+        img {
+          border: 1px solid #ededed;
+          vertical-align: top;
+          width: 25%;
+          height: auto;
+          float: left;
+        }
+      }
+    }
+
+    .klarna_totals {
+      border: none;
+      background: #fbfbfb;
+    }
+  }
+
+  .klarna_msg {
+    margin: 0 12px;
+  }
+
+  #klarna-checkout-reward,
+  #klarna-checkout-customer-balance,
+  #klarna-checkout-newsletter-container {
+    input {
+      display: inline;
+      margin: 0 5px 0 0;
+      vertical-align: middle;
+    }
+
+    label {
+      vertical-align: middle;
+      margin: 0;
+    }
   }
 }

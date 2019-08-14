@@ -267,11 +267,25 @@ class Jmango360_Japi_KlarnaController extends Vaimo_Klarna_Checkout_KlarnaContro
             Mage::helper('klarna')->logKlarnaApi(Vaimo_Klarna_Helper_Data::KLARNA_LOG_END_TAG);
 
             // JMango360: Redirect to checkout/onepage/success
-            $this->_redirect('checkout/onepage/success');
+            $this->_redirect('*/*/wait');
         } catch (Exception $e) {
             // Will show empty success page... however unlikely it is to get here, it's not very good
             Mage::helper('klarna')->logKlarnaException($e);
             return $this;
+        }
+    }
+
+    public function waitAction()
+    {
+        $quoteId = $this->_getSession()->getLastSuccessQuoteId();
+        $order = Mage::getModel('sales/order')->load($quoteId, 'quote_id');
+        if ($order->getId()) {
+            $this->_getSession()->setLastOrderId($order->getId());
+            $this->_getSession()->setLastRealOrderId($order->getIncrementId());
+            $this->_redirect('checkout/onepage/success');
+        } else {
+            sleep(1);
+            $this->_redirect('*/*/*');
         }
     }
 

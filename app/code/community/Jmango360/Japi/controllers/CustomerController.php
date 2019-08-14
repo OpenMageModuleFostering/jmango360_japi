@@ -224,6 +224,9 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
             $session->addError(Mage::helper('japi')->__('Customer not logged in'));
             $this->getResponse()->setHeader('HTTP/1.1', '401 Unauthorized', true);
         }
+        if (!Mage::registry('current_customer')) {
+            Mage::register('current_customer', $session->getCustomer());
+        }
         $this->_initLayoutMessages(array('core/session', 'customer/session'));
         $this->renderLayout();
     }
@@ -435,7 +438,7 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
             }
         }
 
-        return $this->_redirect('*/*/edit', array('_secure' => true, '_current' => true));
+        return $this->_redirect('*/*/address', array('_secure' => true, '_current' => true));
     }
 
     protected function _updateLayout()
@@ -462,7 +465,7 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
     <block type=\"core/template\" name=\"postnl_validation\" template=\"TIG/PostNL/address_validation/validate.phtml\"/>
 </reference>
 <reference name=\"customer_address_edit\">
-    <block type=\"core/template\" name=\"postnl_postcodecheck\" template=\"japi/TIG/PostNL/address_validation/customer/address/postcode_check.phtml\"/>
+    <block type=\"core/template\" name=\"postnl_postcodecheck\" template=\"japi/TIG/PostNL/av/customer/address/postcode_check.phtml\"/>
 </reference>";
         }
 

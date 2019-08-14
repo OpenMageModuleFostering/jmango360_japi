@@ -13,6 +13,11 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'multi' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getProductIds();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             case 'detail' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
                 $data = $this->_getProductDetail();
                 $this->_getResponse()->render($data);
@@ -73,12 +78,26 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'update' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getCalculatedPrice();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             default:
                 throw new Jmango360_Japi_Exception(
                     Mage::helper('japi')->__('Resource method not implemented'),
                     Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
                 );
         }
+    }
+
+    protected function _getCalculatedPrice()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Price */
+        $model = Mage::getModel('japi/rest_product_price');
+        $data = $model->getPrice();
+
+        return $data;
     }
 
     protected function _getProductReviews()
@@ -153,6 +172,15 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
         return $data;
     }
 
+    protected function _getProductIds()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_List */
+        $model = Mage::getModel('japi/rest_product_list');
+        $data = $model->getListByIds();
+
+        return $data;
+    }
+
     protected function _getProductSearch()
     {
         /* @var $model Jmango360_Japi_Model_Rest_Product_Search */
@@ -205,7 +233,9 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
             );
         }
 
-        $product = Mage::getModel('catalog/product')->load($id, array('sku', 'hide_in_jm360'));
+        $product = Mage::getModel('catalog/product')
+            ->setStoreId(Mage::app()->getStore()->getId())
+            ->load($id, array('sku', 'hide_in_jm360'));
 
         if (!$product->getId() || $product->getData('hide_in_jm360') == 1) {
             throw new Jmango360_Japi_Exception(

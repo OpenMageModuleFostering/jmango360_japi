@@ -96,7 +96,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         return $this->isModuleEnabled('OrganicInternet_SimpleConfigurableProducts')
             || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
             || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
-            || $this->isModuleEnabled('Itonomy_SimpleConfigurable');
+            || $this->isModuleEnabled('Itonomy_SimpleConfigurable')
+            || strpos(Mage::getBaseUrl(), 'hetlinnenhuis') !== false;
     }
 
     /**
@@ -544,17 +545,23 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      * Get product for image
      *
      * @param $product Mage_Catalog_Model_Product
+     * @param $details bool
      * @return string
      */
-    protected function _getProductImage(Mage_Catalog_Model_Product $product)
+    protected function _getProductImage(Mage_Catalog_Model_Product $product, $details = false)
     {
         /* @var $helper Mage_Catalog_Helper_Image */
         $helper = Mage::helper('catalog/image');
         $size = $this->_getImageSizes();
         $imageListing = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_default_listing');
-        if (!$imageListing) $imageListing = 'small_image';
-        $imageWidth = !empty($size[$imageListing]['width']) ? $size[$imageListing]['width'] : 400;
-        $imageHeight = !empty($size[$imageListing]['height']) ? $size[$imageListing]['height'] : 400;
+        if (!$imageListing || !array_key_exists($imageListing, $this->_defaultImagesPaths)) $imageListing = 'small_image';
+        if ($details) {
+            $imageWidth = !empty($size['image']['width']) ? $size['image']['width'] : 1200;
+            $imageHeight = !empty($size['image']['height']) ? $size['image']['height'] : 1200;
+        } else {
+            $imageWidth = !empty($size[$imageListing]['width']) ? $size[$imageListing]['width'] : 400;
+            $imageHeight = !empty($size[$imageListing]['height']) ? $size[$imageListing]['height'] : 400;
+        }
         $imageFallback = false;
         $image = '';
 
@@ -617,7 +624,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'min_price' => $this->calculatePriceIncludeTax($product, $product->getMinPrice()),
             'max_price' => $this->calculatePriceIncludeTax($product, $product->getMaxPrice()),
             'minimal_price' => $this->calculatePriceIncludeTax($product, $product->getMinimalPrice()),
-            'image' => $this->_getProductImage($product)
+            'image' => $this->_getProductImage($product, $details)
         );
 
         /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
@@ -733,6 +740,17 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->isSCPActive()) {
             $result['type'] = self::CONFIGURABLE_SCP_TYPE;
             $result['type_id'] = self::CONFIGURABLE_SCP_TYPE;
+        }
+
+        $result['required_price_calculation'] = false;
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
+            if ($this->isModuleEnabled('Mico_Cmp') && Mage::getStoreConfigFlag('cmp/config/active')) {
+                $result['required_price_calculation'] = true;
+            }
+        } elseif ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            if ($this->isSCPActive()) {
+                $result['required_price_calculation'] = true;
+            }
         }
 
         return $result;
@@ -962,12 +980,14 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                     $images['thumbnail']['url'] = $_razunaMainImages[0]['thumb_url'];
                 } else {
                     $_imageListingDefault = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_default_listing');
+                    if (!$_imageListingDefault || !array_key_exists($_imageListingDefault, $this->_defaultImagesPaths)) $_imageListingDefault = 'small_image';
                     $images['thumbnail']['url'] = (string)$helper->init($product, $_imageListingDefault)->resize($size['thumbnail']['width'], $size['thumbnail']['height']);
                 }
             }
             $images['thumbnail']['label'] = $product->getName();
         } else {
             $_imageListingDefault = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_default_listing');
+            if (!$_imageListingDefault || !array_key_exists($_imageListingDefault, $this->_defaultImagesPaths)) $_imageListingDefault = 'small_image';
 
             foreach ($imageNames as $imageName) {
                 if ($imageName == 'thumbnail' && $_imageListingDefault != 'thumbnail') { // Replaces thumbnail url by config
@@ -1213,7 +1233,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 }
             }
         }
+
         $_ignoreName = $this->_getImageFileName($result['image']);
+
         if (count($gallery)) {
             foreach ($gallery as $image) {
                 /* @var $image Varien_Object */
@@ -1224,8 +1246,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 if ($_imageName == $_ignoreName) continue;
 
                 $images[] = array(
-                    'url' => (string)$helper->init($product, 'thumbnail', $image->getFile())
-                        ->resize($size['thumbnail']['width'], $size['thumbnail']['height']),
+                    'url' => (string)$helper
+                        ->init($product, 'image', $image->getFile())
+                        ->resize($size['image']['width'], $size['image']['height']),
                     'label' => $image->getLabel() ? $image->getLabel() : $product->getName()
                 );
             }
@@ -1532,17 +1555,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     /**
      * Get buy request data
      *
-     * @param $item Mage_Sales_Model_Quote_Item
-     * @param $product array
+     * @param $item Mage_Sales_Model_Quote_Item|Varien_Object
+     * @param $product Mage_Catalog_Model_Product
      * @return null|array
      */
     public function getCartProductBuyRequest($item, $product)
     {
         if (!$item || !$product) return null;
 
-        $optionCollection = Mage::getModel('sales/quote_item_option')->getCollection()->addItemFilter($item);
-        $item->setOptions($optionCollection->getOptionsByItem($item));
-        $buyRequest = $item->getBuyRequest();
+        if ($item instanceof Mage_Sales_Model_Quote_Item) {
+            $optionCollection = Mage::getModel('sales/quote_item_option')->getCollection()->addItemFilter($item);
+            $item->setOptions($optionCollection->getOptionsByItem($item));
+            $buyRequest = $item->getBuyRequest();
+        } else {
+            $buyRequest = $item;
+        }
+
         if ($buyRequest) {
             $buyRequestData = array();
 

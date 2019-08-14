@@ -13,7 +13,7 @@ class Jmango360_Japi_Model_Observer
         if (!$block || get_class($block) != $blockClass) return;
         if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, TIG_PostNL_Model_AddressValidation_Observer_AddressBook::POSTCODECHECK_ENV)) return;
         Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_ADDRESSBOOK, 0);
-        $block->setTemplate('japi/TIG/PostNL/address_validation/customer/address/edit.phtml');
+        $block->setTemplate('japi/TIG/PostNL/av/customer/address/edit.phtml');
     }
 
     public function TIG_PostNL__shippingAddressPostcodeCheck($observe)
@@ -30,7 +30,7 @@ class Jmango360_Japi_Model_Observer
         }
         if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, TIG_PostNL_Model_AddressValidation_Observer_Onepage::POSTCODECHECK_ENV)) return;
         Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 0);
-        $block->setTemplate('japi/TIG/PostNL/address_validation/checkout/onepage/shipping.phtml');
+        $block->setTemplate('japi/TIG/PostNL/av/checkout/onepage/shipping.phtml');
     }
 
     public function TIG_PostNL__billingAddressPostcodeCheck($observe)
@@ -45,7 +45,7 @@ class Jmango360_Japi_Model_Observer
         if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, TIG_PostNL_Model_AddressValidation_Observer_Onepage::POSTCODECHECK_ENV)) return;
         Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 0);
         Mage::getSingleton('core/session')->setData(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 1);
-        $block->setTemplate('japi/TIG/PostNL/address_validation/checkout/onepage/billing.phtml');
+        $block->setTemplate('japi/TIG/PostNL/av/checkout/onepage/billing.phtml');
     }
 
     public function TIG_PostNL__addDeliveryOptions($observe)
@@ -62,7 +62,7 @@ class Jmango360_Japi_Model_Observer
         if (!$model->getCanUseDeliveryOptions()) return;
         $model->setBpostBlockModified(true);
         //Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_DeliveryOptions::XPATH_DELIVERY_OPTIONS_ACTIVE, 0);
-        $block->setTemplate('japi/TIG/PostNL/delivery_options/onepage/available.phtml');
+        $block->setTemplate('japi/TIG/PostNL/do/onepage/available.phtml');
     }
 
     public function handleErrorCheckout($observe)
