@@ -192,15 +192,25 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
             $apiKey = $this->_getApiKey();
             $url = $this->_getApiUrl('data/submitreview.json', array(
-                'apiVersion' => '5.4',
-                'passkey' => $apiKey,
+                'ApiVersion' => '5.4',
+                'PassKey' => $apiKey,
                 'ProductId' => $productId,
-                'Locale' => Mage::app()->getLocale()->getLocaleCode()
+                'Locale' => Mage::app()->getLocale()->getLocaleCode(),
+                'UserId' => $session->isLoggedIn() ? $session->getCustomerId() : null
             ));
 
             $result = $this->send('GET', $url);
 
-            $data = array('allow_guest_review' => true);
+            $data = array(
+                'allow_guest_review' => true,
+                'photo_review' => true,
+                'video_review' => true,
+                'api_key' => $apiKey,
+                'photo_url' => $this->_getApiUrl('data/uploadphoto.json', array(
+                    'ApiVersion' => '5.4',
+                    'ContentType' => 'review'
+                ))
+            );
 
             if (!empty($result['Data']['Fields'])) {
                 $outputFields = $this->FORM_FIELDS;
@@ -248,6 +258,10 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                                     $fieldTmp['min_length'] = @$fieldData['MinLength'];
                                     $fieldTmp['max_length'] = @$fieldData['MaxLength'];
                                     break;
+                            }
+
+                            if (@$fieldData['Id'] == 'agreedtotermsandconditions') {
+                                $fieldTmp['html'] = null;
                             }
 
                             $data['reviews'][] = $fieldTmp;
@@ -299,7 +313,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
             'ReviewText' => @$data['reviewtext'],
             'Rating' => @$data['ratings']['rating'],
             'IsRecommended' => $this->_getBooleanValue(@$data['isrecommended']),
-            'AgreedToTermsAndConditions' => 'true'
+            'AgreedToTermsAndConditions' => $this->_getBooleanValue(@$data['agreedtotermsandconditions'])
         ), $submitData);
 
         if (!empty($data['ratings'])) {
@@ -319,6 +333,17 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                         }
                     }
                 }
+            }
+        }
+
+        foreach ($data as $key => $value) {
+            if (strpos($key, 'PhotoUrl_') !== false
+                || strpos($key, 'PhotoCaption_') !== false
+                || strpos($key, 'VideoUrl_') !== false
+                || strpos($key, 'VideoCaption_') !== false
+                || ($key == 'fp' && $value)
+            ) {
+                $submitData[$key] = $value;
             }
         }
 
@@ -467,7 +492,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                 'title' => $this->__('Photos'),
                 'type' => 'photo',
                 'required' => false,
-                'selected' => array()
+                'photos' => array()
             );
             foreach ($result['Photos'] as $photo) {
                 $item = array(
@@ -479,7 +504,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                         $item[@$size['Id']] = @$size['Url'];
                     }
                 }
-                $photoReview['selected'][] = $item;
+                $photoReview['photos'][] = $item;
             }
             $data['review'][] = $photoReview;
         }
@@ -490,10 +515,10 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                 'title' => $this->__('Videos'),
                 'type' => 'video',
                 'required' => false,
-                'selected' => array()
+                'videos' => array()
             );
             foreach ($result['Videos'] as $video) {
-                $videoReview['selected'][] = array(
+                $videoReview['videos'][] = array(
                     'video_id' => @$video['VideoId'],
                     'video_host' => @$video['VideoHost'],
                     'video_thumbnail_url' => @$video['VideoThumbnailUrl'],
@@ -563,7 +588,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         return sprintf('%s:%s', self::DEFAULT_SORT, self::DEFAULT_DIR);
     }
 
-    protected function _getApiUrl($uri, $params = array())
+    protected function _getApiUrl($uri = null, $params = array())
     {
         $env = $this->_getEnv();
         $baseUrl = $env == 'staging' ? self::URL_STAGING : self::URL_PRODUCTION;

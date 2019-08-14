@@ -1196,4 +1196,13 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         if (!$model->toOptionArray()) return null;
         return $model->toOptionArray();
     }
+
+    public function isBazaarvoiceEnabled()
+    {
+        return (
+                Mage::helper('core')->isModuleEnabled('Comaxx_BvConversations')
+                && Mage::getStoreConfigFlag('bazaarvoice/general/enable_bv')
+            )
+            || (Mage::helper('core')->isModuleEnabled('Bazaarvoice_Connector'));
+    }
 }

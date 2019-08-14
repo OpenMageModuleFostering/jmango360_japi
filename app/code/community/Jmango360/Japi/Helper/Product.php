@@ -90,15 +90,53 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
     /**
      * Check if site use modules like OrganicInternet_SimpleConfigurableProducts
+     * @param Mage_Catalog_Model_Product|null $product
+     * @return bool
      */
-    public function isSCPActive()
+    public function isSCPActive($product = null)
     {
-        return $this->isModuleEnabled('OrganicInternet_SimpleConfigurableProducts')
-            || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
-            || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
-            || $this->isModuleEnabled('Itonomy_SimpleConfigurable')
-            || strpos(Mage::getBaseUrl(), 'hetlinnenhuis') !== false
-            || strpos(Mage::getBaseUrl(), 'arcaplanet') !== false;
+        if ($this->isModuleEnabled('OrganicInternet_SimpleConfigurableProducts')) {
+            return true;
+        }
+
+        /**
+         * MPLUGIN-1734: Support Amasty_Conf
+         * Ref change log: https://amasty.com/color-swatches-pro.html
+         */
+        if ($this->isModuleEnabled('Amasty_Conf')) {
+            /* @var $helper Jmango360_Japi_Helper_Data */
+            $helper = Mage::helper('japi');
+            $amastyConfVersion = $helper->getExtensionVersion('Amasty_Conf');
+            if (version_compare($amastyConfVersion, '3.9.0', '<')) {
+                return Mage::getStoreConfigFlag('amconf/general/use_simple_price');
+            } else {
+                if (Mage::getStoreConfig('amconf/general/use_simple_price') == 2) {
+                    return true;
+                } elseif (Mage::getStoreConfig('amconf/general/use_simple_price') == 1) {
+                    if ($product && $product->getId()) {
+                        return (bool)$product->getData('amconf_simple_price');
+                    }
+                }
+            }
+        }
+
+        if ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule')) {
+            return true;
+        }
+
+        if ($this->isModuleEnabled('Itonomy_SimpleConfigurable')) {
+            return true;
+        }
+
+        if (strpos(Mage::getBaseUrl(), 'hetlinnenhuis') !== false) {
+            return true;
+        }
+
+        if (strpos(Mage::getBaseUrl(), 'arcaplanet') !== false) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -757,7 +795,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         if ($result['type'] != $result['type_id']) $result['type'] = $result['type_id'];
-        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->isSCPActive()) {
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->isSCPActive($product)) {
             $result['type'] = self::CONFIGURABLE_SCP_TYPE;
             $result['type_id'] = self::CONFIGURABLE_SCP_TYPE;
         }
@@ -768,7 +806,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 $result['required_price_calculation'] = true;
             }
         } elseif ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-            if ($this->isSCPActive()) {
+            if ($this->isSCPActive($product)) {
                 $result['required_price_calculation'] = true;
             }
         }
@@ -952,7 +990,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         if ($result['type'] != $result['type_id']) $result['type'] = $result['type_id'];
-        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->isSCPActive()) {
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->isSCPActive($product)) {
             $result['type'] = self::CONFIGURABLE_SCP_TYPE;
             $result['type_id'] = self::CONFIGURABLE_SCP_TYPE;
         }
@@ -1376,11 +1414,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected function _addProductReviewSummary($product, &$result)
     {
         /**
+         * MPLUGIN-1760: Support Bazaarvoice
+         */
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+        if ($helper->isBazaarvoiceEnabled()) {
+            $result['review'] = null;
+            return;
+        }
+
+        /**
          * MPLUGIN-1742: Fix duplicate review summary data
          */
         if (strpos(Mage::getBaseUrl(), 'ekonoom') !== false) {
             Mage::getModel('review/review')->getEntitySummary($product, Mage::app()->getStore()->getId());
         }
+
         /* @var $helper Jmango360_Japi_Helper_Product_Review */
         $helper = Mage::helper('japi/product_review');
         $reviewSummary = $helper->getProductReviewSummary($product);

@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.2.0</version>
+            <version>3.2.1</version>
         </Jmango360_Japi>
     </modules>
 
@@ -71,7 +71,7 @@
             <controller_front_init_before>
                 <observers>
                     <rest_init_before>
-                        <class>japi/observer</class>
+                        <class>japi/observer_controller_front</class>
                         <method>controllerFrontInitBefore</method>
                     </rest_init_before>
                 </observers>

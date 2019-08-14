@@ -123,7 +123,8 @@ class Jmango360_Japi_Model_Rest_Product_Review extends Jmango360_Japi_Model_Rest
 
     protected function isBazaarvoiceEnabled()
     {
-        return (Mage::helper('core')->isModuleEnabled('Comaxx_BvConversations') && Mage::getStoreConfigFlag('bazaarvoice/general/enable_bv')) ||
-            (Mage::helper('core')->isModuleEnabled('Bazaarvoice_Connector'));
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+        return $helper->isBazaarvoiceEnabled();
     }
 }

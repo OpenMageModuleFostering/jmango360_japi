@@ -61,6 +61,13 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
      */
     protected function _getLayerBlock()
     {
+        /**
+         * MPLUGIN-1601: Support Amasty_Shopby
+         */
+        if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')) {
+            return Mage::helper('japi')->getBlock('Amasty_Shopby_Block_Catalog_Layer_View');
+        }
+
         //skip non-anchor category
         $category = Mage::registry('current_category');
         if ($category->getIsAnchor()) {
@@ -105,8 +112,14 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
             if ($filter->getType() == 'catalog/layer_filter_category') {
                 continue;
             }
+            if ($filter->getAttributeModel()
+                && array_key_exists($filter->getAttributeModel()->getAttributeCode(), Mage::app()->getRequest()->getParams())
+            ) {
+                continue;
+            }
             if ($filter->getItemsCount() && $helper->isFilterEnabled($filter, $block)) {
-                $data[] = $this->_filterToArray($filter);
+                $filterData = $this->_filterToArray($filter);
+                if (!empty($filterData['items'])) $data[] = $filterData;
             }
         }
 
@@ -114,9 +127,9 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
     }
 
     /**
-     * Converts Mage_Catalog_Model_Layer_Filter_Abstract into array
+     * Converts Mage_Catalog_Block_Layer_Filter_Abstract into array
      *
-     * @param $filter Mage_Catalog_Model_Layer_Filter_Abstract
+     * @param $filter Mage_Catalog_Block_Layer_Filter_Abstract
      * @return array
      */
     protected function _filterToArray($filter)
@@ -124,8 +137,32 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
         $data = array();
         $data['name'] = Mage::helper('japi')->__($filter->getName());
         $data['code'] = $filter->getAttributeModel()->getAttributeCode();
-        foreach ($filter->getItems() as $item) {
-            $data['items'][] = $this->_itemToArray($item, $data['code']);
+        if ($filter instanceof Amasty_Shopby_Block_Catalog_Layer_Filter_Attribute) {
+            foreach ($filter->getItemsAsArray() as $item) {
+                $data['items'][] = array(
+                    'count' => $item['countValue'],
+                    'label' => $item['label'],
+                    'value' => $item['id'],
+                    'url' => null
+                );
+            }
+        } elseif ($filter instanceof Mage_Catalog_Block_Layer_Filter_Price) {
+            if (class_exists('Amasty_Shopby_Model_Catalog_Layer_Filter_Price')) {
+                if ($filter->hasDisplayType()
+                    && in_array($filter->getDisplayType(), array(
+                        Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT,
+                        Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN
+                    ))
+                ) {
+                    foreach ($filter->getItems() as $item) {
+                        $data['items'][] = $this->_itemToArray($item, $data['code']);
+                    }
+                }
+            }
+        } else {
+            foreach ($filter->getItems() as $item) {
+                $data['items'][] = $this->_itemToArray($item, $data['code']);
+            }
         }
 
         return $data;

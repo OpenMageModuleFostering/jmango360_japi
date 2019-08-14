@@ -96,7 +96,7 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
         $helper = Mage::helper('japi/product');
 
         $isNeedPrice = false;
-        if ($helper->isSCPActive()) {
+        if ($helper->isSCPActive($currentProduct)) {
             $isNeedPrice = true;
         }
 

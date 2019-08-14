@@ -13,14 +13,4 @@ class Jmango360_Japi_Block_Catalog_Layer_View extends Mage_Catalog_Block_Layer_V
         $this->_priceFilterBlockName = 'Jmango360_Japi_Block_Catalog_Layer_Filter_Price';
         $this->_decimalFilterBlockName = 'Jmango360_Japi_Block_Catalog_Layer_Filter_Decimal';
     }
-
-    /**
-     * Get layer object
-     *
-     * @return Mage_Catalog_Model_Layer
-     */
-    public function getLayer()
-    {
-        return Mage::getSingleton('Mage_Catalog_Model_Layer');
-    }
 }

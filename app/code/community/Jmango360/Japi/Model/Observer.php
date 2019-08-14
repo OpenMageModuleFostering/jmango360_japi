@@ -130,6 +130,14 @@ class Jmango360_Japi_Model_Observer
             if ($lastRealOrderId) {
                 Mage::app()->getFrontController()->getResponse()->setHeader('Last-Real-Order-Id', $lastRealOrderId, true);
             }
+            $lastQuoteId = $session->getLastQuoteId();
+            if ($lastQuoteId) {
+                /* @var $quote Mage_Sales_Model_Quote */
+                $quote = Mage::getModel('sales/quote')->load($lastQuoteId);
+                if ($quote && $quote->getId() && $quote->getIsActive() == 1) {
+                    $quote->setIsActive(0)->save();
+                }
+            }
         }
     }
 
@@ -232,41 +240,6 @@ class Jmango360_Japi_Model_Observer
         $session->setCustomerId($customer->getId());
         $session->setCustomerEmail($customer->getEmail());
         $session->setIsConfirmationRequired($customer->isConfirmationRequired());
-    }
-
-    public function controllerFrontInitBefore($observe)
-    {
-        /* @var $helper Jmango360_Japi_Helper_Data */
-        $helper = Mage::helper('japi');
-        if ($helper->isNeedByPassSessionValidation() || $helper->isNeedByPassMIMT() || !$helper->isUseSidFrontend()) {
-            /* @var $front Mage_Core_Controller_Varien_Front */
-            $front = $observe->getEvent()->getFront();
-            $request = $front->getRequest();
-            $route = explode('/', $request->getPathInfo());
-            if (in_array('system_config', $route)) return;
-            if (count($route) > 3 && $route[1] == 'japi') {
-                if (!$this->_getListModuleNeedToByPassSession() && ($route[2] == 'checkout' && $route[3] == 'onepage')) {
-                    return;
-                }
-                Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
-            } elseif (count($route) > 3 && in_array('japi', $route)) {
-                if (!$this->_getListModuleNeedToByPassSession() && (in_array('checkout', $route) && in_array('onepage', $route))) {
-                    return;
-                }
-                Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
-            } elseif (strpos(Mage::app()->getRequest()->getHeader('Referer'), 'japi/checkout/onepage') !== false) {
-                if (!$this->_getListModuleNeedToByPassSession()) {
-                    return;
-                }
-                Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
-            }
-        }
-    }
-
-    protected function _getListModuleNeedToByPassSession()
-    {
-        $helper = Mage::helper('japi');
-        return $helper->isModuleEnabled('TIG_PostNL');
     }
 
     public function restAdminActionPreDispatch($observe)
