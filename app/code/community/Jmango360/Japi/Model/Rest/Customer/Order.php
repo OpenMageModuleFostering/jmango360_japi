@@ -137,7 +137,9 @@ class Jmango360_Japi_Model_Rest_Customer_Order extends Mage_Customer_Model_Custo
             }
 
             $data['items'][$item->getId()] = $item->toArray();
-            $data['items'][$item->getId()]['product'] = Mage::getModel('catalog/product')->load($item->getProductId());
+            $product = Mage::getModel('catalog/product')->load($item->getProductId());
+            $data['items'][$item->getId()]['image'] = Mage::helper('japi/product')->getProductImage($product);
+            $data['items'][$item->getId()]['product'] = $product;
         }
 
         $data['payment'] = $order->getPayment()->toArray();

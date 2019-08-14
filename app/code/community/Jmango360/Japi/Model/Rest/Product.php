@@ -58,12 +58,54 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'getReviews' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getProductReviews();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getReviewForm' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getProductReviewForm();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'saveReview' . Jmango360_Japi_Model_Request::OPERATION_CREATE:
+                $data = $this->_saveProductReview();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             default:
                 throw new Jmango360_Japi_Exception(
                     Mage::helper('japi')->__('Resource method not implemented'),
                     Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
                 );
         }
+    }
+
+    protected function _getProductReviews()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Review */
+        $model = Mage::getModel('japi/rest_product_review');
+        $data = $model->getList();
+
+        return $data;
+    }
+
+    protected function _saveProductReview()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Review */
+        $model = Mage::getModel('japi/rest_product_review');
+        $data = $model->saveReview();
+
+        return $data;
+    }
+
+    protected function _getProductReviewForm()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Review */
+        $model = Mage::getModel('japi/rest_product_review');
+        $data = $model->getForm();
+
+        return $data;
     }
 
     protected function _getProductId()
@@ -164,6 +206,10 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
         }
 
         $product = Mage::getModel('catalog/product')->load($id, array('sku', 'hide_in_jm360'));
+
+        /* @var $reviewModel Mage_Review_Model_Review */
+        $reviewModel = Mage::getModel('review/review');
+        $reviewModel->getEntitySummary($product, Mage::app()->getStore()->getId());
         if (!$product->getId() || $product->getData('hide_in_jm360') == 1) {
             throw new Jmango360_Japi_Exception(
                 Mage::helper('japi')->__('Product not found'),

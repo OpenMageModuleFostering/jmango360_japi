@@ -722,6 +722,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         $storeData = Mage::app()->getStore()->getData();
         $storeData['store_url'] = Mage::getStoreConfig('web/unsecure/base_url');
         $storeData['root_category_id'] = Mage::app()->getStore()->getRootCategoryId();
+        $storeData['is_default'] = Mage::app()->getStore()->getWebsite()->getDefaultStore()->getId() == Mage::app()->getStore()->getId();
 
         $data['current'] = $storeData;
         $data['list'] = array();
@@ -731,6 +732,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             $d = $store->getData();
             $d['store_url'] = Mage::getStoreConfig('web/unsecure/base_url', $store);
             $d['root_category_id'] = $store->getRootCategoryId();
+            $d['is_default'] = Mage::app()->getStore($storeId)->getWebsite()->getDefaultStore()->getId() == $storeId;
 
             $data['list'][] = $d;
         }
@@ -815,5 +817,4 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         $data = $model->getJapiOrders();
         return $data;
     }
-
 }

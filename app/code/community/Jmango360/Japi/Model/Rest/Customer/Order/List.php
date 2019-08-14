@@ -9,7 +9,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
     {
         $limit = $this->_getRequest()->getParam('limit');
         $page = $this->_getRequest()->getParam('p');
-        $data['orders'] = $this->_getOrderList(null, null, false, $limit, $page);
+        $data = $this->_getOrderList(null, null, false, $limit, $page);
 
         return $data;
     }
@@ -31,16 +31,19 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
             );
         }
 
-        return array('order' => count($data) ? $data[0] : new stdClass());
+        return array('order' => !empty($data['orders']) ? $data['orders'][0] : null);
     }
 
     public function getJapiOrders()
     {
-        $limit = $this->_getRequest()->getParam('limit', 20);
-        $page = $this->_getRequest()->getParam('p', 1);
+        $limit = (int)$this->_getRequest()->getParam('limit', 20);
+        $page = (int)$this->_getRequest()->getParam('p', 1);
+        $page = $page <= 1 ? 1 : $page;
         $date = $this->_getRequest()->getParam('date');
         $quoteIds = $this->_getRequest()->getParam('quote_ids');
-        $data['orders'] = $this->_getJapiOrderList($limit, $page, true, $date, $quoteIds);
+        $fields = $this->_getRequest()->getParam('fields');
+        $fields = explode(',', $fields);
+        $data['orders'] = $this->_getJapiOrderList($limit, $page, !count($fields), $date, $quoteIds, $fields);
         $data['total_orders'] = $this->countJapiOders;
 
         return $data;
@@ -94,14 +97,17 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                     'increment_id' => $order->getData('increment_id'),
                     'created_at' => $order->getData('created_at'),
                     'grand_total' => (float)$order->getData('grand_total'),
-                    'formatted_grand_total' => $order->getOrderCurrency()->formatPrecision($order->getData('grand_total'), 2, array(), false, false)
+                    'formatted_grand_total' => $order->getOrderCurrency()->formatPrecision($order->getData('grand_total'), 2, array(), false, false),
+                    'order_currency_code' => $order->getData('order_currency_code')
                 );
             }
 
             $orderData['status'] = $order->getStatusLabel();
 
-            $data[] = $orderData;
+            $data['orders'][] = $orderData;
         }
+
+        $data['total_orders'] = $orderCollection->getSize();
 
         return $data;
     }
@@ -114,9 +120,10 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
      * @param bool $showDetails
      * @param null $date
      * @param null $quoteIds
+     * @param array $fields
      * @return array
      */
-    protected function _getJapiOrderList($limit = null, $page = null, $showDetails = false, $date = null, $quoteIds = null)
+    protected function _getJapiOrderList($limit = null, $page = null, $showDetails = false, $date = null, $quoteIds = null, $fields = array())
     {
         $data = array();
 
@@ -147,16 +154,20 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         foreach ($orderCollection as $order) {
             /* @var $order Mage_Sales_Model_Order */
             if ($showDetails) {
-                $orderData = $this->_getOrderDetails($order);
+                $orderData = $this->_getOrderDetails($order, true);
             } else {
                 $orderData = array(
                     'entity_id' => (int)$order->getData('entity_id'),
                     'increment_id' => $order->getData('increment_id'),
+                    'store_id' => $order->getData('store_id'),
                     'created_at' => $order->getData('created_at'),
                     'quote_id' => $order->getQuoteId(),
                     'grand_total' => (float)$order->getData('grand_total'),
                     'formatted_grand_total' => $order->getOrderCurrency()->formatPrecision($order->getData('grand_total'), 2, array(), false, false)
                 );
+                foreach ($fields as $field) {
+                    $orderData[$field] = $order->getData($field);
+                }
             }
 
             $orderData['status'] = $order->getStatusLabel();
@@ -169,7 +180,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         return $data;
     }
 
-    public function _getOrderDetails(Mage_Sales_Model_Order $order)
+    public function _getOrderDetails(Mage_Sales_Model_Order $order, $isJapi = false)
     {
         Mage::register('current_order', $order, true);
 
@@ -185,7 +196,11 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         $data['payment_title'] = $this->_getOrderPaymentMethod($order);
 
         try {
-            $data = $this->_getOrderItemsAndTotals($data, $order);
+            if ($isJapi) {
+                $data = $this->_getJapiOrderItemsAndTotals($data, $order);
+            } else {
+                $data = $this->_getOrderItemsAndTotals($data, $order);
+            }
         } catch (Exception $e) {
             Mage::logException($e);
             $data['totals'] = array();
@@ -222,10 +237,19 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                 if ($itemModel->getParentItem()) continue;
 
                 $item = $itemModel->toArray();
-                /* @var $block Mage_Sales_Block_Order_Item_Renderer_Default */
-                $block = $itemsBlock->getItemRenderer($itemModel->getProductType())->setItem($itemModel);
+
+                $product = Mage::getModel('catalog/product')->load($itemModel->getProductId(), array('image', 'small_image', 'thumbnail'));
+                if ($product->getId()) {
+                    $item['image'] = Mage::helper('japi/product')->getProductImage($product);
+                    $item['product_url'] = $product->getProductUrl();
+                } else {
+                    $item['image'] = null;
+                    $item['product_url'] = null;
+                }
+
+                $options = array();
+
                 if ($itemModel->getProductType() == 'bundle') {
-                    $options = array();
                     $childenItems = $itemModel->getChildrenItems();
                     foreach ($childenItems as $childenItem) {
                         $attributes = $this->_getSelectionAttributes($childenItem);
@@ -234,16 +258,28 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                         if (!isset($options[$attributes['option_id']])) {
                             $options[$attributes['option_id']] = array(
                                 'label' => $helper->escapeHtml($attributes['option_label']),
-                                'value' => $this->_getSelectionHtml($childenItem, $attributes, $order)
+                                'value' => $this->_getSelectionHtml($childenItem, $attributes, $order),
+                                'price' => '' . $attributes['price'],
+                                'qty' => '' . $attributes['qty'],
+                                'type' => 'drop_down'
                             );
                         } else {
-                            $options[$attributes['option_id']]['value'] .= "\n" . $this->_getSelectionHtml($childenItem, $attributes, $order);
+                            $options[$attributes['option_id']]['value'] .= '||' . $this->_getSelectionHtml($childenItem, $attributes, $order);
+                            $options[$attributes['option_id']]['price'] .= '||' . $attributes['price'];
+                            $options[$attributes['option_id']]['qty'] .= '||' . $attributes['qty'];
+                            $options[$attributes['option_id']]['type'] = 'multiple';
                         }
                     }
-                    $item['options'] = array_values($options);
-                } else {
-                    $item['options'] = $block->getItemOptions();
                 }
+
+                /* @var $block Mage_Sales_Block_Order_Item_Renderer_Default */
+                $block = $itemsBlock->getItemRenderer($itemModel->getProductType())->setItem($itemModel);
+                $customOptions = $block->getItemOptions();
+                if ($customOptions) {
+                    $options += $this->_getProductCustomOptions($customOptions, $product);
+                }
+
+                $item['options'] = array_values($options);
 
                 $items[] = $item;
             }
@@ -280,13 +316,134 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         return $data;
     }
 
+    protected function _getJapiOrderItemsAndTotals(array $data, Mage_Sales_Model_Order $order)
+    {
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+        /* @var $layout Mage_Core_Model_Layout */
+        $layout = $helper->loadLayout('sales_order_view');
+        if (!$layout) return $data;
+
+        foreach ($layout->getAllBlocks() as $block) {
+            /* @var $block Mage_Core_Model_Template */
+            if ($block->getType() == 'sales/order_totals') {
+                $totalsBlock = $block;
+            }
+            if ($block->getType() == 'sales/order_items') {
+                $itemsBlock = $block;
+            }
+        }
+
+        if (!empty($itemsBlock)) {
+            /* @var $itemsBlock Mage_Sales_Block_Order_Items */
+            $itemsCollection = $order->getItemsCollection();
+            $items = array();
+
+            foreach ($itemsCollection as $itemModel) {
+                /* @var $itemModel Mage_Sales_Model_Order_Item */
+                if ($itemModel->getParentItem()) continue;
+
+                $items[$itemModel->getId()] = $itemModel->toArray();
+                /* @var $block Mage_Sales_Block_Order_Item_Renderer_Default */
+                $block = $itemsBlock->getItemRenderer($itemModel->getProductType())->setItem($itemModel);
+                if ($itemModel->getProductType() == 'bundle') {
+                    $options = array();
+                    $childenItems = $itemModel->getChildrenItems();
+                    foreach ($childenItems as $childenItem) {
+                        $attributes = $this->_getSelectionAttributes($childenItem);
+                        if (empty($attributes)) continue;
+
+                        if (!isset($options[$attributes['option_id']])) {
+                            $options[$attributes['option_id']] = array(
+                                'label' => $helper->escapeHtml($attributes['option_label']),
+                                'value' => $this->_getSelectionHtml($childenItem, $attributes, $order)
+                            );
+                        } else {
+                            $options[$attributes['option_id']]['value'] .= "\n" . $this->_getSelectionHtml($childenItem, $attributes, $order);
+                        }
+                    }
+                    $items[$itemModel->getId()]['options'] = array_values($options);
+                } else {
+                    $items[$itemModel->getId()]['options'] = $block->getItemOptions();
+                }
+            }
+
+            $data['items'] = $items;
+        }
+
+        if (!empty($totalsBlock)) {
+            /* @var $totalsBlock Mage_Sales_Block_Order_Totals */
+            $totalsBlock->setOrder($order);
+            $totalsBlock->toHtml();
+
+            $totals = array();
+            foreach ($totalsBlock->getTotals() as $total) {
+                /* @var $total Varien_Object */
+                $blockName = $total->getData('block_name');
+
+                if ($blockName == 'tax') {
+                    $totals = array_merge($totals, $this->_getTaxTotals($order));
+                } elseif ($blockName) {
+                    $html = $totalsBlock->getChildHtml($blockName);
+                    $totals = array_merge($totals, $this->_getHtmlTotals($html));
+                } else {
+                    if (isset($total['value'])) {
+                        $total->setData('formatted_value', $order->getOrderCurrency()->formatPrecision($total['value'], 2, array(), false));
+                    }
+                    $totals[] = $total->toArray();
+                }
+            }
+
+            $data['totals'] = $totals;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Process product custom options data
+     */
+    protected function _getProductCustomOptions($options, $product)
+    {
+        if (!is_array($options)) return null;
+
+        foreach ($options as $k => $option) {
+            if (!isset($option['option_type'])) {
+                continue;
+            }
+
+            $options[$k]['type'] = $option['option_type'];
+            $options[$k]['value'] = $option['print_value'];
+            switch ($option['option_type']) {
+                case 'checkbox':
+                case 'multiple':
+                    if ($product && $product->getId()) {
+                        foreach ($product->getOptions() as $productOption) {
+                            if ($option['option_id'] == $productOption->getId()) {
+                                $newValues = array();
+                                $oldValues = explode(',', $option['option_value']);
+                                foreach ($productOption->getValues() as $value) {
+                                    if (in_array($value->getId(), $oldValues)) {
+                                        $newValues[] = $value->getTitle();
+                                    }
+                                }
+                                if (count($newValues) == count($oldValues)) {
+                                    $options[$k]['value'] = implode('||', $newValues);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return $options;
+    }
+
     protected function _getSelectionHtml($childenItem, $attributes, $order)
     {
-        return sprintf('%d x %s (%s)',
-            $attributes['qty'],
-            $childenItem->getName(),
-            $order->getOrderCurrency()->formatPrecision($attributes['price'], 2, array(), false)
-        );
+        return $childenItem->getName();
     }
 
     protected function _getSelectionAttributes($item)

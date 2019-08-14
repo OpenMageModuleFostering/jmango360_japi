@@ -193,4 +193,13 @@
 
         <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="japi/checkout/onepage/shipping_method/available.phtml"/>
     </japi_checkout_onepage_shippingmethod>
+
+    <japi_checkout_onepage_paymentmethod>
+        <update handle="checkout_onepage_paymentmethod"/>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>japi/checkout/onepage/payment/methods.phtml</template>
+            </action>
+        </reference>
+    </japi_checkout_onepage_paymentmethod>
 </layout>

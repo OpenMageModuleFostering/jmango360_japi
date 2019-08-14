@@ -86,13 +86,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      */
     protected $_usedInProductView;
 
+    protected $_directionAvailable = array('asc', 'desc');
+
     /**
      * Check if site use modules like OrganicInternet_SimpleConfigurableProducts
      */
     public function isSCPActive()
     {
         return $this->isModuleEnabled('OrganicInternet_SimpleConfigurableProducts')
-        || $this->isModuleEnabled('Amasty_Conf')
+        || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
         || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
         || $this->isModuleEnabled('Itonomy_SimpleConfigurable');
     }
@@ -118,34 +120,31 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
         $field = $request->getParam('order', false);
         if ($field) {
-            $direction = $request->getParam('dir', Varien_Data_Collection::SORT_ORDER_DESC);
-            $collection->setOrder($field, $direction);
-
-            /**
-             * Fix for MPLUGIN-661
-             * Remove OREDER BY 'on_top' added by module 'RicardoMartins_OutofstockLast'
-             */
-            if ($this->isModuleEnabled('RicardoMartins_OutofstockLast')) {
-                $orderPaths = $collection->getSelect()->getPart(Zend_Db_Select::ORDER);
-                foreach ($orderPaths as $key => $orderPath) {
-                    if ($orderPath[0] == 'on_top') {
-                        unset($orderPaths[$key]);
-                        break;
-                    }
-                }
-
-                $collection->getSelect()->reset(Zend_Db_Select::ORDER);
-                foreach ($orderPaths as $orderPath) {
-                    $collection->getSelect()->order($orderPath[0] . ' ' . $orderPath[1]);
-                }
-            }
-
             /**
              * MPLUGIN-767
              */
             $fromPart = $collection->getSelect()->getPart(Zend_Db_Select::FROM);
             if (!isset($fromPart['price_index'])) {
                 $this->_addPriceData($collection);
+            }
+        }
+
+        /**
+         * Fix for MPLUGIN-661
+         * Remove OREDER BY 'on_top' added by module 'RicardoMartins_OutofstockLast'
+         * Update for MPLUGIN-1407: always remove OREDER BY 'on_top'
+         */
+        if ($this->isModuleEnabled('RicardoMartins_OutofstockLast')) {
+            $orderPaths = $collection->getSelect()->getPart(Zend_Db_Select::ORDER);
+            foreach ($orderPaths as $key => $orderPath) {
+                if ($orderPath[0] == 'on_top') {
+                    unset($orderPaths[$key]);
+                    break;
+                }
+            }
+            $collection->getSelect()->reset(Zend_Db_Select::ORDER);
+            foreach ($orderPaths as $orderPath) {
+                $collection->getSelect()->order($orderPath[0] . ' ' . $orderPath[1]);
             }
         }
 
@@ -197,6 +196,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         }
 
+        /**
+         * MPLUGIN-1433: Override sort direction by Jmango360 config
+         */
+        $paramDirection = $request->getParam('dir');
+        if (empty($paramDirection) || !in_array(strtolower($paramDirection), $this->_directionAvailable)) {
+            $directionConfig = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/default_direction');
+            if ($directionConfig)
+                $toolBarBlock->setData('_current_grid_direction', $directionConfig);
+        }
         $toolBarBlock->setCollection($collection);
 
         /**
@@ -227,7 +235,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
         if (!in_array($field, $_ignoreOrder)) {
             if ($request->getParam('category_id')) {
-                $collection->setOrder('position', 'asc');
+                if ($toolBarBlock->getCurrentOrder() != 'position')
+                    $collection->setOrder('position', 'asc');
             }
             if ($_isUseFlatOnWeb) {
                 $collection->setOrder('entity_id', 'asc');
@@ -266,25 +275,44 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      */
     protected function _getCurrentDirection($collection)
     {
-        $_cacheKey = 'japi_catalog_current_direction_' . Mage::app()->getStore()->getStoreId();
-        $cache = Mage::app()->getCache();
-        if ($dir = $cache->load($_cacheKey)) {
+        //Get sort direction from request
+        /* @var $request Jmango360_Japi_Model_Request */
+        $request = Mage::helper('japi')->getRequest();
+        $dir = $request->getParam('dir', false);
+        if ($dir && in_array(strtolower($dir), $this->_directionAvailable)) {
             return $dir;
         }
+
+        //Get sort direction from Jmango360 config
+        $dir = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/default_direction');
+        if ($dir && $dir != '') {
+            return $dir;
+        }
+
+        //Check needed to load sort direction
+        $session = Mage::getSingleton('core/session');
+        if ($session->getData('japi_direction_loaded')) {
+            return '';
+        }
+
+        //Get sort direction from frontend layout config
         $layout = Mage::app()->getLayout();
         $update = $layout->getUpdate();
         $update->load('catalog_category_layered');
+        //MPLUGIN-1413: fix for 'Amasty_Shopby' - add head block
+        if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')) {
+            $layout->addBlock('page/html_head', 'head');
+        }
         $layout->generateXml();
         $layout->generateBlocks();
         $block = $layout->getBlock('product_list_toolbar');
         if ($block) {
             $block->setCollection($collection);
             if ($dir = $block->getCurrentDirection()) {
-                $cache->save($dir, $_cacheKey, array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG), null);
+                $session->setData('japi_direction_loaded', true);
                 return $dir;
             }
         }
-
         return '';
     }
 
@@ -442,6 +470,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         }
 
+        // Append review data
+        $this->addProductReview($collection);
+
         $result = array();
         foreach ($collection as $product) {
             if ($details) {
@@ -452,6 +483,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         return $result;
+    }
+
+    /**
+     * Append product review data
+     *
+     * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     */
+    public function addProductReview($collection)
+    {
+        /* @var $helper Jmango360_Japi_Helper_Product_Review */
+        $helper = Mage::helper('japi/product_review');
+        if ($helper->isModuleEnabled('Mage_Review')) {
+            /* @var $reviewModel Mage_Review_Model_Review */
+            $reviewModel = Mage::getModel('review/review');
+            $reviewModel->appendSummary($collection);
+        }
     }
 
     /**
@@ -555,6 +602,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'name' => $product->getName(),
             'sku' => $product->getSku(),
             'type' => $product->getTypeId(),
+            'product_url' => $product->getProductUrl(),
             'type_id' => $product->getTypeId(),
             'stock' => $this->_getStockLevel($product),
             'is_in_stock' => $product->getStockItem() ? (int)$product->getStockItem()->getIsInStock() : null,
@@ -566,6 +614,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'minimal_price' => $this->calculatePriceIncludeTax($product, $product->getMinimalPrice()),
             'image' => $this->_getProductImage($product)
         );
+
+        /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
+        $reviewHelper = Mage::helper('japi/product_review');
+        $result['review_enable'] = $reviewHelper->isReviewEnable();
+        $this->_addProductReviewSummary($product, $result);
 
         if ($details) {
             $product->load($product->getId());
@@ -1168,6 +1221,43 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Get product review summary
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param $result
+     */
+    protected function _addProductReviewSummary($product, &$result)
+    {
+        /* @var $helper Jmango360_Japi_Helper_Product_Review */
+        $helper = Mage::helper('japi/product_review');
+        $reviewSummary = $helper->getProductReviewSummary($product);
+        if ($reviewSummary) {
+            $result['review'] = array(
+                'type' => 'overview',
+                'code' => 'overview',
+                'values' => array('1', '2', '3', '4', '5'),
+                'review_counter' => $helper->getProductReviewCount($product),
+                'percent' => $reviewSummary
+            );
+        } else {
+            $result['review'] = null;
+        }
+    }
+
+    /**
+     * Get product review details
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param $result
+     */
+    protected function _addProductReviewDetails($product, &$result)
+    {
+        /* @var $helper Jmango360_Japi_Helper_Product_Review */
+        $helper = Mage::helper('japi/product_review');
+        $result['review_details'] = $helper->getProductReviewDetails($product);
+    }
+
+    /**
      * @param Mage_Catalog_Model_Product $product
      * @param $result
      */
@@ -1595,5 +1685,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected function _getImageFileName($url)
     {
         return basename($url);
+    }
+
+    /**
+     * Return product's image
+     * @param $product Mage_Catalog_Model_Product
+     * @return string
+     */
+    public function getProductImage($product)
+    {
+        return $this->_getProductImage($product);
     }
 }

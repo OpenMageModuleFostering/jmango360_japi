@@ -88,7 +88,12 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
 
             $this->_validateQuote(!$throwError);
             $this->_validateMinimumAmount(!$throwError);
-            $this->_validateGuestCanCheckout(!$throwError);
+
+            /**
+             * MPLUGIN-1423:
+             * Remove validate Guest checkout when get Cart
+             */
+            //$this->_validateGuestCanCheckout(!$throwError);
         }
 
         $cart = $this->getQuote()->getData();
@@ -156,15 +161,24 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         $cart['shipping_methods'] = empty($shippingMethods) ? new stdClass() : $shippingMethods;
         $paymentMethods = $methods->getPaymentMethods();
         $cart['payment_methods'] = empty($paymentMethods) ? new stdClass() : $paymentMethods;
-
         $cart['methods_info'] = $methods->getErrors();
-        $cart['checkout_url'] = Mage::getUrl('japi/checkout/redirect', array(
-            '_query' => array(
-                'SID' => Mage::getSingleton('core/session')->getSessionId(),
-                '___store' => Mage::app()->getStore()->getCode()
-            ),
-            '_secure' => true
-        ));
+
+        if (Mage::app()->getStore()->getId() == Mage::app()->getWebsite()->getDefaultStore()->getId()) {
+            $cart['checkout_url'] = Mage::getUrl('japi/checkout/redirect', array(
+                '_query' => array(
+                    'SID' => Mage::getSingleton('core/session')->getSessionId()
+                ),
+                '_secure' => true
+            ));
+        } else {
+            $cart['checkout_url'] = Mage::getUrl('japi/checkout/redirect', array(
+                '_query' => array(
+                    'SID' => Mage::getSingleton('core/session')->getSessionId(),
+                    '___store' => Mage::app()->getStore()->getCode()
+                ),
+                '_secure' => true
+            ));
+        }
 
         return $cart;
     }
@@ -189,6 +203,8 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         $baseMessages = $quoteItem->getMessage(false);
         if ($baseMessages) {
             foreach ($baseMessages as $message) {
+                //MPLUGIN-1428: not return message if it empty
+                if (!$message || $message == '') continue;
                 $messages[] = array(
                     'message' => $message,
                     'type' => $quoteItem->getHasError() ? 2 : 1
@@ -205,6 +221,8 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
                 $additionalMessages = $collection->getItems();
                 foreach ($additionalMessages as $message) {
                     /* @var $message Mage_Core_Model_Message_Abstract */
+                    //MPLUGIN-1428: not return message if it empty
+                    if (!$message->getCode() || $message->getCode() == '') continue;
                     $messages[] = array(
                         'message' => $message->getCode(),
                         'type' => ($message->getType() == Mage_Core_Model_Message::ERROR) ? 2 : 1
@@ -283,12 +301,18 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
                 'type' => 1
             );
 
+        /**
+         * MPLUGIN-1423:
+         * Remove warning message when Guest checkout is not enabled
+         */
+        /*
         if ($error3 = $this->_validateGuestCanCheckout(!$throwError))
             $data['messages']['message'][] = array(
                 'code' => Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR,
                 'message' => $error3,
                 'type' => 1
             );
+        */
 
         $data['cart'] = $this->getCartData(false);
         if ($data['cart'] === false) {

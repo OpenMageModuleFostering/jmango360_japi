@@ -447,6 +447,7 @@ class Jmango360_Japi_Model_Rest_Wishlist extends Mage_Core_Model_Abstract
     protected function _getItems()
     {
         $page = (int)$this->_getRequest()->getParam('p', 1);
+        $page = $page > 0 ? $page : 1;
         $limit = (int)$this->_getRequest()->getParam('limit', 10);
         return array('items' => $this->_getWishlistData($page, $limit));
     }

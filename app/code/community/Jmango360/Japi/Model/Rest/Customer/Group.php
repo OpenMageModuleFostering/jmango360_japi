@@ -102,7 +102,7 @@ class Jmango360_Japi_Model_Rest_Customer_Group extends Jmango360_Japi_Model_Rest
     protected function convertCollectionToResponse($collection)
     {
         $page = $this->_getRequest()->getParam('p', 1);
-        $page = is_numeric($page) ? $page : 1;
+        $page = is_numeric($page) && $page > 0 ? $page : 1;
         $limit = $this->_getRequest()->getParam('limit', 20);
         $limit = is_numeric($limit) ? $limit : 20;
         $collection->setPage($page, $limit);

@@ -343,6 +343,15 @@ p.back-link {
 .form-list label[for="ccsave_cc_cid"] + .input-box .v-fix {
   width: 100%;
 }
+.form-list + .fieldset {
+  margin-top: 1em;
+}
+.form-list + .fieldset h2 {
+  font-size: 1.5em;
+}
+.form-list + .fieldset > div {
+  width: 100%;
+}
 #discount-coupon-form {
   padding-top: 1em;
 }

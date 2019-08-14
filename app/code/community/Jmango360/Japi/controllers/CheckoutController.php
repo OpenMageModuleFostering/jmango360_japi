@@ -150,6 +150,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
         Mage::app()->getStore()->setConfig('dev/js/merge_files', 0);
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/min_js', 0);
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/merge_js', 0);
+        Mage::app()->getStore()->setConfig('hsmedia/mediasetting/hsmedia_enabled', 0);
 
         // Freeze cart object
         Mage::getSingleton('checkout/session')->setCartWasUpdated(false);
@@ -244,6 +245,24 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('AW_Deliverydate')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><script>varien/product.js</script></action>
+    <action method=\"addCss\"><stylesheet>aw_deliverydate/css/main.css</stylesheet></action>
+    <action method=\"addItem\"><type>js_css</type><name>calendar/calendar-win2k-1.css</name><params/></action>
+    <action method=\"addItem\"><type>js</type><name>calendar/calendar.js</name></action>
+    <action method=\"addItem\"><type>js</type><name>calendar/calendar-setup.js</name></action>
+    <action method=\"addJs\"><script>jquery/jquery.1.9.1.min.js</script></action>
+    <action method=\"addJs\"><script>jquery/jquery.noConflict.js</script></action>
+    <action method=\"addJs\"><script>pickadate/picker.js</script></action>
+    <action method=\"addJs\"><script>pickadate/picker.date.js</script></action>
+    <action method=\"addItem\"><type>js_css</type><stylesheet>pickadate/theme/default.css</stylesheet></action>
+    <action method=\"addItem\"><type>js_css</type><stylesheet>pickadate/theme/default.date.css</stylesheet></action>
+    <block type=\"core/html_calendar\" name=\"html_calendar\" as=\"html_calendar\" template=\"page/js/calendar.phtml\"/>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();
@@ -284,6 +303,34 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
             );
 
             return $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+        } elseif (Mage::helper('core')->isModuleEnabled('InfoDesires_CashOnDelivery') && Mage::getStoreConfigFlag('payment/cashondelivery/active')) {
+            if ($this->_expireAjax()) {
+                return false;
+            }
+            if ($this->getRequest()->isPost()) {
+                $data = $this->getRequest()->getPost('shipping_method', '');
+                $result = $this->getOnepage()->saveShippingMethod($data);
+                // $result will contain error data if shipping method is empty
+                if (!$result) {
+                    Mage::dispatchEvent(
+                        'checkout_controller_onepage_save_shipping_method',
+                        array(
+                            'request' => $this->getRequest(),
+                            'quote' => $this->getOnepage()->getQuote()
+                        )
+                    );
+                    $this->getOnepage()->getQuote()->collectTotals();
+                    $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+
+                    $result['goto_section'] = 'payment';
+                    $result['update_section'] = array(
+                        'name' => 'payment-method',
+                        'html' => $this->_getPaymentMethodsHtml()
+                    );
+                }
+                $this->getOnepage()->getQuote()->collectTotals()->save();
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+            }
         } else {
             return parent::saveShippingMethodAction();
         }
@@ -478,6 +525,26 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
             return $output;
         } else {
             return parent::_getShippingMethodsHtml();
+        }
+    }
+
+    /**
+     * Get payment method step html
+     *
+     * @return string
+     */
+    protected function _getPaymentMethodsHtml()
+    {
+        if (Mage::helper('core')->isModuleEnabled('InfoDesires_CashOnDelivery') && Mage::getStoreConfigFlag('payment/cashondelivery/active')) {
+            $layout = $this->getLayout();
+            $update = $layout->getUpdate();
+            $update->load('japi_checkout_onepage_paymentmethod');
+            $layout->generateXml();
+            $layout->generateBlocks();
+            $output = $layout->getOutput();
+            return $output;
+        } else {
+            return parent::_getPaymentMethodsHtml();
         }
     }
 }
