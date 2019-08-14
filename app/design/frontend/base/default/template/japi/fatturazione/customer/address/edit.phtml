@@ -1,0 +1,312 @@
+<?php
+
+$json_city_sh=$this->getCity();
+
+
+
+$helper = Mage::helper('onestepcheckout/checkout');
+$json_arr_sh=$helper->getPostCode();
+$json_city_sh=$helper->getCity();
+
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magentocommerce.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2012 Magento Inc. (http://www.magentocommerce.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php
+/**
+ * Edit customer address template
+ *
+ * @see Mage_Customer_Block_Address_Edit
+ */
+?>
+
+<?php if($this->getTitle()): ?>
+<div class="page-title">
+    <h1><?php echo $this->getTitle() ?></h1>
+</div>
+<?php endif; ?>
+<?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+<form action="<?php echo $this->getUrl('*/*/addressPost', array('_current' => true)) ?>" method="post" id="form-validate">
+    <div class="fieldset">
+    <?php echo $this->getBlockHtml('formkey')?>
+    <input type="hidden" name="success_url" value="<?php echo $this->getUrl('*/*/*', array('_current' => true)) ?>" />
+    <input type="hidden" name="error_url" value="<?php echo $this->getUrl('*/*/*', array('_current' => true)) ?>" />
+        <h2 class="legend"><?php echo $this->__('Contact Information') ?></h2>
+        <ul class="form-list">
+            <li class="fields">
+                <?php echo $this->getNameBlockHtml() ?>
+            </li>
+            <li class="fields">
+                <div class="field">
+                    <label for="richiesta_fattura" ><?php echo $this->__('Richiesta Fattura'); ?></label>
+                    <div class="input-box dropdown">
+                        <?php
+                        $check1 = ($this->getAddress()->getRichiestaFattura())?'':'selected';
+                        $check2 = ($this->getAddress()->getRichiestaFattura())?'selected':'';
+                        ?>
+
+                        <select id="richiesta_fattura" name="richiesta_fattura">
+
+                            <option value="0" <?php echo $check1 ?> ><?php echo $this->__('No')?></option>
+                            <option value="1" <?php echo $check2 ?> ><?php echo $this->__('Yes')?></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+
+                    <label for="indirizzo_aziendale" ><?php echo $this->__('Tipo Utente'); ?></label>
+                    <div class="input-box dropdown">
+                        <?php
+                        $check1 = ($this->getAddress()->getIndirizzoAziendale())?'':'selected';
+                        $check2 = ($this->getAddress()->getIndirizzoAziendale())?'selected':'';
+                        ?>
+                        <select id="indirizzo_aziendale" name="indirizzo_aziendale">
+
+                            <option value="0" <?php echo $check1 ?> ><?php echo $this->__('Privato')?></option>
+                            <option value="1" <?php echo $check2 ?> ><?php echo $this->__('Azienda')?></option>
+                        </select>
+                    </div>
+                </div>
+
+
+            </li>
+            <li id='company_container' class="wide">
+                <label for="company" class="required"><em>*</em><?php echo $this->__('Company') ?></label>
+                <div class="input-box">
+                    <input type="text" id="company" name="company" value="<?php echo $this->escapeHtml($this->getAddress()->getCompany()) ?>" title="<?php echo $this->__('Company') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('company') ?>" />
+                </div>
+
+
+            </li>
+            <li class="fields">
+
+                <div id='partita_iva_container' class="field">
+
+                    <label for="partita_iva" class="required"><em>*</em><?php echo $this->__('Partita Iva') ?></label>
+                    <div class="input-box">
+                        <input type="text" id="partita_iva" name="partita_iva" value="<?php echo $this->escapeHtml($this->getAddress()->getPartitaIva()) ?>" title="<?php echo $this->__('Partita Iva') ?>" class="input-text validate-partitaiva" />
+                    </div>
+                </div>
+                <div id="vat_id_container" class="field">
+
+                    <label for="vat_id" class="required"><em>*</em><?php echo $this->__('Codice Fiscale') ?></label>
+                    <div class="input-box">
+                        <input type="text" id="vat_id" name="vat_id" value="<?php echo $this->escapeHtml($this->getAddress()->getVatId()) ?>" title="<?php echo $this->__('Codice Fiscale') ?>" class="input-text validate-codicefiscale" />
+                    </div>
+                </div>
+            </li>
+            <li class="fields">
+                <div class="field">
+                    <label for="telephone" class="required"><em>*</em><?php echo $this->__('Telephone') ?></label>
+                    <div class="input-box">
+                        <input type="text" name="telephone" value="<?php echo $this->escapeHtml($this->getAddress()->getTelephone()) ?>" title="<?php echo $this->__('Telephone') ?>" class="input-text  <?php echo $this->helper('customer/address')->getAttributeValidationClass('telephone') ?>" id="telephone" />
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+    <div class="fieldset">
+        <h2 class="legend"><?php echo $this->__('Address') ?></h2>
+        <ul class="form-list">
+        <?php $_streetValidationClass = $this->helper('customer/address')->getAttributeValidationClass('street'); ?>
+            <li class="wide">
+                <label for="street_1" class="required"><em>*</em><?php echo $this->__('Street Address') ?></label>
+                <div class="input-box">
+                    <input type="text" name="street[]" value="<?php echo $this->escapeHtml($this->getAddress()->getStreet(1)) ?>" title="<?php echo $this->__('Street Address') ?>" id="street_1" class="input-text <?php echo $_streetValidationClass ?>" />
+                </div>
+            </li>
+        <?php $_streetValidationClass = trim(str_replace('required-entry', '', $_streetValidationClass)); ?>
+        <?php for ($_i = 2, $_n = $this->helper('customer/address')->getStreetLines(); $_i <= $_n; $_i++): ?>
+            <li class="wide">
+                <div class="input-box">
+                    <input type="text" name="street[]" value="<?php echo $this->escapeHtml($this->getAddress()->getStreet($_i)) ?>" title="<?php echo $this->__('Street Address %s', $_i) ?>" id="street_<?php echo $_i ?>" class="input-text <?php echo $_streetValidationClass ?>" />
+                </div>
+            </li>
+        <?php endfor; ?>
+          
+            <li class="fields">
+                <div class="field">
+                    <label for="city" class="required"><em>*</em><?php echo $this->__('City') ?></label>
+                    <div class="input-box">
+                        <input type="text" name="city" value="<?php echo $this->escapeHtml($this->getAddress()->getCity()) ?>"  title="<?php echo $this->__('City') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('city') ?>" id="city" />
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="region_id" class="required"><em>*</em><?php echo $this->__('State/Province') ?></label>
+                    <div class="input-box dropdown">
+                        <select id="region_id" name="region_id" title="<?php echo $this->__('State/Province') ?>" class="validate-select" style="display:none;">
+                           <option value=""><?php echo $this->__('Please select region, state or province') ?></option>
+                        </select>
+                        <script type="text/javascript">
+                        //<![CDATA[
+                            $('region_id').setAttribute('defaultValue',  "<?php echo $this->getAddress()->getRegionId() ?>");
+                        //]]>
+                        </script>
+                        <input type="text" id="region" name="region" value="<?php echo $this->escapeHtml($this->getAddress()->getRegion()) ?>"  title="<?php echo $this->__('State/Province') ?>" class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('region') ?>" />
+                    </div>
+                </div>
+            </li>
+            <li class="fields">
+                <div class="field">
+                    <label for="zip" class="required"><em>*</em><?php echo $this->__('Zip/Postal Code') ?></label>
+                    <div class="input-box">
+                        <select id="virtual_code_select_edit" name="virtual_code_select_edit" class="validate-select" title="'<?php echo $this->__('Zip/Postal Code'); ?>'" class="validate-zip-international required-entry input-text " >
+                            <option></option>
+                        <input type="text" name="postcode" value="<?php echo $this->escapeHtml($this->getAddress()->getPostcode()) ?>" title="<?php echo $this->__('Zip/Postal Code') ?>" id="zip" class="input-text validate-zip-international <?php echo $this->helper('customer/address')->getAttributeValidationClass('postcode') ?>" style='display:none'/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="country" class="required"><em>*</em><?php echo $this->__('Country') ?></label>
+                    <div class="input-box dropdown">
+                        <?php echo $this->getCountryHtmlSelect() ?>
+                    </div>
+                </div>
+            </li>
+            <li<?php if($this->canSetAsDefaultBilling()) echo ' class="control"' ?>>
+                <?php if($this->isDefaultBilling()): ?>
+                    <strong><?php echo $this->__('Default Billing Address') ?></strong>
+                <?php elseif($this->canSetAsDefaultBilling()): ?>
+                    <input type="checkbox" id="primary_billing" name="default_billing" value="1" title="<?php echo $this->__('Use as My Default Billing Address') ?>" class="checkbox" /><label for="primary_billing"><?php echo $this->__('Use as my default billing address') ?></label>
+                <?php else: ?>
+                    <input type="hidden" name="default_billing" value="1" />
+                <?php endif; ?>
+            </li>
+            <li<?php if($this->canSetAsDefaultShipping()) echo ' class="control"' ?>>
+                <?php if($this->isDefaultShipping()): ?>
+                    <strong><?php echo $this->__('Default Shipping Address') ?></strong>
+                <?php elseif($this->canSetAsDefaultShipping()): ?>
+                    <input type="checkbox" id="primary_shipping" name="default_shipping" value="1" title="<?php echo $this->__('Use as My Default Shipping Address') ?>" class="checkbox" /><label for="primary_shipping"><?php echo $this->__('Use as my default shipping address') ?></label>
+                <?php else: ?>
+                    <input type="hidden" name="default_shipping" value="1" />
+                <?php endif; ?>
+            </li>
+        </ul>
+    </div>
+    <div class="buttons-set">
+        <p class="required"><?php echo $this->__('* Required Fields') ?></p>
+        <p class="back-link"><a href="<?php echo $this->escapeUrl($this->getBackUrl()) ?>"><small>&laquo; </small><?php echo $this->__('Back') ?></a></p>
+        <button type="submit" title="<?php echo $this->__('Save Address') ?>" class="button"><span><span><?php echo $this->__('Save Address') ?></span></span></button>
+    </div>
+</form>
+<script type="text/javascript">
+//<![CDATA[
+    var dataForm = new VarienForm('form-validate', true);
+    new RegionUpdater('country', 'region', 'region_id', <?php echo $this->helper('directory')->getRegionJson() ?>, undefined, 'zip');
+document.observe('dom:loaded',function(){
+
+    toggleIndirizzoAziendale(Number($('indirizzo_aziendale').value),'');
+    toggleCodiceFiscale(Number($('richiesta_fattura').value),'');
+    Event.observe('indirizzo_aziendale','change',function(e){
+
+        toggleIndirizzoAziendale(Number(this.value),'');
+    } );
+    Event.observe('richiesta_fattura','change',function(e){
+
+        toggleCodiceFiscale(Number(this.value),'');
+    } );
+});
+//]]>
+</script>
+
+<script type="text/javascript">
+
+    jQuery( document ).ready(function() {
+
+        disablepostcode_edit(true);
+        var current_cap='<?php echo $this->escapeHtml($this->getAddress()->getPostcode());?>';
+        var array_json_sh=<?php echo $json_arr_sh;?>;
+        var city_json_sh=<?php echo $json_city_sh;?>;
+
+       // alert (current_cap );
+        if (current_cap!='')
+        {
+            jQuery("#virtual_code_select_edit").empty();
+            jQuery("#virtual_code_select_edit").append('<option value='+current_cap+'>'+current_cap+'</option>');
+        }
+
+        //console.log(city_json_sh);
+        jQuery(function() {
+            //jQuery('#shipping\\:street1')
+            jQuery( "input[id='city']").autocomplete({
+                // source: city_json_sh
+                source: function(req, responseFn) {
+                    var re = jQuery.ui.autocomplete.escapeRegex(req.term);
+                    var matcher = new RegExp( "^" + re, "i" );
+                    var a = jQuery.grep( city_json_sh, function(item_ui,index){
+                        return matcher.test(item_ui);
+                    });
+                    responseFn( a );
+                }
+
+            });
+        });
+        jQuery( "input[id='city']").blur(function() {
+
+            jQuery( "input[id='zip']").val('');
+            jQuery("#virtual_code_select_edit").empty();
+            var name_city_sh =   jQuery( "input[id='city']").val().toUpperCase();
+            jQuery.each(array_json_sh, function(i, item) {
+
+                if (i==name_city_sh)
+                {
+                    disablepostcode_edit(false);
+                    //jQuery("#virtual_code_select_edit").show();
+                    jQuery("#virtual_code_select_edit").append('<option ></option>');
+                    jQuery.each(array_json_sh[name_city_sh], function(key_new_sh, arr_new_sh) {
+                        jQuery("#virtual_code_select_edit").append('<option value='+arr_new_sh+'>'+arr_new_sh+'</option>');
+                    });
+                }
+            });
+            var size_select=jQuery("#virtual_code_select_edit option").size();
+            if (size_select<2)
+            {
+                disablepostcode_edit(true);
+            }
+        });
+
+        jQuery("#virtual_code_select_edit").change(function() {
+
+            current_val_sh=jQuery("#virtual_code_select_edit").val();
+            jQuery( "input[id='zip']").val(current_val_sh);
+
+
+        });
+
+    });
+
+    function disablepostcode_edit(disable)
+    {
+        if (disable==true)
+        {
+            jQuery("#virtual_code_select_edit").css('background','#DEDEDE');
+            jQuery("#virtual_code_select_edit").prop('disabled','true');
+        }
+        else
+        {
+            jQuery("#virtual_code_select_edit").css('background','white');
+            jQuery("#virtual_code_select_edit").removeAttr('disabled');
+        }
+    }
+</script>

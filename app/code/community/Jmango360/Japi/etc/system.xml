@@ -472,7 +472,7 @@
                         </street4_require-->
                     </fields>
                 </jmango_rest_customer_settings>
-                <jmango_smart_app_banner translate="label" module="japi">
+                <!--jmango_smart_app_banner translate="label" module="japi">
                     <label>Smart App Banner Settings</label>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -662,7 +662,7 @@
                             </depends>
                         </android_touch_icon>
                     </fields>
-                </jmango_smart_app_banner>
+                </jmango_smart_app_banner-->
                 <jmango_rest_developer_settings translate="label" module="japi">
                     <label>Developer</label>
                     <show_in_default>1</show_in_default>

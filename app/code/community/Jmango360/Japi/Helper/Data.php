@@ -61,7 +61,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
             foreach ($_filterOptionsCollection as $filterOptions) {
                 /* @var $filterOptions Mana_Filters_Model_Filter2_Store */
                 if ($manaFiltersHelper->isFilterEnabled($filterOptions)
-                    && (!$manaCoreHelper->isManadevDependentFilterInstalled() || !Mage::helper('manapro_filterdependent')->hide($filterOptions, $_filterOptionsCollection))
+                    && (!(method_exists($manaCoreHelper, 'isManadevDependentFilterInstalled') && $manaCoreHelper->isManadevDependentFilterInstalled()) || !Mage::helper('manapro_filterdependent')->hide($filterOptions, $_filterOptionsCollection))
                     && $manaFiltersHelper->canShowFilterInBlock($block, $filterOptions)
                 ) {
                     $this->_filters[] = $filterOptions->getCode();
@@ -94,7 +94,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     public function wrapPaymentBlockMethods()
     {
         return version_compare(Mage::getVersion(), '1.8', '<') === true
-        || $this->isModuleEnabled('AW_Points');
+            || $this->isModuleEnabled('AW_Points');
     }
 
     /**
@@ -434,16 +434,16 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     public function isNeedByPassSessionValidation()
     {
         return Mage::getStoreConfigFlag('web/session/use_remote_addr')
-        || Mage::getStoreConfigFlag('web/session/use_http_via')
-        || Mage::getStoreConfigFlag('web/session/use_http_x_forwarded_for')
-        || Mage::getStoreConfigFlag('web/session/use_http_user_agent')
-        || version_compare(Mage::getVersion(), '1.9.3.0', '>=');
+            || Mage::getStoreConfigFlag('web/session/use_http_via')
+            || Mage::getStoreConfigFlag('web/session/use_http_x_forwarded_for')
+            || Mage::getStoreConfigFlag('web/session/use_http_user_agent')
+            || version_compare(Mage::getVersion(), '1.9.3.0', '>=');
     }
 
     public function isNeedByPassMIMT()
     {
         return version_compare(Mage::getVersion(), '1.9.1.0', '>=')
-        && Mage::app()->getFrontController()->getRequest()->isSecure();
+            && Mage::app()->getFrontController()->getRequest()->isSecure();
     }
 
     public function isUseSidFrontend()
@@ -1066,7 +1066,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         /** @var Mage_Core_Model_Config_Element $nodes */
         $nodes = $systemXml->getNode('sections/japi/groups')->children();
 
-        /** @var  Mage_Core_Model_Config_Element  $value */
+        /** @var  Mage_Core_Model_Config_Element $value */
         foreach ($nodes as $key => $value) {
             if (in_array($key, $this->systemConfigPathExcludes))
                 continue;
@@ -1111,8 +1111,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getPluginConfigValue($group, $filed)
     {
-        if ($group == 'jmango_rest_api' && $filed == 'version')
-        {
+        if ($group == 'jmango_rest_api' && $filed == 'version') {
             return $this->getPluginVersion();
         } else {
             $configPath = 'japi/' . $group . '/' . $filed;

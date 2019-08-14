@@ -469,6 +469,18 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
 </reference>";
         }
 
+        if (Mage::helper('core')->isModuleEnabled('Sevenlike_Fatturazione')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\"><type>skin_js</type><name>js/fatturazione.js</name></action>
+    <action method=\"addItem\"><type>skin_js</type><name>onestepcheckout/js/autocomplete.js</name></action>
+    <action method=\"addCss\"><stylesheet>onestepcheckout/autocomplete.css</stylesheet></action>
+</reference>
+<reference name=\"my.account.wrapper\">
+    <block type=\"customer/address_edit\" name=\"customer_address_edit\" template=\"japi/fatturazione/customer/address/edit.phtml\"/>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();

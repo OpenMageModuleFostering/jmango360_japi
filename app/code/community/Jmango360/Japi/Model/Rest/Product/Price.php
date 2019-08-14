@@ -49,8 +49,9 @@ class Jmango360_Japi_Model_Rest_Product_Price extends Mage_Checkout_Model_Cart
         if (count($cartCandidates) == 1) {
             /* @var $helper Jmango360_Japi_Helper_Product */
             $helper = Mage::helper('japi/product');
-            $data['product'] = $helper->convertProductToApiResponseV2($product, true);
-            $data['buy_request'] = $helper->getCartProductBuyRequest($request, $product);
+            $cartCandidates[0]->setData('final_price', $cartCandidates[0]->getPriceModel()->getFinalPrice(1, $cartCandidates[0]));
+            $data['product'] = $helper->convertProductToApiResponseV2($cartCandidates[0], true);
+            $data['buy_request'] = $helper->getCartProductBuyRequest($request, $cartCandidates[0]);
         }
 
         return $data;

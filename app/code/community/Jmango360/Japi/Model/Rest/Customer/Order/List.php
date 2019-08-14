@@ -561,18 +561,24 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                 }
             }
 
-            $weees = Mage::helper('tax')->getAllWeee($order);
-            if (!is_array($weees)) return $totals;
-
-            $weeIndex = 0;
-            foreach ($weees as $weeeTitle => $weeeAmount) {
-                $totals[] = array(
-                    'code' => 'wee_' . $weeIndex++,
-                    'label' => Mage::helper('japi')->escapeHtml($weeeTitle),
-                    'value' => (float)$weeeAmount,
-                    'currency_symbol' => $order->getOrderCurrencyCode(),
-                    'formatted_value' => $order->getOrderCurrency()->formatPrecision($weeeAmount, 2, array(), false)
-                );
+            /* @var $taxHelper Mage_Tax_Helper_Data */
+            $taxHelper = Mage::helper('tax');
+            if (method_exists($taxHelper, 'getAllWeee')) {
+                $weees = $taxHelper->getAllWeee($order);
+            } else {
+                $weees = array();
+            }
+            if (is_array($weees)) {
+                $weeIndex = 0;
+                foreach ($weees as $weeeTitle => $weeeAmount) {
+                    $totals[] = array(
+                        'code' => 'wee_' . $weeIndex++,
+                        'label' => Mage::helper('japi')->escapeHtml($weeeTitle),
+                        'value' => (float)$weeeAmount,
+                        'currency_symbol' => $order->getOrderCurrencyCode(),
+                        'formatted_value' => $order->getOrderCurrency()->formatPrecision($weeeAmount, 2, array(), false)
+                    );
+                }
             }
         }
 

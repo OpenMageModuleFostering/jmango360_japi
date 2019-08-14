@@ -32,7 +32,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         'region', 'region_id', 'postcode', 'telephone', 'fax', 'vat_id'
     );
     protected $_excludeSettingGroups = array(
-        'jmango_rest_api', 'jmango_rest_developer_settings', 'jmango_smart_app_banner'
+        'jmango_rest_api', 'jmango_rest_developer_settings'
     );
 
     public function dispatch()

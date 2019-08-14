@@ -132,7 +132,7 @@
     <japi_customer_default translate="label">
         <label>JMango360 Customer Forms</label>
         <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
-            <block type="page/html_head" name="head" as="head" template="japi/page/html/head.phtml">
+            <block type="Mage_Page_Block_Html_Head" name="head" as="head" template="japi/page/html/head.phtml">
                 <action method="addItem"><type>skin_css</type><file>japi/lib/bootstrap/css/bootstrap.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>

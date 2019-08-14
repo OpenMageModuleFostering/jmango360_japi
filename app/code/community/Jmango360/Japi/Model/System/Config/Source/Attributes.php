@@ -15,7 +15,7 @@ class Jmango360_Japi_Model_System_Config_Source_Attributes
             /* @var $attribute Mage_Catalog_Model_Resource_Eav_Attribute */
             $options[] = array(
                 'value' => $attribute->getAttributeCode(),
-                'label' => sprintf('%s [%s]', $attribute->getFrontendLabel(), $attribute->getAttributeCode())
+                'label' => sprintf('%s', $attribute->getFrontendLabel())
             );
         }
 

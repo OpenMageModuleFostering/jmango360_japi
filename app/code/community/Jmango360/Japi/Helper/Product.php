@@ -97,7 +97,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
             || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
             || $this->isModuleEnabled('Itonomy_SimpleConfigurable')
-            || strpos(Mage::getBaseUrl(), 'hetlinnenhuis') !== false;
+            || strpos(Mage::getBaseUrl(), 'hetlinnenhuis') !== false
+            || strpos(Mage::getBaseUrl(), 'arcaplanet') !== false;
     }
 
     /**
@@ -262,7 +263,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $currentDirection = $this->_getCurrentDirection($collection);
         if (!$currentDirection) $currentDirection = $toolBarBlock->getCurrentDirection();
         $data['current_direction'] = $currentDirection;
-        $data['available_orders'] = $toolBarBlock->getAvailableOrders();
+        foreach ($toolBarBlock->getAvailableOrders() as $order => $label) {
+            $data['available_orders'][$order] = $this->__($label);
+        }
 
         return $data;
     }

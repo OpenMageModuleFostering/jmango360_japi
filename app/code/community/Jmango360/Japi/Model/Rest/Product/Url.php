@@ -6,14 +6,33 @@ class Jmango360_Japi_Model_Rest_Product_Url extends Jmango360_Japi_Model_Rest_Pr
     {
         $url = $this->_getRequest()->getParam('url', null);
         if ($url) {
-            /* @var $rewrite Mage_Core_Model_Url_Rewrite */
-            $rewrite = Mage::getModel('core/url_rewrite');
-            $rewrite->setStoreId(Mage::app()->getStore()->getId());
             $request = new Mage_Core_Controller_Request_Http($url);
-            $requestCases = $this->_getRequestCases($request);
-            $rewrite->loadByRequestPath($requestCases);
+            if (Mage::getEdition() == Mage::EDITION_ENTERPRISE) {
+                /* @var $rewrite Enterprise_UrlRewrite_Model_Url_Rewrite */
+                $rewrite = Mage::getModel('enterprise_urlrewrite/url_rewrite');
 
-            if ($rewrite->getId()) {
+                $requestPath = $this->_getRequestPath($request);
+                $paths = $this->_getSystemPaths($requestPath);
+                if (count($paths)) {
+                    $rewrite->loadByRequestPath($paths);
+                    if ($rewrite->getId()) {
+                        /**
+                         * Reinit $request so we can check with new url
+                         * because EE not store product ID in rewrite table
+                         */
+                        $request = new Mage_Core_Controller_Request_Http(Mage::getUrl($rewrite->getTargetPath()));
+                    }
+                }
+            } else {
+                /* @var $rewrite Mage_Core_Model_Url_Rewrite */
+                $rewrite = Mage::getModel('core/url_rewrite');
+                $rewrite->setStoreId(Mage::app()->getStore()->getId());
+
+                $requestCases = $this->_getRequestCases($request);
+                $rewrite->loadByRequestPath($requestCases);
+            }
+
+            if ($rewrite->getId() && $rewrite->getProductId()) {
                 return array('product' => $this->_getProductData($rewrite->getProductId()));
             } else {
                 $routers = array();
@@ -32,6 +51,11 @@ class Jmango360_Japi_Model_Rest_Product_Url extends Jmango360_Japi_Model_Rest_Pr
                     }
                 }
 
+                /**
+                 * Fake a POST request to prevent "_checkShouldBeSecure" return response
+                 * it will break our logic
+                 */
+                $request->setPost('xxx', 1);
                 $request->setPathInfo()->setDispatched(false);
                 $i = 0;
                 while (!$request->isDispatched() && $i++ < 100) {
@@ -56,12 +80,55 @@ class Jmango360_Japi_Model_Rest_Product_Url extends Jmango360_Japi_Model_Rest_Pr
         return array('product' => null);
     }
 
+    /**
+     * Return product data
+     *
+     * @param $productId
+     * @return array|null
+     */
     protected function _getProductData($productId)
     {
         if (!$productId) return null;
         /* @var $helper Jmango360_Japi_Helper_Product */
         $helper = Mage::helper('japi/product');
         return $helper->convertProductIdToApiResponseV2($productId);
+    }
+
+    /**
+     * Get system path from request path
+     * (Copied from EE)
+     *
+     * @param string $requestPath
+     * @return array
+     */
+    protected function _getSystemPaths($requestPath)
+    {
+        $parts = explode('/', $requestPath);
+        $suffix = array_pop($parts);
+        if (false !== strrpos($suffix, '.')) {
+            $suffix = substr($suffix, 0, strrpos($suffix, '.'));
+        }
+        $paths = array('request' => $requestPath, 'suffix' => $suffix);
+        if (count($parts)) {
+            $paths['whole'] = implode('/', $parts) . '/' . $suffix;
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Get request path from requested path info
+     * (Copied from EE)
+     *
+     * @param Mage_Core_Controller_Request_Http $request
+     * @return string
+     */
+    protected function _getRequestPath($request)
+    {
+        $pathInfo = $request->getPathInfo();
+        $requestPath = trim($pathInfo, '/');
+
+        return $requestPath;
     }
 
     /**

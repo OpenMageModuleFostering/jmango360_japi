@@ -303,6 +303,49 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Fooman_GoogleAnalyticsPlus')) {
+            $xml .= "
+<reference name=\"head\">
+    <block type=\"core/text_list\" name=\"before_head_end\" as=\"before_head_end\"/>
+</reference>
+<reference name=\"before_head_end\">
+    <block type=\"googleanalyticsplus/universal\" name=\"googleanalyticsplus_universal\" as=\"googleanalyticsplus_universal\"/>
+</reference>
+<reference name=\"after_body_start\">
+    <block type=\"googleanalyticsplus/tagManager\" name=\"googleanalyticsplus_tagmanager\" as=\"googleanalyticsplus_tagmanager\"/>
+</reference>
+<reference name=\"before_body_end\">
+    <block type=\"googleanalyticsplus/remarketing\" name=\"googleanalyticsplus_remarketing\" as=\"googleanalyticsplus_remarketing\"/>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Sevenlike_Fatturazione')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\"><type>skin_js</type><name>js/fatturazione.js</name></action>
+    <action method=\"addItem\"><type>skin_js</type><name>onestepcheckout/js/autocomplete.js</name></action>
+    <action method=\"addCss\"><stylesheet>onestepcheckout/autocomplete.css</stylesheet></action>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Bitbull_BancaSellaPro')) {
+            $xml .= "
+<reference name=\"head\">
+    <block type=\"bitbull_bancasellapro/utility_text\" name=\"gestpay.iframe.external\"/>
+    <action method=\"addJs\"><script>prototype/window.js</script></action>
+    <action method=\"addItem\"><type>js_css</type><name>prototype/windows/themes/default.css</name></action>
+    <action method=\"addCss\"><name>lib/prototype/windows/themes/magento.css</name></action>
+    <action method=\"addJs\"><name>bancasellapro/gestpayform.js</name></action>
+</reference>";
+        }
+
+        if (Mage::getEdition() == Mage::EDITION_ENTERPRISE) {
+            $xml .= "
+<reference name=\"content\">
+    <block type=\"core/template\" name=\"pbridge.js\" template=\"pbridge/checkout/payment/js.phtml\" />
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();
