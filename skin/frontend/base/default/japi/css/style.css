@@ -285,7 +285,7 @@ p.back-link {
   height: auto;
 }
 .form-list .control {
-  margin: 1em 0 0 0;
+  margin: 0.5em 0 0 0;
 }
 .form-list .control > .input-box {
   display: inline-block;
@@ -300,6 +300,7 @@ p.back-link {
   width: 100%;
   padding: 0.4em 0.5em;
   border: 1px solid #dadada;
+  background: #fafafa;
 }
 .form-list select[multiple] {
   min-height: 5em;
@@ -375,6 +376,10 @@ p.back-link {
 }
 .form-list .fields .row {
   margin: 0;
+}
+.form-list + div {
+  float: none !important;
+  margin-top: 1em;
 }
 #discount-coupon-form {
   padding-top: 1em;
@@ -1189,4 +1194,256 @@ span.price {
 #checkout-payment-method-load .payment-details dl dd.active {
   padding: 1em;
   border-bottom: 1px solid #d9d9d9;
+}
+/******** NEW_KCO ***********/
+.body-klarna-checkout #nwt_overlay {
+  position: fixed;
+}
+.kco-left {
+  padding: 12px !important;
+}
+.kco-left .nwtkco-block {
+  margin-bottom: 20px;
+}
+.kco-left .nwtkco-block .show-all {
+  font-size: 14px;
+}
+.kco-left .nwtkco-block label {
+  font-weight: normal;
+  font-size: 14px;
+}
+.kco-left .nwtkco-block .nwtkco-title h2 {
+  text-indent: 0;
+  padding-bottom: 5px;
+  font-size: 15px;
+  border: 0;
+}
+.kco-left .nwtkco-block .nwtkco-title h2 label {
+  margin: 0;
+  font-weight: bold;
+}
+.kco-left .nwtkco-block .nwtkco-content {
+  padding-top: 0px;
+}
+.kco-left .nwtkco-block .nwtkco-content.block-totals,
+.kco-left .nwtkco-block .nwtkco-content.block-items {
+  padding-top: 0;
+}
+.kco-left .nwtkco-block .nwtkco-content select {
+  padding: 7px;
+  border: 1px solid #dadada;
+  background: #fafafa;
+  width: 100%;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.kco-left .nwtkco-block .nwtkco-content button {
+  margin: 0;
+  background: #0072cc;
+  border: 1px solid #0072cc;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  height: 35px;
+  border-radius: 4px;
+  width: 100%;
+}
+.kco-left .nwtkco-block .nwtkco-content textarea {
+  min-height: 100px;
+  font-size: 14px;
+}
+.kco-left #nwtkco_customercomment .nwtkco-content.focused #kcoCommentSubmit {
+  position: relative;
+  bottom: auto;
+  right: auto;
+}
+.kco-left #klarnakassan-coupon div.input-box {
+  display: table;
+  width: 100%;
+}
+.kco-left #klarnakassan-coupon div.input-box button,
+.kco-left #klarnakassan-coupon div.input-box input {
+  display: table-cell;
+  border-radius: 4px;
+}
+.kco-left #klarnakassan-coupon div.input-box button {
+  float: right;
+  width: 20%;
+  margin: 0;
+  background: #0072cc;
+  border: 1px solid #0072cc;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  height: 35px;
+}
+.kco-left #klarnakassan-coupon div.input-box input {
+  padding: 7px;
+  margin: 0;
+  width: 78%;
+  border: 1px solid #dadada;
+  font-size: 14px;
+  height: auto;
+}
+.kco-left #klarnakassan-coupon .validation-advice {
+  color: #df280a;
+  margin-top: 5px;
+  line-height: 1;
+  background: none;
+  border: 0;
+  text-align: left;
+  padding: 10px 0;
+  font-size: 13px;
+}
+.kco-left #klarnakassan-coupon .validation-advice:before {
+  content: "\e900";
+  font-family: 'icomoon';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  padding-right: 5px;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul {
+  border: 1px solid #dadada;
+  border-radius: 4px;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li > strong {
+  display: block;
+  padding: 0 10px;
+  font-weight: normal;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li ul {
+  margin: 0 !important;
+  border-top: 1px solid #dadada;
+  padding-left: 0;
+  background: #fafafa;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li ul li {
+  padding: 10px 0;
+  border-bottom: 1px solid #dadada;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li ul li:last-child {
+  border-bottom: 0;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li ul li label {
+  font-weight: normal;
+  font-size: 14px;
+}
+.kco-left #klarnakassan-shipping-method .nwtkco-content > ul > li ul li > * {
+  padding: 0 10px;
+}
+.kco-left .block-totals {
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: 0;
+}
+.kco-left .block-totals table tr {
+  border: 1px solid #dadada;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  background: #fafafa;
+}
+.kco-left .block-totals table tr td {
+  padding: 10px;
+  font-size: 14px;
+}
+.kco-left .block-totals table tr td .price {
+  display: block;
+  text-align: right;
+}
+.kco-left .block-totals table tfoot tr:last-child {
+  border-bottom: 0;
+}
+.kco-left .block-items {
+  border: 1px solid #dadada;
+  border-radius: 4px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.kco-left .block-items ol li.item {
+  padding: 15px 10px;
+}
+.kco-left .block-items .product-image {
+  display: block;
+  width: 22%;
+  float: left;
+  margin-right: 10px;
+  position: relative;
+}
+.kco-left .block-items .product-image img {
+  width: 100%;
+  height: auto;
+  border: 1px solid #dadada;
+}
+.kco-left .block-items .product-image .item-qty-sticky {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: #419bf9;
+  width: 23px;
+  height: 24px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 21px;
+}
+.kco-left .block-items .product-image .item-qty-sticky span {
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+}
+.kco-left .block-items .product-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+.kco-left .block-items .price {
+  font-size: 14px;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form {
+  margin: 0 !important;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form .nwt_unifaun_form_agent label {
+  display: block;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form .fields {
+  margin-bottom: 10px !important;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form .fields input {
+  width: 100%;
+  max-width: 100%;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form .fields label {
+  padding: 0 !important;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form .fields select {
+  margin-top: 10px !important;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+.kco-left #nwt_checkout #nwt_unifaun_form button {
+  width: 100%;
+  display: block;
+}
+/**** Chronopost_Chronorelais ***/
+label[for="s_method_chronorelais_Chronopost_relais_France_2"] {
+  display: inline;
+}
+.chronorelais-list .chronorelaismap .mappostalcode {
+  text-align: left;
+}
+.chronorelais-list .chronorelaismap .mappostalcode input,
+.chronorelais-list .chronorelaismap .mappostalcode button {
+  width: 49%;
+  display: inline;
+  height: 45px;
+  vertical-align: top;
+}
+.chronorelais-list .chronorelaismap .mappostalcode input {
+  padding: 10px;
+}
+.chronorelais-list .sp-methods-chronorelais {
+  padding: 0;
 }

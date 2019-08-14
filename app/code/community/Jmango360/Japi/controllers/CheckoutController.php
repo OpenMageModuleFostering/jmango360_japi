@@ -410,6 +410,17 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Chronopost_Chronorelais')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\"><type>skin_css</type><name>chronorelais/chronorelais.css</name></action>
+    <action method=\"addItem\"><type>skin_js</type><name>chronorelais/carousel-min.js</name></action>
+</reference>
+<reference name=\"content\">
+    <block type=\"core/template\" template=\"chronorelais/checkout/onepage/shipping_method_complement.phtml\" />
+</reference>";
+        }
+
         if (Mage::getEdition() == Mage::EDITION_ENTERPRISE) {
             $xml .= "
 <reference name=\"content\">

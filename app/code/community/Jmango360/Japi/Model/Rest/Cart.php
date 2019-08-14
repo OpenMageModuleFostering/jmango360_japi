@@ -135,7 +135,20 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
 
                 if ($weeeHelper->typeOfDisplay($item, array(0, 1, 4), 'sales')) {
                     $cart['items'][$index]['price'] += $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition();
+                    $cart['items'][$index]['base_price'] += $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition();
                     $cart['items'][$index]['row_total'] += $item->getWeeeTaxAppliedRowAmount() + $item->getWeeeTaxRowDisposition();
+                    $cart['items'][$index]['base_row_total'] += $item->getWeeeTaxAppliedRowAmount() + $item->getWeeeTaxRowDisposition();
+                } else {
+                    if (strpos(Mage::getBaseUrl(), 'luckylight') !== false) {
+                        if ($weeeHelper->getApplied($item)) {
+                            $itemTotal = $item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition();
+                            $rowTotal = function_exists('bcmul') ? bcmul($item->getQty(), $itemTotal, 4) : $item->getQty() * $itemTotal;
+                            $cart['items'][$index]['price'] = $itemTotal;
+                            $cart['items'][$index]['base_price'] = $itemTotal;
+                            $cart['items'][$index]['row_total'] = $rowTotal;
+                            $cart['items'][$index]['base_row_total'] = $rowTotal;
+                        }
+                    }
                 }
             }
 

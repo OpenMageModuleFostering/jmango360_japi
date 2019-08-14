@@ -66,8 +66,13 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             $_flatConfig = Mage::getStoreConfigFlag(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT);
             $session->setData('use_flat_product_' . $store->getId(), $_flatConfig);
 
-            // Bypass flat product check
-            Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
+            /**
+             * Bypass flat product check
+             * MPLUGIN-1777: Ignore when get related products
+             */
+            if ($request->getActionName() != 'getRelated') {
+                Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
+            }
 
             // Bypass flat category check
             Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Category_Flat::XML_PATH_IS_ENABLED_FLAT_CATALOG_CATEGORY, 0);

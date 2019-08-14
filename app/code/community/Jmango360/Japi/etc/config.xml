@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.0.4</version>
+            <version>3.1.0</version>
         </Jmango360_Japi>
     </modules>
 
@@ -84,6 +84,15 @@
             <customer>/japi/</customer>
         </secure_url>
         <events>
+            <controller_action_predispatch>
+                <observers>
+                    <japi_controller_action_predispatch>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>japiControllerActionPredispatch</method>
+                    </japi_controller_action_predispatch>
+                </observers>
+            </controller_action_predispatch>
             <controller_action_predispatch_checkout_klarna_success>
                 <observers>
                     <vaimo_klarna>
@@ -154,7 +163,7 @@
                 <observers>
                     <rest_checkout_success>
                         <class>japi/observer</class>
-                        <method>setOrderIdToHead</method>
+                        <method>japiLayoutGenerateBlocksAfter</method>
                     </rest_checkout_success>
                 </observers>
             </controller_action_layout_generate_blocks_after>
@@ -350,7 +359,12 @@
                 <custom_css></custom_css>
                 <checkout_url></checkout_url>
                 <klarna_popup_urls></klarna_popup_urls>
+                <enable_coupon>1</enable_coupon>
             </jmango_rest_checkout_settings>
+            <jmango_rest_mobile_settings>
+                <ios_scheme></ios_scheme>
+                <android_scheme></android_scheme>
+            </jmango_rest_mobile_settings>
             <jmango_rest_gallery_settings>
                 <image_width>1200</image_width>
                 <image_height>1200</image_height>

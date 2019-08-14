@@ -258,7 +258,7 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     public function getTotals($quote = null)
     {
         /* @var $quote Mage_Sales_Model_Quote */
-        $quote = $quote ?: Mage::getSingleton('checkout/session')->getQuote();
+        $quote = $quote ? $quote : Mage::getSingleton('checkout/session')->getQuote();
         $totals = $quote->getTotals();
         /* @var $taxConfig Mage_Tax_Model_Config */
         $taxConfig = Mage::getSingleton('tax/config');
@@ -266,6 +266,67 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         $taxHelper = Mage::helper('tax');
 
         $rows = array();
+
+        if (strpos(Mage::getBaseUrl(), 'luckylight') !== false) {
+            if ($quote->getShippingAddress()->getShippingMethod() != "pickupatstore_1") {
+                $subtotal = 0;
+                $tax = 0;
+                $discount = 0;
+                $discountTitle = '';
+                foreach ($totals as $total) {
+                    if ($total->getCode() == 'subtotal') {
+                        $subtotal = $total->getValueExclTax();
+                    }
+                    if ($total->getCode() == 'tax') {
+                        $tax = $total->getValue();
+                    }
+                    if ($total->getCode() == 'discount') {
+                        $discount = $total->getValue();
+                        $discountTitle = $total->getTitle();
+                    }
+                }
+                if ($subtotal) {
+                    $shipping = $subtotal >= 100 ? "0" : "4.75";
+                    $subtotalExclTax = function_exists('bcadd') ? bcadd($subtotal, $shipping, 4) : $subtotal + $shipping;
+                    $shippingInclTax = function_exists('bcmul') ? bcmul($shipping, 1.21, 4) : $shipping * 1.21;
+                    $shippingExclTax = function_exists('bcsub') ? bcsub($shippingInclTax, $shipping, 4) : $shippingInclTax - $shipping;
+                    $taxInclTax = function_exists('bcadd') ? bcadd($shippingExclTax, $tax, 4) : $shippingExclTax + $tax;
+                    $grandTotalExclTax = function_exists('bcadd') ? bcadd($subtotalExclTax, $discount, 4) : $subtotalExclTax + $discount;
+                    $grandTotalInclTax = function_exists('bcmul') ? bcmul($grandTotalExclTax, 1.21, 4) : $grandTotalExclTax * 1.21;
+
+                    $rows[] = array(
+                        'title' => 'Verzendkosten',
+                        'code' => 'shipping',
+                        'value' => $shipping
+                    );
+                    $rows[] = array(
+                        'title' => 'Totaal excl. btw',
+                        'code' => 'subtotal',
+                        'value' => $subtotalExclTax
+                    );
+                    if ($discount) {
+                        $rows[] = array(
+                            'title' => $discountTitle,
+                            'code' => 'discount',
+                            'value' => $discount
+                        );
+                    }
+                    $rows[] = array(
+                        'title' => 'BTW',
+                        'code' => 'tax',
+                        'value' => $taxInclTax
+                    );
+                    $rows[] = array(
+                        'title' => 'Totaalprijs incl. btw',
+                        'code' => 'grand_total_incl',
+                        'value' => $grandTotalInclTax
+                    );
+
+                    return $rows;
+                }
+            }
+        }
+
         foreach ($totals as $total) {
             /* @var $total Mage_Sales_Model_Quote_Address_Total_Abstract */
 

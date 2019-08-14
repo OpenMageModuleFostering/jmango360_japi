@@ -31,10 +31,17 @@ class Jmango360_Japi_Block_Form extends Mage_Core_Block_Template
         if ($this->_fields) return $this->_fields;
         switch ($this->_form) {
             case 'billing':
-                $fields = array_merge(
-                    Mage::helper('japi')->getCustomerAddressFormFields(),
-                    Mage::helper('japi')->getCheckoutAddressFormFields()
-                );
+                if (Mage::helper('core')->isModuleEnabled('Amasty_Customerattr')
+                    && Mage::getStoreConfig('amcustomerattr/general/front_auto_output')
+                ) {
+                    Mage::app()->getRequest()->setModuleName('checkout');
+                    return array();
+                } else {
+                    $fields = array_merge(
+                        Mage::helper('japi')->getCustomerAddressFormFields(),
+                        Mage::helper('japi')->getCheckoutAddressFormFields()
+                    );
+                }
                 $keys = array();
                 foreach ($fields as $i => $field) {
                     if (!in_array($field['key'], $keys)) {

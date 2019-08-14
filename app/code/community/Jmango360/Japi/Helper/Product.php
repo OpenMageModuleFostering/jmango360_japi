@@ -769,6 +769,21 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         }
 
+        /**
+         * API-127: Return "has_required_options" for mobile API filter
+         */
+        $result['has_required_options'] = false;
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
+            foreach ($product->getProductOptionsCollection() as $option) {
+                /** @var $option Mage_Catalog_Model_Product_Option */
+                if ($option->getIsRequire()) {
+                    $result['has_required_options'] = true;
+                }
+            }
+        } else {
+            $result['has_required_options'] = true;
+        }
+
         return $result;
     }
 
@@ -1320,6 +1335,12 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      */
     protected function _addProductReviewSummary($product, &$result)
     {
+        /**
+         * MPLUGIN-1742: Fix duplicate review summary data
+         */
+        if (strpos(Mage::getBaseUrl(), 'ekonoom') !== false) {
+            Mage::getModel('review/review')->getEntitySummary($product, Mage::app()->getStore()->getId());
+        }
         /* @var $helper Jmango360_Japi_Helper_Product_Review */
         $helper = Mage::helper('japi/product_review');
         $reviewSummary = $helper->getProductReviewSummary($product);

@@ -87,7 +87,7 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
             }
         }
 
-        $related = $this->_getRequest()->getParam('related_product');
+        $related = explode(',', $this->_getRequest()->getParam('related_products'));
 
         /**
          * Flag as JMango360 order
@@ -102,8 +102,8 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
         }
 
         $this->addProduct($product, $params);
-        if (!empty($related)) {
-            $this->addProductsByIds(explode(',', $related));
+        if (count($related)) {
+            $this->addProductsByIds($related);
         }
 
         $this->save();

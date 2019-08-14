@@ -43,21 +43,7 @@ class Jmango360_Japi_Model_Rest_Product_Crosssell extends Jmango360_Japi_Model_R
     {
         $ninProductIds = $this->_getCartProductIds();
         if ($ninProductIds) {
-            $lastAdded = (int)$this->_getLastAddedProductId();
             $items = array();
-            if ($lastAdded) {
-                $collection = $this->_getCollection()->addProductFilter($lastAdded);
-                if (!empty($ninProductIds)) {
-                    $collection->addExcludeProductFilter($ninProductIds);
-                }
-                $collection->setPositionOrder()->load();
-
-                foreach ($collection as $item) {
-                    $ninProductIds[] = $item->getId();
-                    $items[] = $item;
-                }
-            }
-
             if (count($items) < self::LIMIT) {
                 $filterProductIds = array_merge($this->_getCartProductIds(), $this->_getCartProductIdsRel());
                 $collection = $this->_getCollection()

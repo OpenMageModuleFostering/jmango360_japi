@@ -1,0 +1,98 @@
+<?php
+/**
+ * Copyright 2017 JMango360
+ */
+?>
+<?php
+/* @var $this Jmango360_Japi_Block_Js */
+if (!$this->isShow()) return;
+$iosScheme = $this->getUriScheme(Mage::getStoreConfig('japi/jmango_rest_mobile_settings/ios_scheme'));
+$androidScheme = $this->getUriScheme(Mage::getStoreConfig('japi/jmango_rest_mobile_settings/android_scheme'));
+?>
+<style type="text/css">
+    body .japi-mobile-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+    }
+
+    body .japi-mobile-popup div {
+        background: rgba(0, 0, 0, 0.5);
+        width: 100%;
+        height: 100%;
+    }
+
+    body .japi-mobile-popup a {
+        display: block;
+        padding: 0 20px;
+        height: 50px;
+        line-height: 50px;
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        color: #fff;
+        background: #ec5338;
+        border: 1px solid #ec5338;
+        border-radius: 4px;
+        white-space: nowrap;
+        visibility: hidden;
+    }
+
+    body .japi-mobile-popup a:hover,
+    body .japi-mobile-popup a:active,
+    body .japi-mobile-popup a:visited {
+        text-decoration: none;
+    }
+
+    body .japi-mobile-popup a.japi-show {
+        visibility: visible;
+    }
+</style>
+<script type="text/javascript">
+    (function () {
+        var uagent = navigator.userAgent,
+            uri_scheme,
+            iOS;
+
+        if (/safari/i.test(uagent) && !/chrome/i.test(uagent)) {
+            iOS = true;
+            uri_scheme = <?php echo json_encode($iosScheme) ?>;
+        } else {
+            uri_scheme = <?php echo json_encode($androidScheme) ?>;
+        }
+
+        if (uri_scheme) {
+            window.onload = function () {
+                if (iOS) {
+                    window.location.href = uri_scheme;
+                } else {
+                    japiMobilePopup();
+                }
+            };
+        }
+
+        function japiMobilePopup() {
+            var docFrag = document.createDocumentFragment();
+            var popup = document.createElement('div');
+            popup.className = 'japi-mobile-popup';
+            var overlay = document.createElement('div');
+            var button = document.createElement('a');
+            button.textContent = <?php echo json_encode($this->__('Back to app')) ?>;
+            button.href = uri_scheme;
+            popup.appendChild(overlay);
+            popup.appendChild(button);
+            docFrag.appendChild(popup);
+
+            var body = document.getElementsByTagName('body')[0];
+            body.appendChild(docFrag);
+
+            setTimeout(function () {
+                button.style.marginLeft = (-1 * button.offsetWidth / 2) + 'px';
+                button.className = 'japi-show';
+            });
+        }
+    })();
+</script>

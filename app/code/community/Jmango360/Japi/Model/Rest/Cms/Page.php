@@ -40,7 +40,7 @@ class Jmango360_Japi_Model_Rest_Cms_Page extends Mage_Cms_Model_Page
         $result['active'] = $page->getIsActive();
         $result['created_at'] = $page->getCreationTime();
         $result['updated_at'] = $page->getUpdateTime();
-        $result['content'] = $processor->filter($page->getContent());
+        $result['content'] = $processor->filter($this->_filter($page->getContent()));
 
         $pageStoreIds = array();
 
@@ -52,5 +52,16 @@ class Jmango360_Japi_Model_Rest_Cms_Page extends Mage_Cms_Model_Page
         $result['storeIds'] = $pageStoreIds;
 
         return $result;
+    }
+
+    /**
+     * Remove unsupported text
+     *
+     * @param $string
+     * @return string
+     */
+    protected function _filter($string)
+    {
+        return preg_replace(Varien_Filter_Template::CONSTRUCTION_PATTERN, '', $string);
     }
 }

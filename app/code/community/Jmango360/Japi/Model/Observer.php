@@ -133,7 +133,7 @@ class Jmango360_Japi_Model_Observer
         }
     }
 
-    public function setOrderIdToHead($observe)
+    public function japiLayoutGenerateBlocksAfter($observe)
     {
         /* @var $server Jmango360_Japi_Model_Server */
         $server = Mage::getSingleton('japi/server');
@@ -151,12 +151,28 @@ class Jmango360_Japi_Model_Observer
             if (!$lastRealOrderId) {
                 $lastRealOrderId = $this->_getOrderIncrementIdById($session->getLastOrderId());
             }
+
+            /**
+             * Inject script to automatic launch mobile app
+             */
+            if ($lastRealOrderId) {
+                $block = $layout->createBlock('japi/js');
+                $block->setOrderId($lastRealOrderId);
+                $head->append($block);
+            }
+
+            /**
+             * Append newly created order ID to response header
+             */
             if ($lastRealOrderId) {
                 $block = $layout->createBlock('core/text');
                 $block->setText(sprintf('<meta name="%s" content="%s">', 'last-real-order-id', $lastRealOrderId));
                 $head->append($block, 'last-real-order-id');
             }
 
+            /**
+             * Append customer data to submited customer edit page
+             */
             if ($request->getModuleName() == 'japi' && $request->getControllerName() == 'customer' && $request->getActionName() == 'edit') {
                 /* @var $customerSession Mage_Customer_Model_Session */
                 $customerSession = Mage::getSingleton('customer/session');
@@ -169,6 +185,9 @@ class Jmango360_Japi_Model_Observer
                 }
             }
 
+            /**
+             * Append customer data to submited customer register page
+             */
             if ($request->getModuleName() == 'japi' && $request->getControllerName() == 'customer' && $request->getActionName() == 'register') {
                 /* @var $customerSession Mage_Customer_Model_Session */
                 $customerSession = Mage::getSingleton('customer/session');
@@ -183,6 +202,9 @@ class Jmango360_Japi_Model_Observer
                 }
             }
 
+            /**
+             * Append customer data to submited customer new address page
+             */
             if ($request->getModuleName() == 'japi' && $request->getControllerName() == 'customer' && $request->getActionName() == 'address') {
                 /* @var $customerSession Mage_Customer_Model_Session */
                 $customerSession = Mage::getSingleton('customer/session');
@@ -681,5 +703,30 @@ class Jmango360_Japi_Model_Observer
                 $obj->applyShippingErrors($observer);
             }
         }
+    }
+
+    /**
+     * Forward some custom actions to our actions
+     * Support: NWT_KCO
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function japiControllerActionPredispatch(Varien_Event_Observer $observer)
+    {
+        /* @var $action Mage_Core_Controller_Varien_Action */
+        $action = $observer->getEvent()->getControllerAction();
+        if ($action->getRequest()->getModuleName() == 'kco') {
+            if (strpos($action->getRequest()->getServer('HTTP_REFERER'), 'japi/kco') !== false) {
+                $action->getRequest()
+                    ->initForward()
+                    ->setModuleName('japi')
+                    ->setControllerName('kco')
+                    ->setActionName($action->getRequest()->getActionName())
+                    ->setDispatched(false);
+            }
+        }
+
+        return $this;
     }
 }
