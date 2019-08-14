@@ -13,4 +13,19 @@ class Jmango360_Japi_Block_Checkout_Onepage_Shipping extends Mage_Checkout_Block
 
         return $this->_address;
     }
+
+    public function getAddressesHtmlSelect($type)
+    {
+        $html = parent::getAddressesHtmlSelect($type);
+
+        if ($html) {
+            $editLink = sprintf('<div class="japi-address-edit"><a href="#" class="japi-address-edit-btn">%s</a></div>',
+                $this->__('Edit')
+            );
+
+            $html .= $editLink;
+        }
+
+        return $html;
+    }
 }

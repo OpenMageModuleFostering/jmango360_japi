@@ -106,9 +106,9 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         $index = 0;
         $recollect = false;
         $cart['items'] = null;
-        foreach ($this->getQuote()->getAllVisibleItems() as $item) {
+        foreach ($this->getCartItems() as $item) {
             /* @var $item Mage_Sales_Model_Quote_Item */
-            $product = $helper->convertProductIdToApiResponseV2($item->getProductId());
+            $product = $helper->convertProductIdToApiResponseV2($item->getProductId(), array('no_apply_hide_on_app' => 1));
 
             /**
              * MPLUGIN-1259: Workaround to manual remove unavailable product
@@ -167,6 +167,7 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
 
         // Move here to prevent being cached in cart object
         $cart['items_count'] = $this->getSummaryQty();
+        $cart['cart_qty_display'] = (int)Mage::getStoreConfig('checkout/cart_link/use_qty');
 
         /**
          * MultiShipping is not supported yet. Always one shipping address is returned in the response
@@ -209,6 +210,37 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         }
 
         return $cart;
+    }
+
+    /**
+     * MPLUGIN-1830: Make sure we load full cart item data
+     *
+     * @return array
+     */
+    protected function getCartItems()
+    {
+        $items = array();
+
+        foreach ($this->getQuote()->getAllVisibleItems() as $item) {
+            /* @var $item Mage_Sales_Model_Quote_Item */
+            if (!$item->getId() && $item->getProductId()) {
+                $collection = Mage::getModel('sales/quote_item')->getCollection();
+                $collection->setQuote($this->getQuote());
+                foreach ($collection as $i) {
+                    /* @var $i Mage_Sales_Model_Quote_Item */
+                    if ($i->getProductId() == $item->getProductId()) {
+                        foreach ($i->getData() as $property => $value) {
+                            if (!$item->hasData($property)) {
+                                $item->setData($property, $value);
+                            }
+                        }
+                    }
+                }
+            }
+            $items[] = $item;
+        }
+
+        return $items;
     }
 
     protected function _resetQuote()

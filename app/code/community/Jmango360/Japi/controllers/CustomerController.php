@@ -360,8 +360,15 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
     {
         $this->loadLayout();
         $this->_updateLayout();
-        $this->getLayout()->getBlock('head')->setTitle($this->__('Add New Address'));
         $session = $this->_getSession();
+        $customer = $session->getCustomer();
+        $addressId = $this->getRequest()->getParam('id');
+        $address = $customer->getAddressById($addressId);
+        if ($address->getId()) {
+            $this->getLayout()->getBlock('head')->setTitle($this->__('Edit Address'));
+        } else {
+            $this->getLayout()->getBlock('head')->setTitle($this->__('Add New Address'));
+        }
         if ($session->getIsSubmit()) {
             $session->setIsSubmit(false);
             $this->getResponse()->setHeader('JM-Account-Id', $session->getCustomerId());
@@ -371,6 +378,11 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
         if (!$session->isLoggedIn()) {
             $session->addError(Mage::helper('japi')->__('Customer not logged in'));
             $this->getResponse()->setHeader('HTTP/1.1', '401 Unauthorized', true);
+        }
+        if ($this->getRequest()->getParam('is_checkout')) {
+            /* @var $httpHelper Mage_Core_Helper_Http */
+            $httpHelper = Mage::helper('core/http');
+            $session->setRefererUrl($httpHelper->getHttpReferer());
         }
         $this->_initLayoutMessages(array('core/session', 'customer/session'));
         $this->renderLayout();
@@ -421,8 +433,26 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
 
                 if (count($errors) === 0) {
                     $address->save();
-                    $this->_getSession()->addSuccess($this->__('The address has been saved.'));
-                    return $this->_redirect('*/*/address', array('_secure' => true, 'id' => $address->getId()));
+                    if ($this->getRequest()->getParam('is_checkout')) {
+                        $redirectUrl = $this->_getSession()->getRefererUrl();
+                        if ($redirectUrl) {
+                            if (strpos($redirectUrl, 'japi/checkout/onepage') !== false) {
+                                $type = $this->getRequest()->getParam('type');
+                                if ($type == 'billing') {
+
+                                } elseif ($type == 'shipping') {
+                                    Mage::getSingleton('core/session')->setData('is_shipping_address_update', true);
+                                }
+                            }
+                            $this->_getSession()->unsetData('referer_url');
+                            return $this->_redirectUrl($redirectUrl);
+                        } else {
+                            return $this->_redirect('japi/checkout/onepage', array('_secure' => true));
+                        }
+                    } else {
+                        $this->_getSession()->addSuccess($this->__('The address has been saved.'));
+                        return $this->_redirect('*/*/address', array('_secure' => true, 'id' => $address->getId()));
+                    }
                 } else {
                     $this->_getSession()->setAddressFormData($this->getRequest()->getPost());
                     foreach ($errors as $errorMessage) {

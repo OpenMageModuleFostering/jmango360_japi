@@ -17,8 +17,20 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
         $query->setStoreId(Mage::app()->getStore()->getId());
         $data = array();
         if ($query->getQueryText() != '') {
+            /**
+             * Support Emico_Tweakwise
+             */
             if ($helper->isModuleEnabled('Emico_Tweakwise')) {
                 return $helper->getProductCollectionFromEmicoTweakwise(true);
+            }
+
+            /**
+             * Support Klevu_Search
+             */
+            if ($helper->isModuleEnabled('Klevu_Search')) {
+                if (Mage::helper('klevu_search/config')->isLandingEnabled()) {
+                    return $helper->getProductCollectionFromKlevuSearch();
+                }
             }
 
             if ($searchHelper->isMinQueryLength()) {

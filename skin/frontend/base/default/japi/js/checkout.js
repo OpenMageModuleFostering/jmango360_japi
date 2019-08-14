@@ -6,10 +6,12 @@ if (!window.toogleVisibilityOnObjects) {
     var toogleVisibilityOnObjects = function (source, objects) {
         if ($(source) && $(source).checked) {
             objects.each(function (item) {
-                $(item).show();
-                $$('#' + item + ' .input-text').each(function (item) {
-                    item.removeClassName('validation-passed');
-                });
+                if ($(item)) {
+                    $(item).show();
+                    $$('#' + item + ' .input-text').each(function (item) {
+                        item.removeClassName('validation-passed');
+                    });
+                }
             });
         } else {
             objects.each(function (item) {
@@ -39,15 +41,33 @@ if (!window.toogleVisibilityOnObjects) {
 if (!window.toogleVisibility) {
     var toogleVisibility = function (objects, show) {
         objects.each(function (item) {
-            if (show) {
-                $(item).show();
-                $(item).removeClassName('no-display');
-            }
-            else {
-                $(item).hide();
-                $(item).addClassName('no-display');
+            if ($(item)) {
+                if (show) {
+                    $(item).show();
+                    $(item).removeClassName('no-display');
+                } else {
+                    $(item).hide();
+                    $(item).addClassName('no-display');
+                }
             }
         });
+    }
+}
+
+if (!window.toogleRequired) {
+    var toogleRequired = function (source, objects) {
+        if (!$(source).value.blank()) {
+            objects.each(function (item) {
+                $(item) && $(item).addClassName('required-entry');
+            });
+        } else {
+            objects.each(function (item) {
+                if (typeof shippingMethod != 'undefined' && shippingMethod.validator) {
+                    shippingMethod.validator.reset(item);
+                }
+                $(item) && $(item).removeClassName('required-entry');
+            });
+        }
     }
 }
 
@@ -60,6 +80,7 @@ if (typeof Checkout !== "undefined") {
             this.saveMethodUrl = urls.saveMethod;
             this.failureUrl = urls.failure;
             this.shippingMethodUrl = urls.shippingMethodUrl;
+            this.editAddressUrl = urls.editAddressUrl;
             this.billingForm = false;
             this.shippingForm = false;
             this.syncBillingShipping = false;
@@ -111,6 +132,32 @@ if (typeof Checkout !== "undefined") {
             document.on('click', '#edit-shipping-method', function () {
                 this.gotoSection('shipping_method');
             }.bind(this));
+
+            document.on('click', '.japi-address-edit-btn', function (e, btn) {
+                this.gotoEditAddress(btn);
+            }.bind(this))
+        },
+
+        gotoEditAddress: function (btn) {
+            var addressSelect = $(btn).up('form').down('select.address-select');
+            if (addressSelect) {
+                var type;
+                if (addressSelect.getAttribute('name').indexOf('billing') > -1) {
+                    type = 'billing';
+                } else if (addressSelect.getAttribute('name').indexOf('shipping') > -1) {
+                    type = 'shipping';
+                }
+                var addressId = addressSelect.getValue();
+                if (addressId) {
+                    var url = this.editAddressUrl;
+                    if (url.indexOf('?') > -1) {
+                        url += '&';
+                    } else {
+                        url += '?';
+                    }
+                    window.location.href = url + 'id=' + addressId + '&is_checkout=1&type=' + type;
+                }
+            }
         },
 
         setLoadWaiting: function (step, keepDisabled) {

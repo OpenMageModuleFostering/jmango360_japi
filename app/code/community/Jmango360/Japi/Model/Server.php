@@ -70,7 +70,10 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
              * Bypass flat product check
              * MPLUGIN-1777: Ignore when get related products
              */
-            if ($request->getActionName() != 'getRelated') {
+            if ($request->getActionName() != 'getRelated' &&
+                $request->getActionName() != 'getCrossSell' &&
+                $request->getActionName() != 'getUpSell'
+            ) {
                 Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
             }
 

@@ -65,13 +65,23 @@
         review: '<?php echo $this->getUrl('japi/checkout/review', array('_secure' => true)) ?>',
         saveMethod: '<?php echo $this->getUrl('japi/checkout/saveMethod', array('_secure' => true)) ?>',
         failure: '<?php echo $this->getUrl('japi/checkout/onepage', array('_secure' => true)) ?>',
-        shippingMethodUrl: '<?php echo $this->getUrl('japi/checkout/getShippingMethod', array('_secure' => true)) ?>'
+        shippingMethodUrl: '<?php echo $this->getUrl('japi/checkout/getShippingMethod', array('_secure' => true)) ?>',
+        editAddressUrl: '<?php echo $this->getUrl('japi/customer/address', array('_secure' => true)) ?>'
     });
-    <?php if (!$error && Mage::getSingleton('core/session')->getData('is_address_update') && $this->getQuote()->getBillingAddress()->getCountryId()): ?>
-    <?php Mage::getSingleton('core/session')->setData('is_address_update', false) ?>
-    document.observe("dom:loaded", function () {
-        checkout.gotoShippingMethodSection();
-    });
+    <?php if (!$error): ?>
+        <?php if (Mage::getSingleton('core/session')->getData('is_address_update')): ?>
+            <?php if ($this->getQuote()->getBillingAddress()->getCountryId()): ?>
+                <?php Mage::getSingleton('core/session')->setData('is_address_update', false) ?>
+                document.observe("dom:loaded", function () {
+                    checkout.gotoShippingMethodSection();
+                });
+            <?php endif ?>
+        <?php elseif (Mage::getSingleton('core/session')->getData('is_shipping_address_update')): ?>
+            <?php Mage::getSingleton('core/session')->unsetData('is_shipping_address_update') ?>
+            document.observe("dom:loaded", function () {
+                checkout.gotoSection('shipping');
+            });
+        <?php endif ?>
     <?php endif ?>
     //]]>
 </script>

@@ -9,6 +9,12 @@ class Jmango360_Japi_Model_Rest_Product_Review extends Jmango360_Japi_Model_Rest
     {
         $product = $this->_initProduct();
 
+        if ($this->isBazaarvoiceEnabled()) {
+            /* @var $bazaarvoiceHelper Jmango360_Japi_Helper_Review_Bazaarvoice */
+            $bazaarvoiceHelper = Mage::helper('japi/review_bazaarvoice');
+            return $bazaarvoiceHelper->getReviews($product);
+        }
+
         /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
         $reviewHelper = Mage::helper('japi/product_review');
 
@@ -24,6 +30,16 @@ class Jmango360_Japi_Model_Rest_Product_Review extends Jmango360_Japi_Model_Rest
      */
     public function getForm()
     {
+        if ($this->isBazaarvoiceEnabled()) {
+            $product = null;
+            if ($this->_getRequest()->getParam('product_id')) {
+                $product = $this->_initProduct();
+            }
+            /* @var $bazaarvoiceHelper Jmango360_Japi_Helper_Review_Bazaarvoice */
+            $bazaarvoiceHelper = Mage::helper('japi/review_bazaarvoice');
+            return $bazaarvoiceHelper->getForm($product);
+        }
+
         /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
         $reviewHelper = Mage::helper('japi/product_review');
 
@@ -42,6 +58,12 @@ class Jmango360_Japi_Model_Rest_Product_Review extends Jmango360_Japi_Model_Rest
 
         $data = $this->_getRequest()->getParams();
         $rating = $this->_getRequest()->getParam('ratings', array());
+
+        if ($this->isBazaarvoiceEnabled()) {
+            /* @var $bazaarvoiceHelper Jmango360_Japi_Helper_Review_Bazaarvoice */
+            $bazaarvoiceHelper = Mage::helper('japi/review_bazaarvoice');
+            return $bazaarvoiceHelper->submitReview($product, $data);
+        }
 
         if ($product && !empty($data)) {
             $review = Mage::getModel('review/review')->setData($data);
@@ -97,5 +119,11 @@ class Jmango360_Japi_Model_Rest_Product_Review extends Jmango360_Japi_Model_Rest
                 Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
             );
         }
+    }
+
+    protected function isBazaarvoiceEnabled()
+    {
+        return (Mage::helper('core')->isModuleEnabled('Comaxx_BvConversations') && Mage::getStoreConfigFlag('bazaarvoice/general/enable_bv')) ||
+            (Mage::helper('core')->isModuleEnabled('Bazaarvoice_Connector'));
     }
 }

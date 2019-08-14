@@ -16,7 +16,13 @@ class Jmango360_Japi_Helper_Product_Grouped extends Mage_Core_Helper_Abstract
         $result = array();
         $index = 0;
         foreach ($items as $item) {
-            $result[] = $this->_convertItemToArray($item, $includePrice, $index++);
+            /* @var $item Mage_Catalog_Model_Product */
+            if (!$item->hasData('hide_in_jm360')) {
+                $item->load($item->getId(), array('hide_in_jm360'));
+            }
+            if (!$item->getData('hide_in_jm360')) {
+                $result[] = $this->_convertItemToArray($item, $includePrice, $index++);
+            }
         }
         return $result;
     }
@@ -67,6 +73,7 @@ class Jmango360_Japi_Helper_Product_Grouped extends Mage_Core_Helper_Abstract
         }
 
         $result['is_saleable'] = (int)$item->isSaleable();
+        $result['is_available'] = (int)$item->isSaleable();
         $result['position'] = $index !== null ? $index : (int)$item->getPosition();
         $result['qty'] = $item->getQty();
         $result['stock'] = $item->getStockItem() ? $item->getStockItem()->getQty() : null;

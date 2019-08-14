@@ -341,10 +341,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      * Convert a product to collection and return to api json
      *
      * @param int $product
+     * @param array $config
      * @return null|array
      * @throws Jmango360_Japi_Exception
      */
-    public function convertProductIdToApiResponseV2($product)
+    public function convertProductIdToApiResponseV2($product, $config = array())
     {
         if (!is_numeric($product)) {
             return null;
@@ -360,7 +361,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             ->addTaxPercents()
             ->addIdFilter($product);
 
-        $this->applyHideOnAppFilter($collection);
+        if (!isset($config['no_apply_hide_on_app'])) {
+            $this->applyHideOnAppFilter($collection);
+        }
 
         Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($collection);
         //Mage::getSingleton('catalog/product_visibility')->addVisibleInCatalogFilterToCollection($collection);
@@ -635,6 +638,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'stock' => $this->_getStockLevel($product),
             'is_in_stock' => $product->getStockItem() ? (int)$product->getStockItem()->getIsInStock() : null,
             'is_saleable' => (int)$product->isSalable(),
+            'is_available' => $this->_getProductAvailable($product),
             'price' => $this->calculatePriceIncludeTax($product, $_basePrice),
             'final_price' => $this->calculatePriceIncludeTax($product, $product->getFinalPrice()),
             'min_price' => $this->calculatePriceIncludeTax($product, $product->getMinPrice()),
@@ -782,6 +786,20 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         } else {
             $result['has_required_options'] = true;
+        }
+
+        /**
+         * MPLUGIN-1750: Support custom product attribute 'mamut_note'
+         */
+        if (strpos(Mage::getBaseUrl(), 'deleukstetaartenshop') !== false) {
+            if (Mage::app()->getLocale()->getLocaleCode() == 'nl_NL') {
+                $mamutNote = $this->_getCustomHtmlStyle();
+                $mamutNote .= $productHelper->productAttribute($product, $product->getData('mamut_note'), 'description');
+                $result['short_description'] = $mamutNote;
+                $result['description'] = $mamutNote;
+            } else {
+                $result['description'] = $result['short_description'];
+            }
         }
 
         return $result;
@@ -942,6 +960,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $result['price'] = $this->calculatePriceIncludeTax($product, $this->_getSCPBasePrice($product));
 
         return $result;
+    }
+
+    /**
+     * Return "is_available" property for display stock status
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return int
+     */
+    protected function _getProductAvailable(Mage_Catalog_Model_Product $product)
+    {
+        if ($product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
+            $associatedProducts = $product->getTypeInstance(true)->getAssociatedProducts($product);
+            return (int)($product->isAvailable() && count($associatedProducts) > 0);
+        } else {
+            return (int)$product->isAvailable();
+        }
     }
 
     /**
@@ -1158,6 +1192,13 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $includeWeeeTax = true
     )
     {
+        $store = Mage::app()->getStore();
+
+        /**
+         * MPLUGIN-1793: Copy logic from price.phtml
+         */
+        $productFinalPrice = $store->roundPrice($store->convertPrice($productFinalPrice, false, false));
+
         if (version_compare(Mage::getVersion(), '1.8.1.0', '<')) {
             /* @var $taxHelper Jmango360_Japi_Helper_Tax */
             $taxHelper = Mage::helper('japi/tax');
@@ -1220,15 +1261,14 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                     }
                 }
             }
+
+            /**
+             * MPLUGIN-1793: Copy logic from price.phtml
+             */
+            $weeeTaxAmountInclTaxes = $store->roundPrice($store->convertPrice($weeeTaxAmountInclTaxes, false, false));
         }
 
-        if ($convertPrice) {
-            // Convert store price
-            $store = Mage::app()->getStore();
-            $productFinalPrice = $store->convertPrice($productFinalPrice + $weeeTaxAmountInclTaxes, false, false);
-        }
-
-        return $productFinalPrice;
+        return $productFinalPrice + $weeeTaxAmountInclTaxes;
     }
 
     /**
@@ -1965,6 +2005,154 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         /**
          * Get products data
          */
+        $data['products'] = $this->convertProductCollectionToApiResponseV2($productCollection);
+
+        return $data;
+    }
+
+    /**
+     * Support Klevu_Search catalog storage engine
+     *
+     * @return array
+     * @throws Jmango360_Japi_Exception
+     */
+    public function getProductCollectionFromKlevuSearch()
+    {
+        if (!$this->isModuleEnabled('Klevu_Search')) {
+            throw new Jmango360_Japi_Exception(
+                $this->__('Module(s) %s not found.', 'Klevu_Search'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        /**
+         * Init sorting
+         */
+        /* @var Mage_Catalog_Block_Product_List $productListBlock */
+        $productListBlock = Mage::getBlockSingleton('catalog/product_list');
+        $toolbarBlock = $productListBlock->getToolbarBlock();
+        $order = $this->_getRequest()->getParam('order');
+        $dir = $this->_getRequest()->getParam('dir', 'desc');
+        if ($order) {
+            $toolbarBlock->setDefaultOrder($order);
+            $toolbarBlock->setDefaultDirection($dir);
+        }
+
+        /**
+         * Init filter attributes
+         */
+        /* @var $layer Mage_CatalogSearch_Model_Layer */
+        $layer = Mage::getSingleton('catalogsearch/layer');
+        $requestParams = $this->_getRequest()->getParams();
+        $filters = array();
+
+        if (array_key_exists('category', $requestParams)) {
+            $filters['cat'] = null;
+            $requestParams['cat'] = $requestParams['category'];
+        }
+
+        $excludedParams = array(
+            'SID', 'token', 'order', 'dir', 'p', 'limit', 'q', 'category'
+        );
+
+        foreach ($requestParams as $param => $value) {
+            if (in_array($param, $excludedParams)) continue;
+            $attributeModel = Mage::getModel('eav/config')->getAttribute('catalog_product', $param);
+            if ($attributeModel->getId()) {
+                $filters[$param] = $attributeModel;
+            }
+        }
+
+        foreach ($filters as $attributeCode => $attributeModel) {
+            switch ($attributeCode) {
+                case 'cat':
+                    /* @var $filterModel Mage_Catalog_Model_Layer_Filter_Category */
+                    $filterModel = Mage::getModel('catalog/layer_filter_category');
+                    break;
+                case 'price':
+                    /* @var $filterModel Mage_Catalog_Model_Layer_Filter_Price */
+                    $filterModel = Mage::getModel('catalog/layer_filter_price');
+                    $filterModel->setAttributeModel($attributeModel);
+                    break;
+                default:
+                    /* @var $filterModel Mage_Catalog_Model_Layer_Filter_Attribute */
+                    $filterModel = Mage::getModel('catalogsearch/layer_filter_attribute');
+                    $filterModel->setAttributeModel($attributeModel);
+            }
+            $filterModel->setLayer($layer);
+            $layer->getState()->addFilter(
+                Mage::getModel('catalog/layer_filter_item')
+                    ->setFilter($filterModel)
+                    ->setLabel($requestParams[$attributeCode])
+                    ->setValue($requestParams[$attributeCode])
+            );
+        }
+
+        /**
+         * Init product collection
+         */
+        /* @var $productCollection Klevu_Search_Model_CatalogSearch_Resource_Fulltext_Collection */
+        $productCollection = Mage::getResourceModel('catalogsearch/fulltext_collection')
+            ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes())
+            ->addSearchFilter(Mage::helper('catalogsearch')->getQuery()->getQueryText())
+            ->setStore(Mage::app()->getStore())
+            ->addMinimalPrice()
+            ->addFinalPrice()
+            ->addTaxPercents()
+            ->addStoreFilter()
+            ->addUrlRewrite()
+            ->setPageSize($this->_getRequest()->getParam('limit', 12));
+
+        Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($productCollection);
+        Mage::getSingleton('catalog/product_visibility')->addVisibleInSearchFilterToCollection($productCollection);
+        $this->applySupportedProductTypes($productCollection);
+        $this->applyHideOnAppFilter($productCollection);
+
+        $data = array();
+
+        /**
+         * Get filter items
+         */
+        $klevuFilters = $productCollection->getKlevuFilters();
+        foreach ($klevuFilters as $key => $filter) {
+            if (array_key_exists($key, $filters)) continue;
+            if ($key == 'category' && array_key_exists('cat', $filters)) continue;
+
+            $item['name'] = $filter['label'];
+            $item['code'] = $key;
+            $item['items'] = null;
+            if ($filter['options']) {
+                foreach ($filter['options'] as $option) {
+                    $item['items'][] = array(
+                        'value' => $option['label'],
+                        'label' => $option['label'],
+                        'count' => $option['count']
+                    );
+                }
+            }
+            $data['filters'][] = $item;
+        }
+
+        /**
+         * Get toolbar information
+         */
+        $data['toolbar_info'] = array(
+            'current_page_num' => $this->_getRequest()->getParam('p', 1),
+            'last_page_num' => ceil($productCollection->getSize() / $productCollection->getPageSize()),
+            'current_limit' => $this->_getRequest()->getParam('limit', 12),
+            'available_limit' => null,
+            'current_order' => null,
+            'current_direction' => null,
+            'available_orders' => null
+        );
+        if ($order) {
+            $data['toolbar_info']['current_order'] = $order;
+            $data['toolbar_info']['current_direction'] = $dir;
+        } else {
+            $data['toolbar_info']['current_order'] = 'relevance';
+            $data['toolbar_info']['current_direction'] = 'desc';
+        }
+
         $data['products'] = $this->convertProductCollectionToApiResponseV2($productCollection);
 
         return $data;

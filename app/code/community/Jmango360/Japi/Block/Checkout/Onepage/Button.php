@@ -22,7 +22,7 @@ class Jmango360_Japi_Block_Checkout_Onepage_Button extends Jmango360_Japi_Block_
         if (Mage::helper('core')->isModuleEnabled('Iways_PayPalPlus')) {
             $this->setTemplate('paypalplus/review/button.phtml');
         } else {
-            $this->setTemplate('japi/checkout/onepage/js.phtml');
+            $this->setTemplate('japi/checkout/onepage/review/button.phtml');
         }
     }
 }

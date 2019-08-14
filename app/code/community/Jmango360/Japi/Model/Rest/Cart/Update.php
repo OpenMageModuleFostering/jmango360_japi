@@ -114,9 +114,11 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
             array('product' => $product, 'request' => $this->_getRequest(), 'response' => $this->_getResponse())
         );
 
-        $data['message'] = Mage::helper('japi')->__('%s was added to your shopping cart.', Mage::helper('core')->escapeHtml($product->getName()));
-        $data['no_redirect_to_cart'] = $this->_getSession()->getNoCartRedirect();
-        $data['cart'] = $this->getCartData();
+        $data = $this->_getCart();
+        $data['message'] = Mage::helper('japi')->__(
+            '%s was added to your shopping cart.',
+            Mage::helper('core')->escapeHtml($product->getName())
+        );
 
         return $data;
     }

@@ -747,7 +747,7 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
         foreach ($quote->getAllVisibleItems() as $item) {
             /* @var $item Mage_Sales_Model_Quote_Item */
             $data['cart']['items'][$index] = $item->getData();
-            $product = $helper->convertProductIdToApiResponseV2($item->getProductId());
+            $product = $helper->convertProductIdToApiResponseV2($item->getProductId(), array('no_apply_hide_on_app' => 1));
             $data['cart']['items'][$index]['product'] = array($product);
             $data['cart']['items'][$index]['buy_request'] = $helper->getCartProductBuyRequest($item, $product);
             $index++;
