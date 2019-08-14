@@ -428,6 +428,27 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Magestore_RewardPoints')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><file>magestore/rewardpoints.js</file></action>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Iways_PayPalPlus')) {
+            $xml .= "
+<reference name=\"head\">
+    <block type=\"core/text\" name=\"ppplus\" ifconfig=\"payment/iways_paypalplus_payment/active\">
+        <action method=\"setText\">
+            <text><![CDATA[<script src=\"//www.paypalobjects.com/webstatic/ppplus/ppplus.min.js\" type=\"text/javascript\"></script>]]></text>
+        </action>
+    </block>
+    <action method=\"addCss\" ifconfig=\"payment/iways_paypalplus_payment/active\">
+        <stylesheet>css/iways-paypalplus.css</stylesheet>
+    </action>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();

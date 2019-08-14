@@ -44,7 +44,7 @@
                 <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/modal.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
-                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.0.4</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.2.0</file></action>
             </block>
             <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
                 <label>Page Top</label>
@@ -131,7 +131,7 @@
                     <template>japi/checkout/onepage/coupon.phtml</template>
                 </action>
             </block>
-            <block type="core/template" name="checkout.onepage.review.button" as="button" template="japi/checkout/onepage/review/button.phtml"/>
+            <block type="japi/checkout_onepage_button" name="checkout.onepage.review.button" as="button"/>
         </block>
     </japi_checkout_review>
 
@@ -219,6 +219,9 @@
         <reference name="root">
             <action method="setTemplate">
                 <template>japi/checkout/onepage/payment/methods.phtml</template>
+            </action>
+            <action method="setTemplate" ifconfig="payment/iways_paypalplus_payment/active">
+                <template>paypalplus/methods.phtml</template>
             </action>
         </reference>
     </japi_checkout_onepage_paymentmethod>

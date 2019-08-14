@@ -119,12 +119,12 @@ if (typeof Checkout !== "undefined") {
                 if (this.loadWaiting) {
                     this.setLoadWaiting(false);
                 }
-                btn = this.getLaddaButton($(step + '-button'));
+                btn = this.getLaddaButton(step);
                 btn && btn.start();
             } else {
                 if (this.loadWaiting) {
                     if (!keepDisabled) {
-                        btn = this.getLaddaButton($(this.loadWaiting + '-button'));
+                        btn = this.getLaddaButton(this.loadWaiting);
                         btn && btn.stop();
                     }
                 }
@@ -134,13 +134,19 @@ if (typeof Checkout !== "undefined") {
 
         getLaddaButton: function (el) {
             if (!el) return;
-            if (el.ladda) return el.ladda;
-            var $el = $(el);
+            var $el;
+            if (typeof el == 'string') {
+                $el = $$('#' + el + '-buttons-container button')[0];
+            } else {
+                $el = $(el);
+            }
+            if (!$el) return;
+            if ($el.ladda) return $el.ladda;
             $el.addClassName('ladda-button');
             if (!$el.getAttribute('data-color')) $el.setAttribute('data-color', 'jmango');
             if (!$el.getAttribute('data-style')) $el.setAttribute('data-style', 'slide-up');
             if (!$el.getAttribute('data-size')) $el.setAttribute('data-size', 's');
-            return el.ladda = Ladda.create(el);
+            return $el.ladda = Ladda.create($el);
         },
 
         reloadProgressBlock: function (toStep) {
@@ -150,15 +156,20 @@ if (typeof Checkout !== "undefined") {
         gotoSection: function (section, reloadProgressBlock) {
             this.currentStep = section;
             var sectionElement = $('opc-' + section);
-
             sectionElement.addClassName('allow');
             this.cleanList(sectionElement);
+            this.initLaddaButtons(section);
             this.accordion.find('#checkout-step-' + section).collapse({parent: this.accordion}).collapse('show');
-
             var currentStepIndex = this.steps.indexOf(this.currentStep);
             for (var i = 0; i < currentStepIndex; i++) {
                 this.allowSection(this.steps[i]);
             }
+        },
+
+        initLaddaButtons: function (section) {
+            if (!section) return;
+            var button = $$('#' + section + '-buttons-container button')[0];
+            button && !button.hasClassName('ladda-button') && this.getLaddaButton(button);
         },
 
         allowSection: function (section) {
@@ -272,7 +283,7 @@ var JMDiscount = Class.create({
         }
 
         if (this.validator && this.validator.validate()) {
-            checkout.setLoadWaiting('coupon');
+            checkout.setLoadWaiting($('coupon-button'));
 
             new Ajax.Request(this.saveUrl, {
                 method: 'post',
@@ -283,6 +294,7 @@ var JMDiscount = Class.create({
                         var data = transport.responseJSON;
                         if (data.success && data.html) {
                             $('checkout-review-load').update(data.html);
+                            checkout.initLaddaButtons('review');
                         }
                         if (data.message) {
                             alert(data.message);

@@ -294,6 +294,10 @@ a, a:focus, a:hover {
     tr {
       td {
         padding: 10px 15px;
+        .price {
+          display: block;
+          text-align: right;
+        }
       }
     }
   }
@@ -1723,7 +1727,7 @@ span.price {
   }
 }
 
-/**** Chronopost_Chronorelais ***/
+/**** Chronopost_Chronorelais ****/
 label[for="s_method_chronorelais_Chronopost_relais_France_2"] {
   display: inline;
 }
@@ -1744,6 +1748,29 @@ label[for="s_method_chronorelais_Chronopost_relais_France_2"] {
     }
   }
   .sp-methods-chronorelais {
+    padding: 0;
+  }
+}
+
+.pbxep-payment-cards {
+  .pbxep-payment-card {
+    display: block;
+    margin: 0;
+    padding: 5px 0 5px 20px;
+    position: relative;
+
+    input[type="radio"] {
+      position: absolute;
+      top: 50%;
+      margin-top: -6px;
+      left: 0;
+    }
+  }
+}
+
+/**** Iways_PayPalPlus ****/
+#checkout-payment-method-load {
+  dd.ppp.ppp-selected {
     padding: 0;
   }
 }
