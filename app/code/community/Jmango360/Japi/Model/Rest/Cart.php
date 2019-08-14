@@ -261,6 +261,10 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
 
     protected function _getCart()
     {
+        if (!$this->getQuote()->getId()) {
+            $this->init()->save();
+        }
+
         $throwError = Mage::getSingleton('core/session')->getIsOffilneCart();
 
         if ($error1 = $this->_validateQuote(!$throwError))
