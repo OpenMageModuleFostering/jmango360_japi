@@ -518,6 +518,11 @@ if (typeof Review !== 'undefined') {
         if (this.agreementsForm) {
             params += '&' + Form.serialize(this.agreementsForm);
         }
+        if (this.moreForms) {
+            for (var i = 0; i < this.moreForms.length; i++) {
+                params += '&' + Form.serialize(this.moreForms[i]);
+            }
+        }
         params += '&redirect=' + checkout.redirectUrl;
         new Ajax.Request(this.saveUrl, {
             method: 'post',
@@ -546,5 +551,10 @@ if (typeof Review !== 'undefined') {
             }
         }.bind(this));
         return validateResult;
+    };
+
+    Review.prototype.addMoreFormToSubmit = function (formId) {
+        if (!this.moreForms) this.moreForms = [];
+        this.moreForms.push($(formId));
     };
 }

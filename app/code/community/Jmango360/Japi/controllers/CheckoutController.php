@@ -694,6 +694,20 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
             }
         }
 
+        if ($subscribeNewsletter = $this->getRequest()->getPost('subscribe_newsletter')) {
+            if (Mage::helper('core')->isModuleEnabled('Mage_Newsletter')) {
+                /* @var $subscriberModel Mage_Newsletter_Model_Subscriber */
+                $subscriberModel = Mage::getModel('newsletter/subscriber');
+                $subscriberModel->loadByEmail($quote->getCustomerEmail());
+                if (!$subscriberModel->isSubscribed()) {
+                    $subscribeobj = $subscriberModel->subscribe($quote->getCustomerEmail());
+                    if (is_object($subscribeobj)) {
+                        $subscribeobj->save();
+                    }
+                }
+            }
+        }
+
         if ($redirectUrl = $this->getRequest()->getPost('redirect')) {
             $result['success'] = true;
             $result['error'] = false;

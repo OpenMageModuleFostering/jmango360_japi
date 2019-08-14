@@ -10,12 +10,13 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 {
     const URL_STAGING = 'https://stg.api.bazaarvoice.com/';
     const URL_PRODUCTION = 'https://api.bazaarvoice.com/';
+    const API_VERSION = '5.4';
 
     const DEFAULT_LIMIT = 99;
     const DEFAULT_SORT = 'SubmissionTime';
     const DEFAULT_DIR = 'desc';
 
-    const CACHE_KEY_REVIEW_FORM = 'BV_REVIEW_FORM';
+    const CACHE_KEY_REVIEW_FORM = 'BAZAARVOICE_REVIEW_FORM';
 
     protected $FORM_FIELDS = array(
         'rating' => 'Overall Rating',
@@ -88,6 +89,73 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         // Example encoded = qwerty_bv36__bv37__bv64__bv35_asdf
 
         return preg_replace_callback('/[^\w\d\*-\._]/s', create_function('$match', 'return "_bv".ord($match[0])."_";'), $rawId);
+    }
+
+    /**
+     * Append review data to product collection
+     *
+     * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     * @throws Jmango360_Japi_Exception
+     */
+    public function appendReviews($collection)
+    {
+        if (!$collection || !$collection->getSize()) {
+            return;
+        }
+
+        $productIds = array();
+        foreach ($collection as $item) {
+            $productIds[$this->_getProductId($item)] = $item;
+        }
+        $locale = Mage::app()->getLocale()->getLocaleCode();
+        $apikey = $this->_getApiKey();
+        $url = $this->_getApiUrl('data/batch.json', array(
+            'passkey' => $apikey,
+            'apiVersion' => self::API_VERSION,
+            'resource.q0' => 'statistics',
+            'stats.q0' => 'reviews',
+            'filter.q0' => 'contentlocale:eq:' . $locale,
+            'filter_reviews.q0' => 'contentlocale:eq:' . $locale,
+            'filter.q0' => 'productid:eq:' . join(',', array_keys($productIds))
+        ));
+
+        $result = $this->send('GET', $url);
+
+        if (isset($result['HasErrors']) && $result['HasErrors']) {
+            if (!empty($result['Errors'])) {
+                foreach ($result['Errors'] as $error) {
+                    throw new Jmango360_Japi_Exception(
+                        sprintf('%s', $error['Message']),
+                        Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+                    );
+                }
+            } else {
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__('An error has occurred, please try again later.'),
+                    Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+                );
+            }
+        }
+
+        if (!empty($result['BatchedResults']['q0']['Results'])) {
+            $reviewsData = $result['BatchedResults']['q0']['Results'];
+            foreach ($reviewsData as $reviewData) {
+                if (!empty($reviewData['ProductStatistics'])) {
+                    $productData = $reviewData['ProductStatistics'];
+                    $ratingSummary = new Varien_Object();
+                    $ratingSummary->setReviewsCount(@$productData['ReviewStatistics']['TotalReviewCount']);
+                    $averageOverallRating = @$productData['ReviewStatistics']['AverageOverallRating'];
+                    $overallRatingRange = @$productData['ReviewStatistics']['OverallRatingRange'];
+                    $ratingSummary->setRatingSummary(floor(100 * $averageOverallRating / $overallRatingRange));
+                    $ratingSummary->setRatingRange($overallRatingRange);
+                    foreach ($productIds as $id => $item) {
+                        if ($id == @$productData['ProductId']) {
+                            $item->setRatingSummary($ratingSummary);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -181,7 +249,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
         $cacheKeys[] = self::CACHE_KEY_REVIEW_FORM;
         $cacheKeys[] = Mage::app()->getStore()->getId();
-        $cacheKeys[] = $product->getId();
+        //$cacheKeys[] = $product->getId();
 
         /* @var $session Mage_Customer_Model_Session */
         $session = Mage::getSingleton('customer/session');
@@ -206,8 +274,8 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
             $data = array(
                 'allow_guest_review' => true,
-                'photo_review' => true,
-                'video_review' => true,
+                'photo_review' => false,
+                'video_review' => false,
                 'api_key' => $apiKey,
                 'photo_url' => $this->_getApiUrl('data/uploadphoto.json', array(
                     'ApiVersion' => '5.4',
@@ -224,7 +292,18 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                         }
                     }
                 }
+
                 $fields = $result['Data']['Fields'];
+
+                foreach ($fields as $field => $fieldData) {
+                    if (strpos($field, 'photourl_') !== false) {
+                        $data['photo_review'] = true;
+                    }
+                    if (strpos($field, 'videourl_') !== false) {
+                        $data['video_review'] = true;
+                    }
+                }
+
                 $index = 0;
                 foreach ($outputFields as $field => $label) {
                     foreach ($fields as $fieldName => $fieldData) {
@@ -262,7 +341,13 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                             }
 
                             if (@$fieldData['Id'] == 'agreedtotermsandconditions') {
-                                $fieldTmp['html'] = null;
+                                $html = Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/tc');
+                                $html = str_replace("\n", '<br/>', $html);
+                                $html = sprintf('<!DOCTYPE html><html><head><title>%s</title></head><body>%s</body></html>',
+                                    $this->__('Terms & Conditions'),
+                                    $html
+                                );
+                                $fieldTmp['html'] = $html;
                             }
 
                             if (@$fieldData['Id'] == 'useremail') {
@@ -277,7 +362,10 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
                 }
             }
 
-            $cache->save(Mage::helper('core')->jsonEncode($data), $cacheKey, array(Mage_Core_Model_Config::CACHE_TAG), 60 * 60);
+            $cache->save(Mage::helper('core')->jsonEncode($data), $cacheKey,
+                array(Mage_Core_Model_Config::CACHE_TAG, strtoupper(Mage_Core_Block_Abstract::CACHE_GROUP)),
+                60 * 60
+            );
         }
 
         return Mage::helper('core')->jsonDecode($cache->load($cacheKey));
@@ -666,7 +754,14 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
     protected function _getApiKey()
     {
-        $apiKey = Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/api_key');
+        $apiKey = null;
+
+        if ($this->_getEnv() == 'staging') {
+            $apiKey = Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/api_key_stg');
+        } elseif ($this->_getEnv() == 'production') {
+            $apiKey = Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/api_key_prod');
+        }
+
         if (!$apiKey) {
             throw new Jmango360_Japi_Exception(
                 Mage::helper('japi')->__('Invalid API Key value'),
@@ -686,7 +781,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
         if ($method == 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);

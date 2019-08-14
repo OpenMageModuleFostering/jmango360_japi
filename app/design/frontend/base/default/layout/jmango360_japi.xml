@@ -118,7 +118,7 @@
                 <block>bundle/checkout_cart_item_renderer</block>
                 <template>japi/checkout/onepage/review/item.phtml</template>
             </action>
-            <block type="checkout/cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="japi/checkout/onepage/review/totals.phtml"/>
+            <block type="japi/checkout_cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="japi/checkout/onepage/review/totals.phtml"/>
             <block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before" output="toHtml" translate="label">
                 <label>Items Before</label>
             </block>
@@ -126,13 +126,20 @@
                 <label>Items After</label>
             </block>
             <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="japi/checkout/onepage/agreements.phtml"/>
-            <block type="core/template" name="checkout.onepage.additional_agreements" as="additional_agreements" template="japi/checkout/onepage/additional_agreements.phtml"/>
+            <block type="japi/checkout_onepage_additional" name="checkout.onepage.additional_agreements" as="additional_agreements" template="japi/checkout/onepage/additional_agreements.phtml"/>
             <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon">
                 <action method="setTemplate" ifconfig="japi/jmango_rest_checkout_settings/enable_coupon">
                     <template>japi/checkout/onepage/coupon.phtml</template>
                 </action>
             </block>
             <block type="japi/checkout_onepage_button" name="checkout.onepage.review.button" as="button"/>
+            <block type="core/text_list" name="additional.product.info" translate="label">
+                <block type="core/template" name="gestpay.review">
+                    <action method="setTemplate" ifconfig="payment/gestpaypro/active">
+                        <template>bitbull/bancasellapro/checkout/review.phtml</template>
+                    </action>
+                </block>
+            </block>
         </block>
     </japi_checkout_review>
 
@@ -188,6 +195,7 @@
                 <block type="page/html_wrapper" name="customer.form.register.fields.before" as="form_fields_before" translate="label">
                     <label>Form Fields Before</label>
                 </block>
+                <block type="core/template" name="form.additional.info" template="japi/customer/form/additional.phtml"/>
             </block>
         </reference>
     </japi_customer_register>

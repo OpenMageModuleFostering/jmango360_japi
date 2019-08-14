@@ -563,6 +563,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      */
     public function addProductReview($collection)
     {
+        /* @var $japiHelper Jmango360_Japi_Helper_Data */
+        $japiHelper = Mage::helper('japi');
+        if ($japiHelper->isBazaarvoiceEnabled()) {
+            /* @var $bvHelper Jmango360_Japi_Helper_Review_Bazaarvoice */
+            $bvHelper = Mage::helper('japi/review_bazaarvoice');
+            $bvHelper->appendReviews($collection);
+            return;
+        }
+
         /* @var $helper Jmango360_Japi_Helper_Product_Review */
         $helper = Mage::helper('japi/product_review');
         if ($helper->isModuleEnabled('Mage_Review')) {
@@ -618,15 +627,20 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         /* @var $helper Mage_Catalog_Helper_Image */
         $helper = Mage::helper('catalog/image');
         $size = $this->_getImageSizes();
-        $imageListing = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_default_listing');
-        if (!$imageListing || !array_key_exists($imageListing, $this->_defaultImagesPaths)) $imageListing = 'small_image';
+
+        $imageType = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/image_default_listing');
+        if (!$imageType || !array_key_exists($imageType, $this->_defaultImagesPaths)) {
+            $imageType = 'small_image';
+        }
+
         if ($details) {
             $imageWidth = !empty($size['image']['width']) ? $size['image']['width'] : 1200;
             $imageHeight = !empty($size['image']['height']) ? $size['image']['height'] : 1200;
         } else {
-            $imageWidth = !empty($size[$imageListing]['width']) ? $size[$imageListing]['width'] : 400;
-            $imageHeight = !empty($size[$imageListing]['height']) ? $size[$imageListing]['height'] : 400;
+            $imageWidth = !empty($size[$imageType]['width']) ? $size[$imageType]['width'] : 400;
+            $imageHeight = !empty($size[$imageType]['height']) ? $size[$imageType]['height'] : 400;
         }
+
         $imageFallback = false;
         $image = '';
 
@@ -649,7 +663,20 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         if ($imageFallback) {
-            $image = (string)$helper->init($product, $imageListing)->resize($imageWidth, $imageHeight);
+            if (!$product->getData($imageType) || $product->getData($imageType) == 'no_selection') {
+                /**
+                 * MPLUGIN-1875: get parent image instead
+                 */
+                if ($parentId = $this->_getRequest()->getParam('parent_id')) {
+                    /* @var $parent Mage_Catalog_Model_Product */
+                    $parent = Mage::getModel('catalog/product')->load($parentId, array_keys($this->_defaultImagesPaths));
+                    $image = (string)$helper->init($parent, $imageType)->resize($imageWidth, $imageHeight);
+                } else {
+                    $image = (string)$helper->init($product, $imageType)->resize($imageWidth, $imageHeight);
+                }
+            } else {
+                $image = (string)$helper->init($product, $imageType)->resize($imageWidth, $imageHeight);
+            }
         }
 
         return $image;
@@ -1438,7 +1465,17 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         /* @var $helper Jmango360_Japi_Helper_Data */
         $helper = Mage::helper('japi');
         if ($helper->isBazaarvoiceEnabled()) {
-            $result['review'] = null;
+            if ($product->getRatingSummary() && $product->getRatingSummary()->getReviewsCount()) {
+                $result['review'] = array(
+                    'type' => 'overview',
+                    'code' => 'overview',
+                    'values' => range(1, $product->getRatingSummary()->getRatingRange()),
+                    'review_counter' => $product->getRatingSummary()->getReviewsCount(),
+                    'percent' => $product->getRatingSummary()->getRatingSummary()
+                );
+            } else {
+                $result['review'] = null;
+            }
             return;
         }
 

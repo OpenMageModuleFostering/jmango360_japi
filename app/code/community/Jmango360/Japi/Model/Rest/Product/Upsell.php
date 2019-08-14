@@ -55,6 +55,7 @@ class Jmango360_Japi_Model_Rest_Product_Upsell extends Jmango360_Japi_Model_Rest
     protected function _addProductAttributesAndPrices(Mage_Catalog_Model_Resource_Product_Collection $collection)
     {
         return $collection
+            ->addAttributeToSelect(array('sku'))
             ->addMinimalPrice()
             ->addFinalPrice()
             ->addTaxPercents()

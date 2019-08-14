@@ -1,4 +1,22 @@
-<?php if (strpos(Mage::getUrl(), 'voordeelwijnen.nl')): ?>
+<?php
+/**
+ * Copyright 2017 JMango360
+ */
+?>
+<?php /* @var $this Jmango360_Japi_Block_Checkout_Onepage_Additional */ ?>
+<?php if ($this->isShowNewsletter()): ?>
+    <form action="" method="post" id="subscribeNewsletterForm" class="form-list" style="padding-top: 1em">
+        <input type="checkbox" id="id_subscribe_newsletter" name="subscribe_newsletter" value="1"
+               <?php if ($this->isNewsletterChecked()): ?>checked="checked"<?php endif; ?> />
+        <label for="id_subscribe_newsletter"><?php echo $this->__('Subscribe to our newsletter'); ?></label>
+    </form>
+    <script type="text/javascript">
+        setTimeout(function () {
+            review.addMoreFormToSubmit('subscribeNewsletterForm');
+        });
+    </script>
+<?php endif; ?>
+<?php if (strpos(Mage::getUrl(), 'voordeelwijnen.local')): ?>
     <form action="" method="post" id="yearCheckForm" class="form-list" style="padding-top: 1em">
         <p>Om te kunnen bestellen moet u 18 jaar of ouder zijn.</p>
         <input type="checkbox" name="16year" id="yearcheck" class="required-entry"/>

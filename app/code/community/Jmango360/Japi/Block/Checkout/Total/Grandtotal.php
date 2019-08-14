@@ -4,22 +4,18 @@
  */
 
 /**
- * Class Jmango360_Japi_Block_Checkout_Cart_Totals
+ * Class Jmango360_Japi_Block_Checkout_Total_Grandtotal
  */
-class Jmango360_Japi_Block_Checkout_Cart_Totals extends Mage_Checkout_Block_Cart_Totals
+class Jmango360_Japi_Block_Checkout_Total_Grandtotal extends Mage_Tax_Block_Checkout_Grandtotal
 {
+    protected $_template = 'japi/checkout/onepage/review/totals/grand_total.phtml';
+
     protected function _getTotalRenderer($code)
     {
         $blockName = $code . '_total_renderer';
 
-        if ($code == 'grand_total') {
-            $newCode = 'grandtotal';
-        } else {
-            $newCode = $code;
-        }
-
         try {
-            $block = $this->getLayout()->createBlock("japi/checkout_total_{$newCode}", $blockName);
+            $block = $this->getLayout()->createBlock("japi/checkout_total_{$code}", $blockName);
         } catch (Exception $e) {
             $block = null;
         }
