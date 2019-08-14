@@ -564,6 +564,18 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 
     public function saveOrderAction()
     {
+        $messages = array();
+        $quote = $this->getOnepage()->getQuote();
+        if (!$quote->getItemsCount()) {
+            $messages[] = Mage::helper('japi')->__('Cart is empty.');
+        }
+        if (count($messages)) {
+            $result['success'] = false;
+            $result['error'] = true;
+            $result['error_messages'] = implode("\n", $messages);
+            return $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+        }
+
         /* @var $server Jmango360_Japi_Model_Server */
         $server = Mage::getSingleton('japi/server');
         $server->setIsSubmit();
@@ -575,8 +587,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
                 $result['success'] = false;
                 $result['error'] = true;
                 $result['error_messages'] = $this->__('Please agree to all the terms and conditions before placing the order.');
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return;
+                return $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
             }
         }
 
@@ -584,8 +595,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
             $result['success'] = true;
             $result['error'] = false;
             $result['redirect'] = $redirectUrl;
-            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-            return;
+            return $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
         }
 
         /**

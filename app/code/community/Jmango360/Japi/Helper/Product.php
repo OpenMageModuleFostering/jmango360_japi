@@ -131,25 +131,6 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         }
 
-        /**
-         * Fix for MPLUGIN-661
-         * Remove OREDER BY 'on_top' added by module 'RicardoMartins_OutofstockLast'
-         * Update for MPLUGIN-1407: always remove OREDER BY 'on_top'
-         */
-        if ($this->isModuleEnabled('RicardoMartins_OutofstockLast')) {
-            $orderPaths = $collection->getSelect()->getPart(Zend_Db_Select::ORDER);
-            foreach ($orderPaths as $key => $orderPath) {
-                if ($orderPath[0] == 'on_top') {
-                    unset($orderPaths[$key]);
-                    break;
-                }
-            }
-            $collection->getSelect()->reset(Zend_Db_Select::ORDER);
-            foreach ($orderPaths as $orderPath) {
-                $collection->getSelect()->order($orderPath[0] . ' ' . $orderPath[1]);
-            }
-        }
-
         return $this;
     }
 
@@ -166,7 +147,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $request = Mage::helper('japi')->getRequest();
 
         /* @var $toolBarBlock Mage_Catalog_Block_Product_List_Toolbar */
-        $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
+        $toolBarBlock = Mage::helper('japi')->getBlock('Mage_Catalog_Block_Product_List_Toolbar');
 
         if ($limit = $request->getParam('limit')) {
             $toolBarBlock->setDefaultListPerPage($limit);
@@ -307,10 +288,13 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $layout = Mage::app()->getLayout();
         $update = $layout->getUpdate();
         $update->load('catalog_category_layered');
-        //MPLUGIN-1413: fix for 'Amasty_Shopby' - add head block
-        if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')) {
-            $layout->addBlock('page/html_head', 'head');
-        }
+
+        //MPLUGIN-1413: fix for 'Amasty_Shopby'
+        //MPLUGIN-1632: fix for 'GoMage_Navigation'
+        //MPLUGIN-1632: fix for 'Kvh_Simpleseo'
+        //Because this issue is common, so I decide to include 'head' block permanently
+        $layout->addBlock('page/html_head', 'head');
+
         $layout->generateXml();
         $layout->generateBlocks();
         $block = $layout->getBlock('product_list_toolbar');

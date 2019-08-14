@@ -8,6 +8,8 @@ class Jmango360_Japi_Model_Rest_Customer_Edit extends Jmango360_Japi_Model_Rest_
             throw new Jmango360_Japi_Exception(Mage::helper('japi')->__('Please login.'), Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR);
         }
 
+        $this->_filterDates(array('dob'));
+
         /** @var $customer Mage_Customer_Model_Customer */
         $customer = $this->_getSession()->getCustomer();
 

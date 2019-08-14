@@ -9,7 +9,8 @@ class Jmango360_Japi_Model_Rest_Customer_Register extends Jmango360_Japi_Model_R
         /* @var $customer Mage_Customer_Model_Customer */
         $customer = Mage::getModel('customer/customer');
 
-        if ($this->_getRequest()->getParam('is_subscribed', false)) {
+        $isSubscribed = $this->_getRequest()->getParam('is_subscribed', false);
+        if ($isSubscribed) {
             $customer->setIsSubscribed(1);
         }
         $customer->getGroupId();

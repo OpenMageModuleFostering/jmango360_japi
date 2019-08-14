@@ -118,7 +118,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
     protected function _getImageUrl($category)
     {
         if ($image = $category->getImage()) {
-            return Mage::getBaseUrl('media') . 'catalog/category/' . urlencode($image);
+            return Mage::getBaseUrl('media') . 'catalog/category/' . str_replace(' ', '%20', $image);
         }
         return '';
     }
@@ -132,7 +132,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
     protected function _getThumbnailUrl($category)
     {
         if ($image = $category->getData('thumbnail')) {
-            return Mage::getBaseUrl('media') . 'catalog/category/' . urlencode($image);
+            return Mage::getBaseUrl('media') . 'catalog/category/' . str_replace(' ', '%20', $image);
         } else {
             if (!$category->getImageUrl()) {
                 return $this->_getImageFromChildrenProduct($category);

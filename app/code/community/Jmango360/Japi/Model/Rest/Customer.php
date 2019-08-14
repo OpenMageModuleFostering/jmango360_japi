@@ -323,6 +323,10 @@ class Jmango360_Japi_Model_Rest_Customer extends Mage_Customer_Model_Customer
             $data['default_shipping'] = (is_object($defaultShippingAddress) && $defaultShippingAddress->getId()) ? $defaultShippingAddress->getId() : null;
         }
 
+        /* @var $mageModel Jmango360_Japi_Model_Rest_Mage */
+        $mageModel = Mage::getModel('japi/rest_mage');
+        $data['signup_options'] = $mageModel->getCommonSignupOptions($customer);
+
         return $data;
     }
 
@@ -350,5 +354,37 @@ class Jmango360_Japi_Model_Rest_Customer extends Mage_Customer_Model_Customer
     protected function _getServer()
     {
         return Mage::getSingleton('japi/server');
+    }
+
+    /**
+     * Convert dates in array from localized to internal format
+     */
+    protected function _filterDates($dateFields)
+    {
+        $map = array(
+            'D' => 'j',
+            'MMMM' => 'm',
+            'MMM' => 'm',
+            'MM' => 'm',
+            'M' => 'm',
+            'dd' => 'd',
+            'd' => 'd',
+            'yyyy' => 'Y',
+            'yy' => 'Y',
+            'y' => 'Y'
+        );
+        $dateFormat = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
+        foreach ($map as $search => $replace) {
+            $dateFormat = preg_replace('/(^|[^%])' . $search . '/', '$1' . $replace, $dateFormat);
+        }
+        $request = $this->_getRequest();
+        if (!is_array($dateFields)) {
+            $dateFields = array($dateFields);
+        }
+        foreach ($dateFields as $dateField) {
+            if (!empty($dateField) && $data = $request->getParam($dateField)) {
+                $request->setParam($dateField, date($dateFormat, strtotime($data)));
+            }
+        }
     }
 }

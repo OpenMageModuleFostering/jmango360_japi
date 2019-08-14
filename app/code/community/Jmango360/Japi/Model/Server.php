@@ -36,6 +36,8 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
 
         // Log request if needed
         if (Mage::getStoreConfigFlag('japi/jmango_rest_developer_settings/enable')) {
+            ini_set('display_errors', 1);
+
             $debug['uri'] = $request->getMethod() . ' ' . $request->getRequestUri();
 
             /* @var $session Mage_Core_Model_Session */

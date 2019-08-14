@@ -17,8 +17,7 @@ class Jmango360_Japi_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block_
 
     /**
      * Get layer object
-     *
-     * @return Mage_CatalogSearch_Model_Layer
+     * Also fix for some conflict modules
      */
     public function getLayer()
     {
@@ -27,6 +26,7 @@ class Jmango360_Japi_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block_
             case 'Mage_CatalogSearch_Model_Layer':
             case 'Mirasvit_SearchIndex_Model_Catalogsearch_Layer':
             case 'Flagbit_FactFinder_Model_Layer':
+            case 'RicardoMartins_OutofstockLast_Model_CatalogSearch_Layer':
                 return $layer;
                 break;
             default:

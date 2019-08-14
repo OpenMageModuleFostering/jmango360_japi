@@ -610,7 +610,13 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
     {
         if ($order->getPayment()) {
             try {
-                return $order->getPayment()->getMethodInstance()->getTitle();
+                $paymentTitle = $order->getPayment()->getMethodInstance()->getTitle();
+                if ($paymentTitle) return $paymentTitle;
+
+                $paymentInfoBlock = Mage::helper('payment')->getInfoBlock($order->getPayment());
+                $html = $paymentInfoBlock->toHtml();
+                $html = str_replace("\n", "", trim(strip_tags($html)));
+                return $html;
             } catch (Exception $e) {
                 Mage::logException($e);
             }

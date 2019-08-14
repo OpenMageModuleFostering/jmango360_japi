@@ -346,15 +346,15 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
                     $observers = $event->xpath('observers');
                     foreach ($observers as $observer) {
                         foreach ($observer->children() as $observerNode) {
-                            $class = (string)$observerNode->xpath('class')[0];
-                            if ($class) {
-                                $className = Mage::getConfig()->getModelClassName($class);
+                            $class = $observerNode->xpath('class');
+                            if ($class[0]) {
+                                $className = Mage::getConfig()->getModelClassName($class[0]);
                                 if (class_exists($className)) {
                                     $class = $className;
                                 }
                             }
-                            $method = (string)$observerNode->xpath('method')[0];
-                            $data[$eventName][] = sprintf('%s:%s', $class, $method);
+                            $method = $observerNode->xpath('method');
+                            $data[$eventName][] = sprintf('%s:%s', $class, $method[0]);
                         }
                     }
                 }
@@ -519,7 +519,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         $data['payment_methods'] = null;
 
         $data['catalog'] = $this->_getCatalogInfo($storeId);
-        $data['signup_options'] = null;
+        $data['signup_options'] = $this->getCommonSignupOptions();
         $data['address_options'] = null;
 
         return $data;
@@ -642,6 +642,180 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
                 'display_type' => 'password',
                 'required' => true
             );
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @param Mage_Customer_Model_Customer|null $customer
+     * @return array
+     */
+    public function getCommonSignupOptions($customer = null)
+    {
+        $attributes = array();
+
+        /* @var $nameWidget Mage_Customer_Block_Widget_Name */
+        $nameWidget = Mage::app()->getLayout()->createBlock('customer/widget_name');
+        if ($nameWidget) {
+            $nameWidget->setForceUseCustomerAttributes(true);
+
+            if ($nameWidget->showPrefix()) {
+                $prefix = array(
+                    'label' => $nameWidget->getStoreLabel('prefix'),
+                    'key' => 'prefix',
+                    'enable' => true,
+                    'required' => $nameWidget->isPrefixRequired()
+                );
+                if ($nameWidget->getPrefixOptions() === false) {
+                    $prefix['display_type'] = 'field';
+                } else {
+                    $prefix['display_type'] = 'drop_down';
+                    foreach ($nameWidget->getPrefixOptions() as $option) {
+                        $prefix['options'][$option] = Mage::helper('customer')->__($option);
+                    }
+                }
+                $attributes[] = $prefix;
+            }
+
+            $attributes[] = array(
+                'label' => $nameWidget->getStoreLabel('firstname'),
+                'key' => 'firstname',
+                'enable' => true,
+                'required' => true,
+                'display_type' => 'field'
+            );
+
+            if ($nameWidget->showMiddlename()) {
+                $attributes[] = array(
+                    'label' => $nameWidget->getStoreLabel('middlename'),
+                    'key' => 'middlename',
+                    'enable' => true,
+                    'required' => $nameWidget->isMiddlenameRequired(),
+                    'display_type' => 'field'
+                );
+            }
+
+            $attributes[] = array(
+                'label' => $nameWidget->getStoreLabel('lastname'),
+                'key' => 'lastname',
+                'enable' => true,
+                'required' => true,
+                'display_type' => 'field'
+            );
+
+            if ($nameWidget->showSuffix()) {
+                $suffix = array(
+                    'label' => $nameWidget->getStoreLabel('suffix'),
+                    'key' => 'suffix',
+                    'enable' => true,
+                    'required' => $nameWidget->isSuffixRequired()
+                );
+                if ($nameWidget->getSuffixOptions() === false) {
+                    $suffix['display_type'] = 'field';
+                } else {
+                    $suffix['display_type'] = 'drop_down';
+                    foreach ($nameWidget->getSuffixOptions() as $option) {
+                        $suffix['options'][$option] = Mage::helper('customer')->__($option);
+                    }
+                }
+                $attributes[] = $suffix;
+            }
+        }
+
+        $attributes[] = array(
+            'label' => Mage::helper('customer')->__('Email Address'),
+            'key' => 'email',
+            'enable' => true,
+            'required' => true,
+            'display_type' => 'field'
+        );
+
+        if (Mage::helper('core')->isModuleOutputEnabled('Mage_Newsletter')) {
+            $attributes[] = array(
+                'label' => Mage::helper('customer')->__('Sign Up for Newsletter'),
+                'key' => 'is_subscribed',
+                'enable' => true,
+                'display_type' => 'checkbox',
+                'required' => false
+            );
+        }
+
+        /* @var $dobWidget Mage_Customer_Block_Widget_Dob */
+        $dobWidget = Mage::app()->getLayout()->createBlock('customer/widget_dob');
+        if ($dobWidget->isEnabled()) {
+            $attributes[] = array(
+                'label' => Mage::helper('customer')->__('Date of Birth'),
+                'key' => 'dob',
+                'enable' => true,
+                'required' => $dobWidget->isRequired(),
+                'display_type' => 'date'
+            );
+        }
+
+        /* @var $taxWidget Mage_Customer_Block_Widget_Taxvat */
+        $taxWidget = Mage::app()->getLayout()->createBlock('customer/widget_taxvat');
+        if ($taxWidget->isEnabled()) {
+            $attributes[] = array(
+                'label' => Mage::helper('customer')->__('Tax/VAT number'),
+                'key' => 'taxvat',
+                'enable' => true,
+                'required' => $taxWidget->isRequired(),
+                'display_type' => 'field'
+            );
+        }
+
+        /* @var $genderWidget Mage_Customer_Block_Widget_Gender */
+        $genderWidget = Mage::app()->getLayout()->createBlock('customer/widget_gender');
+        if ($genderWidget->isEnabled()) {
+            $gender = array(
+                'label' => Mage::helper('customer')->__('Gender'),
+                'key' => 'gender',
+                'enable' => true,
+                'required' => $genderWidget->isRequired(),
+                'display_type' => 'drop_down'
+            );
+            $options = Mage::getResourceSingleton('customer/customer')->getAttribute('gender')->getSource()->getAllOptions();
+            foreach ($options as $option) {
+                $gender['options'][$option['value']] = $option['label'];
+            }
+            $attributes[] = $gender;
+        }
+
+        if (!$customer) {
+            $attributes[] = array(
+                'label' => Mage::helper('customer')->__('Password'),
+                'key' => 'password',
+                'enable' => true,
+                'required' => true,
+                'display_type' => 'password'
+            );
+
+            $attributes[] = array(
+                'label' => Mage::helper('customer')->__('Confirm Password'),
+                'key' => 'confirmation',
+                'enable' => true,
+                'required' => true,
+                'display_type' => 'password'
+            );
+        }
+
+        if ($customer && $customer->getId()) {
+            foreach ($attributes as $key => $attribute) {
+                if (!empty($attribute['key'])) {
+                    if ($attribute['key'] == 'is_subscribed') {
+                        /* @var $subscriptionModel Mage_Newsletter_Model_Subscriber */
+                        $subscriptionModel = Mage::getModel('newsletter/subscriber');
+                        if ($subscriptionModel) {
+                            $subscriptionModel->loadByCustomer($customer);
+                            $attribute['value'] = $subscriptionModel->isSubscribed();
+                        }
+                    } else {
+                        $attribute['value'] = $customer->getData($attribute['key']);
+                    }
+                    $attributes[$key] = $attribute;
+                }
+            }
         }
 
         return $attributes;

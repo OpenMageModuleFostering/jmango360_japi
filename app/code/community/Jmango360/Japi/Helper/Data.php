@@ -776,8 +776,10 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function parseHtmlForm($html)
     {
+        if (!$html) return array();
+
         $doc = new DOMDocument();
-        $doc->loadHTML($html);
+        $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         $position = 1;
 
         $xpath = new DOMXPath($doc);

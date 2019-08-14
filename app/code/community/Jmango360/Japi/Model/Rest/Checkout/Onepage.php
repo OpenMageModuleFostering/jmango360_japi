@@ -653,8 +653,11 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
                 $helper = Mage::helper('japi');
                 $_needCheckValue = true;
                 if ($helper->isModuleEnabled('Netresearch_OPS')) {
-                    if ($paymentMethod == Netresearch_OPS_Model_Payment_Cc::CODE || $paymentMethod == 'ops_dc')
+                    if ($paymentMethod == 'ops_dc'
+                        || (defined('Netresearch_OPS_Model_Payment_Cc::CODE') && $paymentMethod == Netresearch_OPS_Model_Payment_Cc::CODE)
+                    ) {
                         $_needCheckValue = false;
+                    }
                 }
 
                 if ($_needCheckValue && empty($value)) {
