@@ -159,6 +159,14 @@ class Jmango360_Japi_KlarnaController extends Vaimo_Klarna_Checkout_KlarnaContro
             }
             //$quote = Mage::getModel('sales/quote')->load($checkoutId, 'klarna_checkout_id');
             $quote = Mage::helper('klarna')->findQuote($checkoutId);
+
+            /**
+             * MPLUGIN-1966: Mark quote from mobile app
+             */
+            if ($quote->getId()) {
+                $quote->setData('japi', 1)->save();
+            }
+
             if (!$quote || !$quote->getId()) {
                 Mage::throwException($this->__('Cart not available. Please try again') . ': ' . $checkoutId . ' revisitedf = ' . $revisitedf);
             }

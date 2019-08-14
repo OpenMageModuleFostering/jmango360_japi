@@ -78,6 +78,8 @@ class Jmango360_Japi_Helper_Product_Grouped extends Mage_Core_Helper_Abstract
         $result['qty'] = $item->getQty();
         $result['stock'] = $item->getStockItem() ? $item->getStockItem()->getQty() : null;
         $result['is_in_stock'] = $item->getStockItem() ? (int)$item->getStockItem()->getIsInStock() : null;
+        //$result['stock_indicator'] = $helper->getStockIndicator($item);
+        $result['backorders'] = $item->getStockItem() ? (int)$item->getStockItem()->getBackorders() : 0;
 
         // Load tier price if present
         /* @var $tierPriceHelper Jmango360_Japi_Helper_Product_TierPrice */

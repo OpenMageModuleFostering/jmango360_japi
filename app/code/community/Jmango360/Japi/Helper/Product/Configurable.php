@@ -130,7 +130,9 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
                     'sku' => $product->getSku(),
                     'stock' => $product->getStockItem() ? $product->getStockItem()->getQty() : null,
                     'is_in_stock' => $product->getStockItem() ? (int)$product->getStockItem()->getIsInStock() : null,
-                    'is_saleable' => (int)$product->isSaleable()
+                    'is_saleable' => (int)$product->isSaleable(),
+                    'backorders' => $product->getStockItem() ? (int)$product->getStockItem()->getBackorders() : 0
+                    //'stock_indicator' => $helper->getStockIndicator($product)
                 );
 
                 if ($isNeedPrice && $includePrice) {

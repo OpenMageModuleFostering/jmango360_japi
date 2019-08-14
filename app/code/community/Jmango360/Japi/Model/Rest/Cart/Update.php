@@ -93,8 +93,9 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
 
         /**
          * Flag as JMango360 order
+         * Removed from 3.4.0 as MPLUGIN-1966
          */
-        $this->getQuote()->setData('japi', 1);
+        //$this->getQuote()->setData('japi', 1);
 
         /**
          * TODO: Workaround for some module tring save shipping address before quote saved

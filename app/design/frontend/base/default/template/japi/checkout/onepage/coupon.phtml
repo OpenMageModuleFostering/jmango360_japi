@@ -24,6 +24,9 @@
  * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 ?>
+<?php
+$couponCode = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/coupon_code');
+?>
 <form id="discount-coupon-form" action="" method="post">
     <dl class="sp-methods">
         <dt><?php echo $this->__('Discount Codes') ?>
@@ -33,13 +36,14 @@
             </a>
         </dt>
         <dd>
-            <ul class="form-list collapse<?php echo strlen($this->getCouponCode()) ? ' in' : '' ?>" id="coupon-content">
+            <ul class="form-list collapse<?php echo strlen($couponCode) || strlen($this->getCouponCode()) ? ' in' : '' ?>"
+                id="coupon-content">
                 <li>
                     <label for="coupon_code"><?php echo $this->__('Enter your coupon code if you have one.') ?></label>
                     <input type="hidden" name="remove" id="remove-coupone" value="0"/>
                     <div class="input-box">
                         <input class="input-text" id="coupon_code" name="coupon_code" type="text"
-                               value="<?php echo $this->escapeHtml($this->getCouponCode()) ?>"/>
+                               value="<?php echo $this->getCouponCode() ? $this->escapeHtml($this->getCouponCode()) : $this->escapeHtml($couponCode) ?>"/>
                     </div>
                     <div class="buttons-set">
                         <?php if (!strlen($this->getCouponCode())): ?>

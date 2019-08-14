@@ -185,7 +185,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $request = Mage::helper('japi')->getRequest();
 
         /* @var $toolBarBlock Mage_Catalog_Block_Product_List_Toolbar */
-        $toolBarBlock = Mage::helper('japi')->getBlock('Mage_Catalog_Block_Product_List_Toolbar');
+        $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
 
         if ($limit = $request->getParam('limit')) {
             $toolBarBlock->setDefaultListPerPage($limit);
@@ -541,6 +541,12 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
         }
 
+        $attributeTag = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/attribute_for_tag');
+        if ($attributeTag) {
+            $collection->addAttributeToSelect($attributeTag);
+        }
+
+
         // Append review data
         $this->addProductReview($collection);
 
@@ -709,6 +715,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'product_url' => $product->getData('visibility') != '' && $product->getData('visibility') != 1 ? $product->getUrlInStore() : null,
             'type_id' => $product->getTypeId(),
             'stock' => $this->_getStockLevel($product),
+            //'stock_indicator' => $this->getStockIndicator($product),
+            'backorders' => $this->_getStocBackorders($product),
             'is_in_stock' => $product->getStockItem() ? (int)$product->getStockItem()->getIsInStock() : null,
             'is_saleable' => (int)$product->isSalable(),
             'is_available' => $this->_getProductAvailable($product),
@@ -717,7 +725,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'min_price' => $this->calculatePriceIncludeTax($product, $product->getMinPrice()),
             'max_price' => $this->calculatePriceIncludeTax($product, $product->getMaxPrice()),
             'minimal_price' => $this->calculatePriceIncludeTax($product, $product->getMinimalPrice()),
-            'image' => $this->_getProductImage($product, $details)
+            'image' => $this->_getProductImage($product, $details),
+            'sticky_info' => $this->_getStickyInfo($product)
         );
 
         $result['review_enable'] = $this->_isReviewEnable();
@@ -862,18 +871,45 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         /**
          * MPLUGIN-1750: Support custom product attribute 'mamut_note'
          */
-        if (strpos(Mage::getBaseUrl(), 'deleukstetaartenshop') !== false) {
+        if (strpos(Mage::getUrl(), 'deleukstetaartenshop') !== false) {
             if (Mage::app()->getLocale()->getLocaleCode() == 'nl_NL') {
-                $mamutNote = $this->_getCustomHtmlStyle();
-                $mamutNote .= $productHelper->productAttribute($product, $product->getData('mamut_note'), 'description');
-                $result['short_description'] = $mamutNote;
-                $result['description'] = $mamutNote;
-            } else {
-                $result['description'] = $result['short_description'];
+                if ($product->getData('mamut_note')) {
+                    $mamutNote = $this->_getCustomHtmlStyle();
+                    $mamutNote .= $productHelper->productAttribute($product, $product->getData('mamut_note'), 'description');
+                    $result['short_description'] = $mamutNote;
+                    $result['description'] = $mamutNote;
+                }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Get product tag data
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return null|array
+     */
+    protected function _getStickyInfo($product)
+    {
+        if (!$product || !$product->getId()) {
+            return null;
+        }
+
+        $attributeTag = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/attribute_for_tag');
+        if ($attributeTag) {
+            $attributeModel = $product->getResource()->getAttribute($attributeTag);
+            if ($attributeModel->getId() && $product->getData($attributeTag)) {
+                return array(
+                    'code' => $attributeTag,
+                    'label' => $attributeModel->getStoreLabel(),
+                    'value' => !$product->getData($attributeTag) ? $attributeModel->getDefaultValue() : $attributeModel->getFrontend()->getValue($product)
+                );
+            }
+        }
+
+        return null;
     }
 
     protected function _isReviewEnable()
@@ -1356,7 +1392,50 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Get stock indicator like https://www.bloomfashion.nl
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return null|array
+     */
+    public function getStockIndicator($product)
+    {
+        if (!$product || !$product->getId()) return null;
+
+        if (strpos(Mage::getUrl(), 'bloomfashion.nl') !== false) {
+            return array(
+                array(
+                    'qty_min' => null,
+                    'qty_max' => 0,
+                    'label' => $this->__('(niet meer in voorraad)'),
+                    'image' => Mage::getDesign()->getSkinUrl('images/stock_grey.jpg')
+                ),
+                array(
+                    'qty_min' => 1,
+                    'qty_max' => 1,
+                    'label' => $this->__('(laatste stuk in voorraad)'),
+                    'image' => Mage::getDesign()->getSkinUrl('images/stock_red.jpg')
+                ),
+                array(
+                    'qty_min' => 2,
+                    'qty_max' => 2,
+                    'label' => $this->__('(nog enkele stuks)'),
+                    'image' => Mage::getDesign()->getSkinUrl('images/stock_orange.jpg')
+                ),
+                array(
+                    'qty_min' => 3,
+                    'qty_max' => null,
+                    'label' => $this->__('(op voorraad)'),
+                    'image' => Mage::getDesign()->getSkinUrl('images/stock_green.jpg')
+                )
+            );
+        }
+
+        return null;
+    }
+
+    /**
      * Return the stock level if user manage stock otherwise return -1
+     *
      * @param Mage_Catalog_Model_Product $_product
      * @return int stock level
      */
@@ -1370,6 +1449,24 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         return (float)$stockQuantity;
+    }
+
+    /**
+     * Return product stock backorders setting
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @return int
+     */
+    protected function _getStocBackorders($product)
+    {
+        $manageStock = $product->getStockItem() ? $product->getStockItem()->getManageStock() : null;
+
+        $backorders = 0;
+        if ($manageStock) {
+            $backorders = $product->getStockItem()->getBackorders();
+        }
+
+        return $backorders;
     }
 
     /**
@@ -1603,13 +1700,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
      * Check is attribute allowed
      *
      * @param Mage_Eav_Model_Entity_Attribute_Abstract $attribute
-     * @param array $attributes
      * @return bool
      */
-    protected function _isAllowedAttribute($attribute, $attributes = null)
+    protected function _isAllowedAttribute($attribute)
     {
+        $excludeAttributes = explode(',', Mage::getStoreConfig('japi/jmango_rest_catalog_settings/exclude_attribute_on_details'));
+        $excludeAttributes = array_merge($excludeAttributes, $this->_ignoredAttributeCodes);
+
         return !in_array($attribute->getFrontendInput(), $this->_ignoredAttributeTypes)
-            && !in_array($attribute->getAttributeCode(), $this->_ignoredAttributeCodes);
+            && !in_array($attribute->getAttributeCode(), $excludeAttributes);
     }
 
     /**

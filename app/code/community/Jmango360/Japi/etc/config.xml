@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.3.2</version>
+            <version>3.4.0</version>
         </Jmango360_Japi>
     </modules>
 
@@ -347,6 +347,8 @@
                 <custom_css></custom_css>
                 <visible_on_app>0</visible_on_app>
                 <default_direction></default_direction>
+                <exclude_attribute_on_details></exclude_attribute_on_details>
+                <attribute_for_tag></attribute_for_tag>
             </jmango_rest_catalog_settings>
             <jmango_app_login_settings>
                 <require_login>0</require_login>
