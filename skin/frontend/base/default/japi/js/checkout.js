@@ -201,8 +201,9 @@ if (typeof Checkout !== "undefined") {
         },
 
         gotoSection: function (section, reloadProgressBlock) {
-            this.currentStep = section;
             var sectionElement = $('opc-' + section);
+            if (!sectionElement) return;
+            this.currentStep = section;
             sectionElement.addClassName('allow');
             this.cleanList(sectionElement);
             this.initLaddaButtons(section);
@@ -558,3 +559,51 @@ if (typeof Review !== 'undefined') {
         this.moreForms.push($(formId));
     };
 }
+
+document.observe('dom:loaded', function () {
+    if (typeof SocoShippingMethod !== 'undefined') {
+        SocoShippingMethod.prototype.freezeSteps = function () {
+            this.savedAllowedSteps = [];
+
+            var steps = $('checkoutSteps').children;
+            for (var i = 0; i < steps.length; i++) {
+                if (steps[i].hasClassName('allow')) {
+                    this.savedAllowedSteps[i] = true;
+                    steps[i].removeClassName('allow');
+                } else {
+                    this.savedAllowedSteps[i] = false;
+                }
+            }
+
+            /**
+             * Hide default "Continue" button
+             */
+            $('shipping-method-buttons-container').hide();
+
+            /**
+             * Style "Annuler So Colissimo" button
+             */
+            var $btn = $$('#socolissimosimplicite_iframe_wrapper button')[0];
+            if ($btn) {
+                $btn.addClassName('ladda-button');
+                $btn.setAttribute('data-size', 's');
+            }
+        };
+
+        SocoShippingMethod.prototype.unfreezeSteps = function () {
+            if (typeof(this.savedAllowedSteps) !== 'undefined') {
+                var steps = $('checkoutSteps').children;
+                for (var i = 0; i < steps.length; i++) {
+                    if (this.savedAllowedSteps[i] === true) {
+                        steps[i].addClassName('allow');
+                    }
+                }
+            }
+
+            /**
+             * Show default "Continue" button
+             */
+            $('shipping-method-buttons-container').show();
+        };
+    }
+});

@@ -41,7 +41,7 @@
                     <input type="hidden" name="billing[address_id]" value="<?php echo $this->getAddress()->getId() ?>"
                            id="billing:address_id"/>
                     <ul>
-                        <li class="fields"><?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getAddress()->getFirstname() ? $this->getAddress() : $this->getQuote()->getCustomer())->setForceUseCustomerRequiredAttributes(!$this->isCustomerLoggedIn())->setFieldIdFormat('billing:%s')->setFieldNameFormat('billing[%s]')->toHtml() ?></li>
+                        <li class="fields"><?php echo $this->getLayout()->createBlock('japi/customer_widget_name')->setObject($this->getAddress()->getFirstname() ? $this->getAddress() : $this->getQuote()->getCustomer())->setForceUseCustomerRequiredAttributes(!$this->isCustomerLoggedIn())->setFieldIdFormat('billing:%s')->setFieldNameFormat('billing[%s]')->toHtml() ?></li>
                         <li class="fields">
                             <div class="field">
                                 <label for="billing:company"><?php echo $this->__('Company') ?></label>
@@ -269,7 +269,7 @@
                                 </div>
                             </div>
                         </li>
-                        <?php if (!$this->isCustomerLoggedIn()): ?>
+                        <?php if (!$this->isCustomerLoggedIn() || strpos(Mage::getUrl(), 'bloomfashion.nl') !== false): ?>
 
                             <?php $_dob = $this->getLayout()->createBlock('customer/widget_dob') ?>
                             <?php $_gender = $this->getLayout()->createBlock('customer/widget_gender') ?>
@@ -321,6 +321,7 @@
                                 </div>
                             </li>
                         <?php endif; ?>
+
                         <?php if ($this->isCustomerLoggedIn() && $this->customerHasAddresses()): ?>
                             <li class="control">
                                 <input type="checkbox" name="billing[save_in_address_book]" value="1"
@@ -335,6 +336,7 @@
                             <li class="no-display"><input type="hidden" name="billing[save_in_address_book]" value="1"/>
                             </li>
                         <?php endif; ?>
+
                         <?php echo $this->getChildHtml('form.additional.info'); ?>
                     </ul>
                 </fieldset>
@@ -370,6 +372,7 @@
                 <span class="ladda-label"><?php echo $this->__('Continue') ?></span>
             </button>
         </div>
+        <?php echo $this->getBlockHtml('formkey') ?>
     </fieldset>
 </form>
 <script type="text/javascript">

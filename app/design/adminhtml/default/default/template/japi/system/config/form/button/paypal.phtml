@@ -1,0 +1,46 @@
+<?php
+/**
+ * Copyright 2017 JMango360
+ */
+?>
+<?php /* @var $this Jmango360_Japi_Block_Adminhtml_System_Config_Form_Button_Paypal */ ?>
+<?php echo $this->getButtonHtml() ?>
+<div id="japi-paypal-test-result-failed"></div>
+<div id="japi-paypal-test-result-ok"></div>
+<style type="text/css">
+    #japi-paypal-test-result-failed {
+        color: red;
+        padding: 5px 0 0;
+    }
+
+    #japi-paypal-test-result-ok {
+        color: green;
+        padding: 5px 0 0;
+    }
+</style>
+<script type="text/javascript">
+    function japiPaypalTestAPICredentials() {
+        var textFailed = $('japi-paypal-test-result-failed');
+        var textOk = $('japi-paypal-test-result-ok');
+        new Ajax.Request('<?php echo $this->getUrl('adminhtml/japi_payment/testPaypal') ?>', {
+            parameters: {
+                client_id: $('japi_jmango_rest_paypal_settings_client_id').getValue(),
+                client_secret: $('japi_jmango_rest_paypal_settings_client_secret').getValue(),
+                sandbox: $('japi_jmango_rest_paypal_settings_sandbox').getValue()
+            },
+            onSuccess: function (transport) {
+                textFailed.innerHTML = '';
+                textOk.innerHTML = '';
+                if (transport.responseText.isJSON()) {
+                    var response = transport.responseText.evalJSON();
+                    if (response.error) {
+                        if (response.message) textFailed.innerHTML = response.message;
+                    }
+                    if (response.success) {
+                        if (response.message) textOk.innerHTML = response.message;
+                    }
+                }
+            }
+        })
+    }
+</script>

@@ -152,6 +152,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/min_js', 0);
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/merge_js', 0);
         Mage::app()->getStore()->setConfig('hsmedia/mediasetting/hsmedia_enabled', 0);
+        Mage::app()->getStore()->setConfig('aw_mobile2/general/is_enabled', 0);
 
         // Freeze cart object
         Mage::getSingleton('checkout/session')->setCartWasUpdated(false);
@@ -169,16 +170,25 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
      */
     protected function _updateLayout()
     {
-        /* @var $helper Mage_Core_Helper_Data */
-        $helper = Mage::helper('core');
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
         $xml = '';
 
         if ($helper->isModuleEnabled('PostcodeNl_Api')) {
-            $xml .= "
+            if (version_compare($helper->getExtensionVersion('PostcodeNl_Api'), '1.1.0', '<')) {
+                $xml .= "
+<reference name=\"head\">
+    <action method=\"addCss\" ifconfig=\"postcodenl/config/enabled\"><script>postcodenl/api/css/lookup.css</script></action>
+    <action method=\"addJs\" ifconfig=\"postcodenl/config/enabled\"><script>postcodenl/api/lookup.js</script></action>
+</reference>";
+            } else {
+                $xml .= "
 <reference name=\"head\">
     <action method=\"addCss\" ifconfig=\"postcodenl_api/config/enabled\"><script>postcodenl/api/css/lookup.css</script></action>
     <action method=\"addJs\" ifconfig=\"postcodenl_api/config/enabled\"><script>postcodenl/api/lookup.js</script></action>
-</reference>
+</reference>";
+            }
+            $xml .= "
 <reference name=\"content\">
     <block type=\"postcodenl_api/jsinit\" name=\"postcodenl.jsinit\" template=\"postcodenl/api/jsinit.phtml\" />
 </reference>";
@@ -468,6 +478,17 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('LaPoste_SoColissimoSimplicite')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\"><type>skin_js</type><name>js/socolissimosimplicite/shipping_method.js</name></action>
+</reference>
+<reference name=\"content\">
+    <block type=\"japi/socolissimosimplicite_iframe\" name=\"iframe.socolissimosimplicite\" template=\"socolissimosimplicite/iframe.phtml\" after=\"checkout.onepage\" />
+    <block type=\"core/template\" name=\"shippingmethod.socolissimosimplicite\" template=\"socolissimosimplicite/onepage/shipping_method/socolissimosimplicite.phtml\" after=\"iframe.socolissimosimplicite\" />
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();
@@ -484,6 +505,24 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
                 Mage::logException($e);
             }
         }
+    }
+
+    /**
+     * Save checkout billing address
+     */
+    public function saveBillingAction()
+    {
+        Mage::app()->getStore()->setConfig('aw_mobile2/general/is_enabled', 0);
+        return parent::saveBillingAction();
+    }
+
+    /**
+     * Shipping address save action
+     */
+    public function saveShippingAction()
+    {
+        Mage::app()->getStore()->setConfig('aw_mobile2/general/is_enabled', 0);
+        return parent::saveShippingAction();
     }
 
     /**

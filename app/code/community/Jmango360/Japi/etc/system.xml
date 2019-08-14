@@ -285,7 +285,7 @@
                             <can_be_empty>1</can_be_empty>
                             <comment></comment>
                         </enable_coupon-->
-                        <coupon_code translate="label comment" module="japi">
+                        <!--coupon_code translate="label comment" module="japi">
                             <label>Pre-fill coupon code</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>60</sort_order>
@@ -294,7 +294,7 @@
                             <show_in_store>1</show_in_store>
                             <can_be_empty>1</can_be_empty>
                             <comment>This code will automatically fill the coupon field on JMango360 Checkout page</comment>
-                        </coupon_code>
+                        </coupon_code-->
                     </fields>
                 </jmango_rest_checkout_settings>
                 <!--jmango_rest_mobile_settings translate="label" module="japi">
@@ -324,6 +324,225 @@
                         </android_scheme>
                     </fields>
                 </jmango_rest_mobile_settings-->
+                <!--jmango_rest_paypal_settings translate="label" module="japi">
+                    <label>JMango360 Paypal Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <sort_order>45</sort_order>
+                    <fields>
+                        <enable translate="label comment" module="japi">
+                            <label>Enable this Solution</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </enable>
+                        <client_id translate="label comment" module="japi">
+                            <label>Client ID</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </client_id>
+                        <client_secret translate="label comment" module="japi">
+                            <label>Client Secret</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </client_secret>
+                        <test_api_btn translate="label comment" module="japi">
+                            <label></label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>japi/adminhtml_system_config_form_button_paypal</frontend_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </test_api_btn>
+                        <sandbox translate="label comment" module="japi">
+                            <label>Sandbox Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </sandbox>
+                    </fields>
+                </jmango_rest_paypal_settings-->
+                <!--jmango_rest_braintree_settings translate="label" module="japi">
+                    <label>JMango360 Braintree Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <sort_order>46</sort_order>
+                    <fields>
+                        <enable translate="label comment" module="japi">
+                            <label>Enable this solution</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </enable>
+                        <sandbox translate="label comment" module="japi">
+                            <label>Sandbox Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </sandbox>
+                        <sandbox_label translate="label comment" module="japi">
+                            <label>Sandbox Label</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>1</sandbox>
+                            </depends>
+                        </sandbox_label>
+                        <sandbox_merchant_account_id translate="label comment" module="japi">
+                            <label>Sandbox Merchant Account ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>1</sandbox>
+                            </depends>
+                        </sandbox_merchant_account_id>
+                        <sandbox_merchant_id translate="label comment" module="japi">
+                            <label>Sandbox Merchant ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>1</sandbox>
+                            </depends>
+                        </sandbox_merchant_id>
+                        <sandbox_public_key translate="label comment" module="japi">
+                            <label>Sandbox Public Key</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>1</sandbox>
+                            </depends>
+                        </sandbox_public_key>
+                        <sandbox_private_key translate="label comment" module="japi">
+                            <label>Sandbox Private Key</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>1</sandbox>
+                            </depends>
+                        </sandbox_private_key>
+                        <label translate="label comment" module="japi">
+                            <label>Label</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>0</sandbox>
+                            </depends>
+                        </label>
+                        <merchant_account_id translate="label comment" module="japi">
+                            <label>Merchant Account ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>0</sandbox>
+                            </depends>
+                        </merchant_account_id>
+                        <merchant_id translate="label comment" module="japi">
+                            <label>Merchant ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>0</sandbox>
+                            </depends>
+                        </merchant_id>
+                        <public_key translate="label comment" module="japi">
+                            <label>Public Key</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>0</sandbox>
+                            </depends>
+                        </public_key>
+                        <private_key translate="label comment" module="japi">
+                            <label>Private Key</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                                <sandbox>0</sandbox>
+                            </depends>
+                        </private_key>
+                    </fields>
+                </jmango_rest_braintree_settings-->
                 <!--jmango_rest_gallery_settings translate="label" module="japi">
                     <label>Product image gallery settings</label>
                     <show_in_default>1</show_in_default>
@@ -797,6 +1016,18 @@
                                 <enable>1</enable>
                             </depends>
                         </shared_key>
+                        <displaycode translate="label comment" module="japi">
+                            <label><![CDATA[Deployment zone]]></label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>32</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </displaycode>
                         <tc translate="label comment" module="japi">
                             <label><![CDATA[Terms & Conditions]]></label>
                             <frontend_type>textarea</frontend_type>
@@ -821,6 +1052,18 @@
                                 <enable>1</enable>
                             </depends>
                         </rating_label>
+                        <client_label translate="label comment" module="japi">
+                            <label><![CDATA[Client Lables]]></label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Example: blokker|blokker.nl</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </client_label>
                     </fields>
                 </jmango_rest_bazaarvoice_settings>
                 <jmango_rest_developer_settings translate="label" module="japi">

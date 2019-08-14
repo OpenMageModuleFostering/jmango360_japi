@@ -50,4 +50,11 @@ class Jmango360_Japi_Rest_CheckoutController extends Jmango360_Japi_Controller_A
         $server->setRestDispatchModel(Mage::getModel('japi/rest_checkout'));
         $server->run();
     }
+
+    public function updateOrderAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_checkout'));
+        $server->run();
+    }
 }

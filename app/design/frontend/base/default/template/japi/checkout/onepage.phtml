@@ -81,6 +81,10 @@
             document.observe("dom:loaded", function () {
                 checkout.gotoSection('shipping');
             });
+        <?php elseif ($this->getActiveStep()): ?>
+            document.observe("dom:loaded", function () {
+                checkout.gotoSection('<?php echo $this->getActiveStep() ?>');
+            });
         <?php endif ?>
     <?php endif ?>
     //]]>

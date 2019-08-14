@@ -216,9 +216,111 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
         $this->getQuote()->collectTotals()->save();
 
         /**
-         * Return quote data
+         * Return quote data or place order
          */
-        return $this->_getCheckoutData();
+        if ($this->_getSession()->getData('place_order')) {
+            /* @var $model Jmango360_Japi_Model_Rest_Checkout_Submit */
+            $model = Mage::getModel('japi/rest_checkout_submit');
+            return $model->submitOrder();
+        } else {
+            return $this->_getCheckoutData();
+        }
+    }
+
+    public function updateOrder()
+    {
+        $request = $this->_getRequest();
+        $payment = $request->getParam('payment');
+        switch ($payment) {
+            case 'braintree':
+                return $this->_updateOrderBraintree();
+                break;
+        }
+    }
+
+    protected function _updateOrderBraintree()
+    {
+        if (version_compare(phpversion(), '5.4', '<')) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('The Braintree PHP SDK requires PHP version 5.4.0 or higher, currently %s', phpversion()),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        if (!extension_loaded('curl')) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('The Braintree PHP SDK requires cURL extension'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        $orderId = $this->_getRequest()->getParam('order_id');
+        /* @var $order Mage_Sales_Model_Order */
+        $order = Mage::getModel('sales/order');
+        $order->load($orderId);
+        if (!$order->getId()) {
+            $order = $order->loadByIncrementId($orderId);
+            if (!$order->getId()) {
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__('Order not found'),
+                    Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+                );
+            }
+        }
+
+        $payment = $order->getPayment();
+        if ($payment->getMethod() != Jmango360_Japi_Model_Payment::CODE) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Payment method invalid'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        $transactionId = $this->_getRequest()->getParam('transaction_id');
+        if (!$transactionId) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Transaction ID not found'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        /** @var Jmango360_Japi_Model_Payment_Braintree $braintree */
+        $braintree = Mage::getModel('japi/payment_braintree');
+        $transaction = $braintree->getTransaction($transactionId);
+        if ($transaction->id) {
+            if ($transaction->status == 'settled') {
+                $order->setStatus(Mage_Sales_Model_Order::STATE_PROCESSING);
+            }
+            $orderStatusHistoryCollection = $order->getStatusHistoryCollection();
+            $isSave = false;
+            foreach ($transaction->statusHistory as $item) {
+                /** @var $item \Braintree\Transaction\StatusDetails */
+                $statusStr = sprintf('Status %s', $item->status);
+                $statusFound = false;
+                foreach ($orderStatusHistoryCollection as $orderItem) {
+                    /** @var $orderItem Mage_Sales_Model_Order_Status_History */
+                    if ($orderItem->getComment() == $statusStr) {
+                        $statusFound = true;
+                    }
+                }
+                if (!$statusFound) {
+                    $time = $item->timestamp instanceof DateTime
+                        ? $item->timestamp->format('Y-m-d H:i:s')
+                        : null;
+                    $history = Mage::getModel('sales/order_status_history')
+                        ->setStatus($order->getStatus())
+                        ->setComment($statusStr)
+                        ->setCreatedAt($time)
+                        ->setEntityName(Mage_Sales_Model_Order::HISTORY_ENTITY_NAME);
+                    $order->addStatusHistory($history);
+                    $isSave = true;
+                }
+            }
+            if ($isSave) {
+                $order->save();
+            }
+            return array('success' => true);
+        }
     }
 
     protected function _saveAddresses()

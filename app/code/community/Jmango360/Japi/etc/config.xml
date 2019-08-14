@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.4.1</version>
+            <version>3.5.0</version>
         </Jmango360_Japi>
     </modules>
 
@@ -93,6 +93,15 @@
                     </japi_controller_action_predispatch>
                 </observers>
             </controller_action_predispatch>
+            <controller_response_redirect>
+                <observers>
+                    <japi_controller_response_redirect>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>japiControllerResponseRedirect</method>
+                    </japi_controller_response_redirect>
+                </observers>
+            </controller_response_redirect>
             <controller_action_predispatch_checkout_klarna_success>
                 <observers>
                     <vaimo_klarna>
@@ -218,6 +227,15 @@
                     </klevu_search_landing_page>
                 </observers>
             </controller_action_predispatch_japi_rest_product_search>
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <japi_sales_model_service_quote_submit_before>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>japiSalesModelServiceQuoteSubmitBefore</method>
+                    </japi_sales_model_service_quote_submit_before>
+                </observers>
+            </sales_model_service_quote_submit_before>
         </events>
         <routers>
             <japi>
@@ -332,6 +350,16 @@
     </crontab>
 
     <default>
+        <payment>
+            <jmango_payment>
+                <active>1</active>
+                <model>japi/payment</model>
+                <order_status>pending</order_status>
+                <title>JMango360 Native Payment</title>
+                <allowspecific>0</allowspecific>
+                <payment_action>sale</payment_action>
+            </jmango_payment>
+        </payment>
         <japi>
             <jmango_rest_api>
                 <apiuser>jmango360</apiuser>
@@ -367,6 +395,20 @@
                 <ios_scheme></ios_scheme>
                 <android_scheme></android_scheme>
             </jmango_rest_mobile_settings>
+            <jmango_rest_braintree_settings>
+                <enable>0</enable>
+                <label></label>
+                <sandbox_label></sandbox_label>
+                <sandbox>1</sandbox>
+                <merchant_account_id></merchant_account_id>
+                <merchant_id></merchant_id>
+                <public_key></public_key>
+                <private_key></private_key>
+                <sandbox_merchant_account_id></sandbox_merchant_account_id>
+                <sandbox_merchant_id></sandbox_merchant_id>
+                <sandbox_public_key></sandbox_public_key>
+                <sandbox_private_key></sandbox_private_key>
+            </jmango_rest_braintree_settings>
             <jmango_rest_gallery_settings>
                 <image_width>1200</image_width>
                 <image_height>1200</image_height>
@@ -417,8 +459,10 @@
                 <api_key_stg></api_key_stg>
                 <api_key_prod></api_key_prod>
                 <shared_key></shared_key>
+                <client_label></client_label>
                 <tc></tc>
                 <rating_label></rating_label>
+                <displaycode></displaycode>
             </jmango_rest_bazaarvoice_settings>
             <jmango_rest_developer_settings>
                 <enable>0</enable>

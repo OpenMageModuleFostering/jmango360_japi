@@ -214,6 +214,7 @@
 		<div class="buttons-set" id="billing-buttons-container">
 			<button type="button" title="<?php echo $this->__('Continue') ?>" class="button" onclick="billing.save()"><span><span><?php echo $this->__('Continue') ?></span></span></button>
 		</div>
+        <?php echo $this->getBlockHtml('formkey') ?>
 	</fieldset>
 </form>
 <script type="text/javascript">

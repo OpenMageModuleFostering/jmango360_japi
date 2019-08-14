@@ -720,4 +720,43 @@ class Jmango360_Japi_Model_Observer
 
         return $this;
     }
+
+    /**
+     * @param Varien_Event_Observer $observer
+     */
+    public function japiControllerResponseRedirect(Varien_Event_Observer $observer)
+    {
+        $transport = $observer->getEvent()->getTransport();
+        /* @var $server Jmango360_Japi_Model_Server */
+        $server = Mage::getSingleton('japi/server');
+        if ($server->getIsRest()) {
+            /**
+             * MPLUGIN-1969: Try spoof LaPoste_SoColissimoSimplicite not redirect to "checkout/onepage"
+             */
+            if (strpos($transport->getUrl(), 'checkout/onepage') !== false) {
+                /* @var $checkoutSession Mage_Checkout_Model_Session */
+                $checkoutSession = Mage::getSingleton('checkout/session');
+                if ($checkoutSession->getData('socolissimosimplicite_checkout_onepage_nextstep') == 'payment') {
+                    $transport->setUrl(Mage::getUrl('japi/checkout/onepage', array('_secure' => true)));
+                }
+            }
+        }
+    }
+
+    /**
+     * Mobile Paypal SDK: Save verify comment to order
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function japiSalesModelServiceQuoteSubmitBefore(Varien_Event_Observer $observer)
+    {
+        /* @var $session Mage_Checkout_Model_Session */
+        $session = Mage::getSingleton('checkout/session');
+        if ($session->getData('jmango_payment_paypal_verified')) {
+            /* @var $order Mage_Sales_Model_Order */
+            $order = $observer->getEvent()->getOrder();
+            $paymentId = $order->getPayment()->getAdditionalInformation(Jmango360_Japi_Model_Payment::PAYPAL_PAYMENT_ID);
+            $order->addStatusHistoryComment(sprintf('Paypal payment ID (%s) verified.', $paymentId));
+        }
+    }
 }

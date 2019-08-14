@@ -45,6 +45,11 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'updateOrder' . Jmango360_Japi_Model_Request::OPERATION_UPDATE:
+                $data = $this->_updateOrder();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
 
             /**
              * After a one page checkout payment to any provider the return url goes to the:
@@ -361,6 +366,15 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
         /* @var $model Jmango360_Japi_Model_Rest_Checkout_Onepage */
         $model = Mage::getModel('japi/rest_checkout_onepage');
         $data = $model->updatePaymentMethod();
+
+        return $data;
+    }
+
+    protected function _updateOrder()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Checkout_Onepage */
+        $model = Mage::getModel('japi/rest_checkout_onepage');
+        $data = $model->updateOrder();
 
         return $data;
     }

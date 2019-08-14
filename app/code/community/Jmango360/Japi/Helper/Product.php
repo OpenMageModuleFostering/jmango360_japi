@@ -2363,4 +2363,156 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
         return $data;
     }
+
+    /**
+     * Support SolrBridge_Solrsearch search engine
+     *
+     * @return array
+     * @throws Jmango360_Japi_Exception
+     */
+    public function getProductCollectionFromSolrBridgeSolrsearch()
+    {
+        if (!$this->isModuleEnabled('SolrBridge_Solrsearch')) {
+            throw new Jmango360_Japi_Exception(
+                $this->__('Module(s) %s not found.', 'SolrBridge_Solrsearch'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        $solrData = $this->_prepareSolrData();
+
+        $documents = array();
+        if (isset($solrData['response']['docs'])) {
+            $documents = $solrData['response']['docs'];
+        }
+
+        $productIds = array();
+        if (is_array($documents) && count($documents) > 0) {
+            foreach ($documents as $_doc) {
+                if (isset($_doc['products_id'])) {
+                    $productIds[] = $_doc['products_id'];
+                }
+            }
+        }
+
+        /** @var Mage_Catalog_Model_Resource_Product_Collection $collection */
+        $collection = Mage::getModel('catalog/product')->getCollection();
+        Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($collection);
+        Mage::getSingleton('catalog/product_visibility')->addVisibleInSiteFilterToCollection($collection);
+        $this->applySupportedProductTypes($collection);
+        $this->applyHideOnAppFilter($collection);
+        $collection->addAttributeToFilter('entity_id', array('in' => $productIds));
+        $collection->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes());
+        if (method_exists($collection, 'addPriceData')) {
+            $collection->addPriceData();
+        }
+        Mage::helper('solrsearch')->applyInstockCheck($collection);
+        $collection->getSelect()->order(sprintf("find_in_set(e.entity_id, '%s')", implode(',', $productIds)));
+
+        $data = array();
+
+        /**
+         * Parse filters
+         */
+        if (isset($solrData['facet_counts']['facet_fields']) && is_array($solrData['facet_counts']['facet_fields'])) {
+            /** @var SolrBridge_Solrsearch_Block_Faces $facetHelper */
+            $facetHelper = Mage::app()->getLayout()->createBlock('solrsearch/faces');
+
+            $facetsFields = $solrData['facet_counts']['facet_fields'];
+            $currentFilters = $this->_getRequest()->getParam('fq');
+
+            foreach ($facetsFields as $facet => $facetItems) {
+                if (!is_array($facetItems) || !count($facetItems)) continue;
+                if ($facetHelper->isFieldRange($facet)) continue;
+                if (strpos($facet, 'price') !== false) continue;
+
+                list($attributeCode, $junk) = explode('_', $facet);
+                if (array_key_exists($attributeCode, $currentFilters)) continue;
+
+                if ($facet == 'category_path' || $facet == 'category_facet') {
+                    $item = array(
+                        'name' => $this->__('Category'),
+                        'code' => sprintf('fq[%s]', 'category_id'),
+                        'items' => array()
+                    );
+                    foreach ($facetItems as $itemLabel => $itemCount) {
+                        list($categoryName, $categoryId) = explode('/', $itemLabel);
+
+                        if (isset($currentFilters['category_id']) && $currentFilters['category_id'] == $categoryId) {
+                            continue;
+                        }
+
+                        $item['items'][] = array(
+                            'value' => $categoryId,
+                            'label' => $categoryName,
+                            'count' => $itemCount
+                        );
+                    }
+                } else {
+                    $item = array(
+                        'name' => $facetHelper->getFacetLabel($facet),
+                        'code' => sprintf('fq[%s]', $attributeCode),
+                        'items' => array()
+                    );
+                    foreach ($facetItems as $itemLabel => $itemCount) {
+                        $item['items'][] = array(
+                            'value' => $itemLabel,
+                            'label' => $itemLabel,
+                            'count' => $itemCount
+                        );
+                    }
+                }
+
+                $data['filters'][] = $item;
+            }
+        } else {
+            $data['filters'] = null;
+        }
+
+        /**
+         * Parse toolbar data
+         */
+        /* @var $toolBarBlock Mage_Catalog_Block_Product_List_Toolbar */
+        $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
+        $toolBarBlock->setCollection($collection);
+
+        $data['toolbar_info']['current_page_num'] = $toolBarBlock->getCurrentPage();
+        $data['toolbar_info']['last_page_num'] = !empty($solrData['response']['numFound'])
+            ? ceil($solrData['response']['numFound'] / $toolBarBlock->getLimit())
+            : null;
+        $data['toolbar_info']['current_limit'] = $toolBarBlock->getLimit();
+        $data['toolbar_info']['available_limit'] = $toolBarBlock->getAvailableLimit();
+        $data['toolbar_info']['current_order'] = $toolBarBlock->getCurrentOrder();
+        $currentDirection = $this->_getCurrentDirection($collection);
+        if (!$currentDirection) $currentDirection = $toolBarBlock->getCurrentDirection();
+        $data['toolbar_info']['current_direction'] = $currentDirection;
+        foreach ($toolBarBlock->getAvailableOrders() as $order => $label) {
+            $data['toolbar_info']['available_orders'][$order] = $this->__($label);
+        }
+
+        /**
+         * Convert products
+         */
+        $data['products'] = $this->convertProductCollectionToApiResponseV2($collection);
+
+        return $data;
+    }
+
+    /**
+     * Get data from Solr server
+     *
+     * @return array
+     */
+    protected function _prepareSolrData()
+    {
+        $solrModel = Mage::registry('solrbridge_loaded_solr');
+
+        if ($solrModel) {
+            return $solrModel->getSolrData();
+        } else {
+            $solrModel = Mage::getModel('solrsearch/solr');
+            $queryText = Mage::helper('solrsearch')->getParam('q');
+            return $solrModel->query($queryText);
+        }
+    }
 }

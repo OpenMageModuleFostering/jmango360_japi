@@ -44,10 +44,12 @@ class Jmango360_Japi_Block_Adminhtml_System_Config_Form_Log extends Mage_Adminht
     {
         $html = '<select id="' . $this->_element->getHtmlId() . '" onchange="japiChangeLog(this)">';
         $logDir = Mage::getBaseDir('var') . DS . 'log';
-        foreach (scandir($logDir) as $fileName) {
-            if ($fileName == '.' || $fileName == '..' || is_dir($logDir . DS . $fileName)) continue;
-            $fileSize = $this->_getLogSize($logDir . DS . $fileName);
-            $html .= '<option value="' . $fileName . '">' . sprintf('%s (%s)', $fileName, $fileSize) . '</option>';
+        if (is_dir($logDir)) {
+            foreach (scandir($logDir) as $fileName) {
+                if ($fileName == '.' || $fileName == '..') continue;
+                $fileSize = $this->_getLogSize($logDir . DS . $fileName);
+                $html .= '<option value="' . $fileName . '">' . sprintf('%s (%s)', $fileName, $fileSize) . '</option>';
+            }
         }
         $html .= '</select>';
         return $html;

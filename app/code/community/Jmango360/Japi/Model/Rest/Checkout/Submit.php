@@ -60,12 +60,15 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
 
         /**
          * Added (int) because in 1.7 the type differs; now it is checking the subtotal without the decimals, but that should be enough to avoid the risk having mixed up carts
+         * Skip if place order form updatePaymentMethod API
          */
-        if ($requestSubtotal === "" || $requestQuoteId === "" || ((int)$requestSubtotal != (int)$quoteSubtotal) || ($requestQuoteId != $quote->getId())) {
-            throw new Jmango360_Japi_Exception(
-                Mage::helper('japi')->__('Request info does not match the quote. Probably the cart is ordered or the session is expired.'),
-                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
-            );
+        if (!$this->_getSession()->getData('place_order')) {
+            if ($requestSubtotal === "" || $requestQuoteId === "" || ((int)$requestSubtotal != (int)$quoteSubtotal) || ($requestQuoteId != $quote->getId())) {
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__('Request info does not match the quote. Probably the cart is ordered or the session is expired.'),
+                    Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+                );
+            }
         }
 
         /**

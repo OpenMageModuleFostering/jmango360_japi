@@ -33,6 +33,13 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
                 }
             }
 
+            /**
+             * Support SolrBridge_Solrsearch
+             */
+            if ($helper->isModuleEnabled('SolrBridge_Solrsearch')) {
+                return $helper->getProductCollectionFromSolrBridgeSolrsearch();
+            }
+
             if ($searchHelper->isMinQueryLength()) {
                 $query->setId(0)
                     ->setIsActive(1)

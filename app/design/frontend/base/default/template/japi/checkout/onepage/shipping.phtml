@@ -40,7 +40,7 @@
                 <input type="hidden" name="shipping[address_id]" value="<?php echo $this->getAddress()->getId() ?>"
                        id="shipping:address_id"/>
                 <ul>
-                    <li class="fields"><?php echo $this->getLayout()->createBlock('customer/widget_name')->setObject($this->getAddress())->setFieldIdFormat('shipping:%s')->setFieldNameFormat('shipping[%s]')->setFieldParams('onchange="shipping.setSameAsBilling(false)"')->toHtml() ?></li>
+                    <li class="fields"><?php echo $this->getLayout()->createBlock('japi/customer_widget_name')->setObject($this->getAddress())->setFieldIdFormat('shipping:%s')->setFieldNameFormat('shipping[%s]')->setFieldParams('onchange="shipping.setSameAsBilling(false)"')->toHtml() ?></li>
                     <li class="fields">
                         <div class="fields">
                             <label for="shipping:company"><?php echo $this->__('Company') ?></label>
@@ -243,6 +243,7 @@
                  class="v-middle"/> <?php echo $this->__('Loading next step...') ?>
         </span>
     </div>
+    <?php echo $this->getBlockHtml('formkey') ?>
 </form>
 <script type="text/javascript">
     //<![CDATA[

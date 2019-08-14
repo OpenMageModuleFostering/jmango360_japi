@@ -45,6 +45,7 @@ $helper = Mage::helper('japi');
     <?php if ($helper->wrapPaymentBlockMethods()): ?>
         </dl>
     <?php endif; ?>
+        <?php echo $this->getBlockHtml('formkey') ?>
     </fieldset>
 </form>
 <div class="buttons-set" id="payment-buttons-container">
