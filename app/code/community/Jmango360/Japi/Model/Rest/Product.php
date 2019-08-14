@@ -207,14 +207,19 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
 
         $product = Mage::getModel('catalog/product')->load($id, array('sku', 'hide_in_jm360'));
 
-        /* @var $reviewModel Mage_Review_Model_Review */
-        $reviewModel = Mage::getModel('review/review');
-        $reviewModel->getEntitySummary($product, Mage::app()->getStore()->getId());
         if (!$product->getId() || $product->getData('hide_in_jm360') == 1) {
             throw new Jmango360_Japi_Exception(
                 Mage::helper('japi')->__('Product not found'),
                 Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
             );
+        }
+
+        /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
+        $reviewHelper = Mage::helper('japi/product_review');
+        if ($reviewHelper->isReviewEnable()) {
+            /* @var $reviewModel Mage_Review_Model_Review */
+            $reviewModel = Mage::getModel('review/review');
+            $reviewModel->getEntitySummary($product, Mage::app()->getStore()->getId());
         }
 
         Mage::register('current_product', $product);

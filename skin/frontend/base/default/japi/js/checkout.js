@@ -2,6 +2,55 @@
  * Copyright 2015 JMango360
  */
 
+if (!window.toogleVisibilityOnObjects) {
+    var toogleVisibilityOnObjects = function (source, objects) {
+        if ($(source) && $(source).checked) {
+            objects.each(function (item) {
+                $(item).show();
+                $$('#' + item + ' .input-text').each(function (item) {
+                    item.removeClassName('validation-passed');
+                });
+            });
+        } else {
+            objects.each(function (item) {
+                if ($(item)) {
+                    $(item).hide();
+                    $$('#' + item + ' .input-text').each(function (sitem) {
+                        sitem.addClassName('validation-passed');
+                    });
+                    $$('#' + item + ' .giftmessage-area').each(function (sitem) {
+                        sitem.value = '';
+                    });
+                    $$('#' + item + ' .checkbox').each(function (sitem) {
+                        sitem.checked = false;
+                    });
+                    $$('#' + item + ' .select').each(function (sitem) {
+                        sitem.value = '';
+                    });
+                    $$('#' + item + ' .price-box').each(function (sitem) {
+                        sitem.addClassName('no-display');
+                    });
+                }
+            });
+        }
+    }
+}
+
+if (!window.toogleVisibility) {
+    var toogleVisibility = function (objects, show) {
+        objects.each(function (item) {
+            if (show) {
+                $(item).show();
+                $(item).removeClassName('no-display');
+            }
+            else {
+                $(item).hide();
+                $(item).addClassName('no-display');
+            }
+        });
+    }
+}
+
 if (typeof Checkout !== "undefined") {
     var JMCheckout = Class.create(Checkout, {
         initialize: function (accordion, urls) {
@@ -10,6 +59,7 @@ if (typeof Checkout !== "undefined") {
             this.reviewUrl = urls.review;
             this.saveMethodUrl = urls.saveMethod;
             this.failureUrl = urls.failure;
+            this.shippingMethodUrl = urls.shippingMethodUrl;
             this.billingForm = false;
             this.shippingForm = false;
             this.syncBillingShipping = false;
@@ -26,13 +76,13 @@ if (typeof Checkout !== "undefined") {
             });
 
             this.accordion.on('shown.bs.collapse', '.step', function () {
-                var parentEl = jQuery(this).parents('.section');
+                var parentEl = JMango(this).parents('.section');
                 var top = parentEl.offset().top;
 
                 if (typeof scrollTo == 'function') {
                     scrollTo(top);
                 } else {
-                    jQuery('html, body').animate({
+                    JMango('html, body').animate({
                         scrollTop: top
                     });
                 }
@@ -154,6 +204,22 @@ if (typeof Checkout !== "undefined") {
             var btn = this.getLaddaButton($(id));
             btn && btn.start();
             setLocation(url);
+        },
+
+        gotoShippingMethodSection: function () {
+            if (Ajax.activeRequestCount) {
+                return setTimeout(function () {
+                    this.gotoShippingMethodSection();
+                }.bind(this), 100);
+            }
+
+            if (typeof billing == 'undefined') return;
+            var billingValidator = new Validation(billing.form);
+            if (!billingValidator.validate()) return;
+
+            if (typeof shippingMethod == 'undefined') return;
+            checkout.gotoSection('shipping_method');
+            shippingMethod.load(this.shippingMethodUrl);
         }
     });
 }
@@ -166,7 +232,7 @@ var JMAgreement = Class.create({
 
     initModals: function () {
         this.form.select('div.modal').each(function (modal) {
-            jQuery(modal).modal({
+            JMango(modal).modal({
                 show: false
             });
         });
@@ -344,5 +410,9 @@ if (typeof Review !== 'undefined') {
             onSuccess: this.onSave,
             onFailure: checkout.ajaxFailure.bind(checkout)
         });
+    };
+
+    Review.prototype.resetLoadWaiting = function (transport) {
+        checkout.setLoadWaiting(false, this.isSuccess);
     };
 }

@@ -1,0 +1,208 @@
+@media only screen and (max-width: 1023px)
+{
+    /*.header_main .header_part .logo
+    {
+        margin-top: 174px;
+    }*/
+
+    .sendcloud-area .sendcloud-map .address-block {
+        width: 26% !important;
+    }
+    .sendcloud-area .sendcloud-map .map-block {
+        width: 71% !important;
+    }
+
+    .sendcloud-area .sendcloud-map .map-block .map-area #map
+    {
+        width: 100% !important;
+    }
+}
+@media only screen and (max-width: 414px)
+{
+    /*.header_main .header_part .logo
+    {
+        margin-top: 133px;
+    }*/
+    .sendcloud-area .sendcloud-map .address-block {
+        height: 300px !important;
+        width: 100% !important;
+    }
+    .sendcloud-area .sendcloud-map .map-block {
+        width: 100% !important;
+    }
+    .sendcloud-area .sendcloud-map .map-block .map-area #map
+    {
+        width: 100% !important;
+    }
+}
+.sendcloudspp .ngdialog.ngdialog-theme-default .ngdialog-content {
+    background-color: #fff;
+    left: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    width: 63pc !important;
+}
+.sendcloudspp .ngdialog {
+    z-index: 999999 !important;
+}
+
+.sendcloud-area .sendcloud-map {
+    display: none;
+    background: #fff none repeat scroll 0 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 99999999;
+    padding: 20px;
+}
+.sendcloud-area .open-map {
+    float: left;
+    background: #F45E01;
+    padding: 10px;
+    margin-top: 8px;
+    color: #fff;
+    font-weight: bold;
+}
+.sendcloud-area .open-map:hover {
+    background: #000;
+}
+.sendcloud-overlay {
+    background: #000 none repeat scroll 0 0;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    opacity: 0.3;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 9999999;
+}
+.sendcloud-area .sendcloud-map .address-block {
+    float: left;
+    height: 700px;
+    overflow-y: auto;
+    width: 21%;
+    margin-right: 20px;
+}
+.sendcloud-area .sendcloud-map .address-block p {
+    border-bottom: 1px solid #c9c9c9;
+    font-size: 13px;
+    line-height: 17px;
+    margin-bottom: 11px;
+    padding-bottom: 11px;
+    text-align: left;
+}
+.sendcloud-area .sendcloud-map .address-block p a {
+    color: #6e6e6e;
+    font-weight: 600;
+}
+.sendcloud-area .sendcloud-map .map-block {
+    float: left;
+    width: 60%;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search {
+    float: left;
+    width: 100%;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search h3 {
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 4px;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search span {
+    display: inline-block;
+    font-size: 20px;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search p {
+    display: block;
+    width: 100%;
+}
+.sendcloud-area .sendcloud-map .map-block .map-area {
+    float: left;
+    width: 100%;
+    margin-top: 15px;
+}
+.sendcloud-area .sendcloud-map .map-block .map-area h3 {
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 3px;
+}
+.sendcloud-area .sendcloud-map .map-block .map-area span {
+    font-weight: normal;
+    font-size: 17px;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search .sendcloud-postcode {
+    border: 1px solid #c9c9c9;
+    padding: 5px;
+    width: 34%;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search .sendcloud-search {
+    background: #F45E01;
+    padding: 5px;
+    border: none;
+    font-weight: bold !important;
+    color: #fff !important;
+}
+.sendcloud-area .sendcloud-map .map-block .postcode-search .sendcloud-search:hover {
+    background: #000000;
+}
+.sendcloud-area .sendcloud-map .address-block p a:hover {
+    color: #0e9b48;
+}
+.sendcloud-map .sendcloud-close {
+    background: #dddddd none repeat scroll 0 0;
+    border: 1px solid #dddddd;
+    border-radius: 100%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 26px;
+    position: absolute;
+    right: -19px;
+    text-align: center;
+    top: -22px;
+    width: 42px;
+}
+.sendcloud-map .sendcloud-close:hover
+{
+    border: 1px solid #0e9b48;
+    color: #0e9b48;
+}
+.sendcloudactive
+{
+    color: #0e9b48 !important;
+}
+.sendcloud-area .sendcloud-map .map-block .address-selection {
+    float: left;
+    margin-top: 17px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+.sendcloud-area .sendcloud-map .map-block .address-selection .sendcloud-selected-address {
+    float: left;
+    font-weight: bold;
+    width: 30%;
+}
+.sendcloud-area .sendcloud-map .map-block .address-selection .choose-button .kies-send {
+    float: left;
+    background: #F45E01;
+    border: medium none;
+    color: #fff !important;
+    font-weight: bold !important;
+    padding: 10px;
+    width: 150px;
+    text-align: center;
+}
+.sendcloud-area .sendcloud-map .map-block .address-selection .choose-button .kies-send:hover {
+    background: #000;
+}
+.sendcloud-area .location_picker_name {
+    width: 100%;
+    border-style: none;
+}
+.sendcloud-area .open-map {
+    margin-bottom: 10px;
+}

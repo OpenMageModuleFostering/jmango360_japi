@@ -184,6 +184,26 @@ a, a:focus, a:hover {
     font-size: 16px;
     color: #333;
   }
+
+  &.row, .row {
+    margin: 0;
+  }
+}
+
+#co-payment-form {
+  .columns {
+    padding: 1em 1em 0 1em;
+    display: table;
+
+    #radiogroup-container label {
+      display: block;
+      margin: 0.5em;
+    }
+  }
+}
+
+.tac-accept {
+  margin: 1em 0 0.5em 0;
 }
 
 .ladda-button {
@@ -350,7 +370,7 @@ p.required, p.back-link {
   }
 
   .fields {
-    .customer-name {
+    .customer-name, &.cols-2 {
       .field {
         width: 49%;
         float: left;
@@ -427,6 +447,12 @@ p.required, p.back-link {
 
     > div {
       width: 100%;
+    }
+  }
+
+  .fields {
+    .row {
+      margin: 0;
     }
   }
 }
@@ -622,7 +648,9 @@ span.price {
 }
 
 #s_method_postnl_tablerate,
-#s_method_postnl_tablerate + label {
+#s_method_postnl_tablerate + label,
+#s_method_postnl_flatrate,
+#s_method_postnl_flatrate + label {
   display: inline;
 }
 

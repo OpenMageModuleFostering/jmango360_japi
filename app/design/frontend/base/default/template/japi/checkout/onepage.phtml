@@ -64,13 +64,13 @@
         progress: '<?php echo $this->getUrl('japi/checkout/progress', array('_secure' => true)) ?>',
         review: '<?php echo $this->getUrl('japi/checkout/review', array('_secure' => true)) ?>',
         saveMethod: '<?php echo $this->getUrl('japi/checkout/saveMethod', array('_secure' => true)) ?>',
-        failure: '<?php echo $this->getUrl('japi/checkout/onepage', array('_secure' => true)) ?>'
+        failure: '<?php echo $this->getUrl('japi/checkout/onepage', array('_secure' => true)) ?>',
+        shippingMethodUrl: '<?php echo $this->getUrl('japi/checkout/getShippingMethod', array('_secure' => true)) ?>'
     });
     <?php if (!$error && Mage::getSingleton('core/session')->getData('is_address_update') && $this->getQuote()->getBillingAddress()->getCountryId()): ?>
     <?php Mage::getSingleton('core/session')->setData('is_address_update', false) ?>
     document.observe("dom:loaded", function () {
-        checkout.gotoSection('shipping_method');
-        shippingMethod.load('<?php echo $this->getUrl('japi/checkout/getShippingMethod', array('_secure' => true)) ?>');
+        checkout.gotoShippingMethodSection();
     });
     <?php endif ?>
     //]]>

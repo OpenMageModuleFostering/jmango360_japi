@@ -524,6 +524,16 @@
                                 <enable>1</enable>
                             </depends>
                         </log_file>
+                        <run_sql translate="label comment" module="japi">
+                            <label>Re-run SQL upgrade</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>japi/adminhtml_system_config_form_button</frontend_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment></comment>
+                        </run_sql>
                     </fields>
                 </jmango_rest_developer_settings>
             </groups>

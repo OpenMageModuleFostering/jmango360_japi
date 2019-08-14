@@ -38,7 +38,7 @@
                 <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/modal.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
-                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=2.7.0</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=2.9.2</file></action>
             </block>
             <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
                 <label>Page Top</label>
@@ -64,11 +64,19 @@
                         <action method="setPrefix"><value>billing</value></action>
                         <action method="setForm"><value>billing</value></action>
                     </block>
+                    <action method="setTemplate" ifconfig="symfony_postcode/settings/enabled">
+                        <template>japi/symfony/postcode/checkout/onepage/billing.phtml</template>
+                    </action>
                 </block>
-                <block type="checkout/onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="japi/checkout/onepage/shipping.phtml"/>
+                <block type="checkout/onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="japi/checkout/onepage/shipping.phtml">
+                    <action method="setTemplate" ifconfig="symfony_postcode/settings/enabled">
+                        <template>japi/symfony/postcode/checkout/onepage/shipping.phtml</template>
+                    </action>
+                </block>
                 <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="japi/checkout/onepage/shipping_method.phtml">
                     <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="japi/checkout/onepage/shipping_method/available.phtml"/>
                     <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="japi/checkout/onepage/shipping_method/additional.phtml"/>
+                    <block type="core/text_list" name="checkout.onepage.shipping_method.advanced" as="advanced"/>
                 </block>
                 <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="japi/checkout/onepage/payment.phtml">
                     <block type="checkout/onepage_payment_methods" name="checkout.onepage.payment.methods" as="methods" template="japi/checkout/onepage/payment/info.phtml"/>

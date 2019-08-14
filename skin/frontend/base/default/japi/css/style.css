@@ -161,6 +161,21 @@ a:hover {
   font-size: 16px;
   color: #333;
 }
+.sp-methods.row,
+.sp-methods .row {
+  margin: 0;
+}
+#co-payment-form .columns {
+  padding: 1em 1em 0 1em;
+  display: table;
+}
+#co-payment-form .columns #radiogroup-container label {
+  display: block;
+  margin: 0.5em;
+}
+.tac-accept {
+  margin: 1em 0 0.5em 0;
+}
 .ladda-button {
   width: 100%;
 }
@@ -294,11 +309,13 @@ p.back-link {
   color: #DF280A;
   float: right;
 }
-.form-list .fields .customer-name .field {
+.form-list .fields .customer-name .field,
+.form-list .fields.cols-2 .field {
   width: 49%;
   float: left;
 }
-.form-list .fields .customer-name .field:last-child {
+.form-list .fields .customer-name .field:last-child,
+.form-list .fields.cols-2 .field:last-child {
   float: right;
 }
 .form-list .fields .field,
@@ -351,6 +368,9 @@ p.back-link {
 }
 .form-list + .fieldset > div {
   width: 100%;
+}
+.form-list .fields .row {
+  margin: 0;
 }
 #discount-coupon-form {
   padding-top: 1em;
@@ -526,7 +546,9 @@ span.price {
   margin: 0.5em 0;
 }
 #s_method_postnl_tablerate,
-#s_method_postnl_tablerate + label {
+#s_method_postnl_tablerate + label,
+#s_method_postnl_flatrate,
+#s_method_postnl_flatrate + label {
   display: inline;
 }
 .postnl-container {

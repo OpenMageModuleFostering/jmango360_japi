@@ -25,17 +25,49 @@
  */
 ?>
 <form id="co-shipping-method-form" action="">
-    <div id="checkout-shipping-method-load"><?php echo Mage::helper('japi')->__('Please wait') ?>...</div>
+    <div id="checkout-shipping-method-load" class="shipping-methods"><?php echo Mage::helper('japi')->__('Please wait') ?>...</div>
     <script type="text/javascript">
         //<![CDATA[
         var shippingMethod = new ShippingMethod(
             'co-shipping-method-form',
             "<?php echo $this->getUrl('japi/checkout/saveShippingMethod', array('_secure' => true)) ?>"
         );
+
+        <?php if (Mage::helper('core')->isModuleEnabled('GoMage_Checkout')): ?>
+        JMango('#co-shipping-method-form').on('click', 'input[type="radio"][name="shipping_method"]', function() {
+            JMango('#shipping-methods-overlay').show();
+            var thisElm = JMango(this);
+            JMango.ajax({
+                type: 'POST',
+                url: '<?php echo $this->getUrl('gomage_checkout/onepage/ajax', array('_secure' => true)) ?>',
+                data: {shipping_method:thisElm.val(), action:'get_totals'},
+                dataType: 'json',
+                success: function (data) {
+                    if (data.error !== false) {
+                        alert(data.message);
+                    } else {
+                        JMango('#checkout-shipping-method-load').html(data.shippings);
+                    }
+                    JMango('#shipping-methods-overlay').hide();
+                }
+            });
+        });
+        <?php endif;//END if (Mage::helper('core')->isModuleEnabled('GoMage_Checkout')) ?>
         //]]>
     </script>
     <div id="onepage-checkout-shipping-method-additional-load">
         <?php echo $this->getChildHtml('additional') ?>
+    </div>
+    <div id="shipping-methods-overlay"
+         style="
+         background: #FFF url('<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) .'frontend/base/default/japi/images/ajax-loader.gif';?>') no-repeat center center;
+         width:100%;
+         height:100%;
+         position:fixed;
+         z-index:999;
+         top:0;
+         opacity: 0.6;
+         display:none;">
     </div>
     <div class="buttons-set" id="shipping-method-buttons-container">
         <button id="shipping-method-button" type="button" class="ladda-button" onclick="shippingMethod.save()"

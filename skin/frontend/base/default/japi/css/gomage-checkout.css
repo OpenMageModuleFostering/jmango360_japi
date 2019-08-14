@@ -1,0 +1,86 @@
+/* Icons
+-------------------------------------------------- */
+.glc-ico{
+    display: inline-block;
+    overflow: hidden;
+    background-image: url('../images/glc_sprite.png');
+    vertical-align: middle;
+}
+
+/* Calendar */
+.ico-cal{
+    width: 15px;
+    height: 15px;
+    background-position: 0 -183px;
+    cursor: pointer;
+}
+
+/* Delete button */
+.ico-del{
+    width: 16px;
+    height: 16px;
+    background-position: 0 -116px;
+    cursor: pointer;
+}
+
+/* Icons END
+-------------------------------------------------- */
+
+/* Delivery date
+-------------------------------------------------- */
+.delivery-date-delivery_date{
+    padding-right:7px;
+}
+.glc .delivery-date #delivery_date{
+    padding:0;
+    width: 65px;
+    border: 0;
+    background: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow   : none;
+    box-shadow        : none;
+    font-weight: 700;
+    line-height:14px;
+    cursor:default;
+}
+.glc .delivery-date img{
+    cursor:pointer;
+}
+.delivery-date-delivery_date label{
+    color:#5F5F5F;
+    font-weight:700;
+    vertical-align: middle;
+    font-family: Arial,Helvetica,sans-serif;
+}
+/* Delivery date END
+-------------------------------------------------- */
+/* Calendar
+-------------------------------------------------- */
+.lc-calendar{font-size:12px;font-family:Arial,Helvetica,sans-serif;cursor:default;}
+.lc-calendar .lc-calendar-ctrl{position:relative;width:173px;height:39px;border:1px solid #435;background:#ccc;color:#0A263C;font-weight:700;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-but{position:absolute;top:2px;z-index:10;float:left;width:16px;height:16px;cursor:pointer;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-but div{margin-top:3px;margin-left:3px;background-image:url('../images/glc_sprite.png');background-repeat:no-repeat;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-y-prev{left:4px;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-y-prev div{width:8px;height:9px;background-position:-8px -248px;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-m-prev{left:24px;}
+.lc-calendar .lc-calendar-ctrl .lc-calendar-m-prev div{width:8px;height:9px;background-position:0 -248px;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-m-next{left:100%;margin-left:-42px;}
+.lc-calendar .lc-calendar-ctrl .lc-calendar-m-next div{margin-left:4px !important;width:8px;height:9px;background-position:-16px -248px;}
+.lc-calendar .lc-calendar-ctrl div.lc-calendar-y-next{left:100%;margin-left:-22px;}
+.lc-calendar .lc-calendar-ctrl .lc-calendar-y-next div{margin-left:4px !important;width:8px;height:9px;background-position:-24px -248px;}
+.lc-calendar .lc-calendar-ctrl .lc-calendar-but-title{height:20px;}
+.lc-calendar .lc-calendar-week-header table{width:100%;border-spacing:2px;border-collapse:separate;border-top:1px solid #000;background:#AAA;font-weight:700;font-size:10px;}
+.lc-calendar .lc-calendar-pane table{width:100%;border:1px solid #000;border-spacing:2px;background:#aaa;}
+.lc-calendar .lc-calendar-week-header td{padding:3px 5px;text-align:center;font-size:10px;line-height:12px;}
+.lc-calendar .lc-calendar-pane td div{padding:2px 5px;background:#bbb;text-align:center;font-size:10px;line-height:12px;}
+.lc-calendar .lc-calendar-pane td.lc-enabled-day div:hover{background:#fff;color:#000;}
+.lc-calendar .lc-calendar-pane td.lc-enabled-day div.lc-selected-day:hover{background:#f33;color:#fff;}
+.lc-calendar .lc-selected-day{background:#AAA;color:#fff !important;}
+.lc-calendar .lc-calendar-pane td .lc-today{background:#666;color:#FFF;}
+.lc-calendar .lc-calendar-pane td .lc-selected-day{background:#F66;color:#FFF;}
+.lc-calendar-week-header td,.lc-calendar-week-header td.lc-weekend{padding:3px 5px;background:#333;color:#FFF;}
+.lc-calendar .lc-calendar-week-header td div{padding:0;width:12px;}
+.lc-calendar .lc-disabled-day,.lc-calendar .lc-out-of-month{color:#888;}
+.ls-popup-container{position:absolute;z-index:100;width:175px;height:200px;}
+/* Calendar END
+-------------------------------------------------- */

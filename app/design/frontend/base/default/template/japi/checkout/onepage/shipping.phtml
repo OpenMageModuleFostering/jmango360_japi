@@ -72,26 +72,29 @@
                     ?>
                     <?php for ($_i = 2, $_n = $this->helper('customer/address')->getStreetLines(); $_i <= $_n; $_i++): ?>
                         <li class="wide">
-                            <?php if (!empty($_streetConfig['street'.$_i.'_label'])): ?>
-                                <label for="shipping:street<?php echo $_i ?>" class="<?php echo !$_streetConfig['street'.$_i.'_require'] ? '' : 'required' ?>">
-                                    <?php if ($_streetConfig['street'.$_i.'_require']): ?><em>*</em><?php endif; ?>
-                                    <?php echo Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label'])) ?>
-                                </label>
-                            <?php endif; //End if (!empty($_streetConfig['street'.$_i.'_label'])) ?>
                             <?php
-                            $additionValidate = '';
-                            if ($_streetConfig['street'.$_i.'_require']) {
-                                $additionValidate .= ' required-entry';
-                            }
-                            if (!empty($_streetConfig['street'.$_i.'_type'])
-                                && $_streetConfig['street'.$_i.'_type'] == 'number') {
-                                $additionValidate .= ' validate-number';
-                            }
-
-                            if (!empty($_streetConfig['street'.$_i.'_label'])) {
-                                $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label']));
+                            if (!empty($_streetConfig['street' . $_i . '_label'])) {
+                                $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street' . $_i . '_label']));
                             } else {
                                 $_title = Mage::helper('core')->quoteEscape($this->__('Street Address %s', $_i));
+                            }
+                            ?>
+                            <label for="shipping:street<?php echo $_i ?>"
+                                   class="<?php echo empty($_streetConfig['street' . $_i . '_require']) ? '' : 'required' ?>">
+                                <?php if (!empty($_streetConfig['street' . $_i . '_require'])): ?>
+                                    <em>*</em>
+                                <?php endif; ?>
+                                <?php echo $_title ?>
+                            </label>
+                            <?php
+                            $additionValidate = '';
+                            if (!empty($_streetConfig['street' . $_i . '_require'])) {
+                                $additionValidate .= ' required-entry';
+                            }
+                            if (!empty($_streetConfig['street' . $_i . '_type'])
+                                && $_streetConfig['street' . $_i . '_type'] == 'number'
+                            ) {
+                                $additionValidate .= ' validate-number';
                             }
                             ?>
                             <div class="input-box">

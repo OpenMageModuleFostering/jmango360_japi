@@ -214,6 +214,14 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
 
     protected function _submitOrder()
     {
+        $quote = $this->getCheckout()->getQuote();
+        if (!$quote->getItemsCount()) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Cart is empty.'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
         $checkoutRedirectUrl = $this->getQuote()->getPayment()->getCheckoutRedirectUrl();
         if ($checkoutRedirectUrl) {
             return array(
@@ -221,11 +229,6 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
                 'online_payment' => true,
                 'payment_url' => Mage::helper('japi')->addJapiKey($checkoutRedirectUrl)
             );
-        }
-
-        $quote = $this->getCheckout()->getQuote();
-        if (!$quote->getItemsCount()) {
-            throw new Jmango360_Japi_Exception(Mage::helper('japi')->__('Cart is empty.'), Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR);
         }
 
         /* @var $model Jmango360_Japi_Model_Rest_Checkout_Submit */

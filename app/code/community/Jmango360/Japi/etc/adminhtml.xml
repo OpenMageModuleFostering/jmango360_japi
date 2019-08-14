@@ -52,7 +52,7 @@
             <admin>
                 <children>
                     <japi>
-                        <title>JMango360</title>
+                        <title>JMango360 Menu</title>
                         <children>
                             <report translate="title" module="japi">
                                 <title>Reports</title>
@@ -71,12 +71,12 @@
                                     </japi_order>
                                 </children>
                             </report>
-                            <setting translate="title" module="japi">
-                                <title>Settings</title>
-                            </setting>
                             <log translate="title" module="japi">
                                 <title>Download log files</title>
                             </log>
+                            <troubleshooting translate="title" module="japi">
+                                <title>Troubleshooting</title>
+                            </troubleshooting>
                         </children>
                     </japi>
                     <system>
@@ -84,7 +84,7 @@
                             <config>
                                 <children>
                                     <japi translate="title" module="japi">
-                                        <title>JMango360 Mobile</title>
+                                        <title>JMango360 Settings</title>
                                     </japi>
                                 </children>
                             </config>

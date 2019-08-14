@@ -65,6 +65,68 @@
                                 </div>
                             <?php endif; ?>
                         </li>
+
+                        <?php
+                        /**
+                         * MLUGIN-1440: Only fix for https://www.teakea.nl/ - follow customize template of this website.
+                         */
+                        if (Mage::helper('core')->isModuleEnabled('GoMage_Checkout') && strpos(Mage::getBaseUrl(), 'teakea.nl') !== false):
+                            ?>
+                            <li>
+                                <label for="zakelijke-yes" class="">Zakelijke klant ?</label>
+                                <div class="input-box">
+                                    <input type="checkbox"
+                                           name="zakelijke-yes" <?php if (Mage::getSingleton('customer/session')->getCustomer()->getKvk() && Mage::getSingleton('customer/session')->getCustomer()->getTaxvat()) { ?> checked="checked" <?php } ?>
+                                           value="yes" id="zakelijke-yes">Ja
+                                </div>
+                            </li>
+                            <ul id="japi-zakelijke-content" style="margin-bottom: 15px; display:none">
+                                <li>
+                                    <label for="kvk" class="">KVK nummer</label>
+                                    <div class="input-box kvk">
+                                        <input type="text" name="kvk"
+                                               id="kvk" <?php if (Mage::getSingleton('customer/session')->getCustomer()->getKvk()) { ?> value="<?php echo Mage::getSingleton('customer/session')->getCustomer()->getKvk(); ?>" <?php } ?>
+                                               class="input-text"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="vat" class="">BTW nummer</label>
+                                    <div class="input-box vat">
+                                        <input type="text" name="vat"
+                                               id="vat" <?php if (Mage::getSingleton('customer/session')->getCustomer()->getTaxvat()) { ?> value="<?php echo Mage::getSingleton('customer/session')->getCustomer()->getTaxvat(); ?>" <?php } ?>
+                                               class="input-text"/>
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="btw-factuur" class="">BTW factuur ontvangen?</label>
+                                    <div class="input-box btw-factuur">
+                                        <input type="checkbox"
+                                               name="btw-factuur" <?php if (Mage::getSingleton('customer/session')->getCustomer()->getKvk() && Mage::getSingleton('customer/session')->getCustomer()->getTaxvat()) { ?> checked="checked" <?php } ?>
+                                               value="yes" id="btw-factuur">Ja
+                                        <p class="btw-info" style="display: none;">Mocht u vaker aankopen doen bij
+                                            Teakea voor uw eigen onderneming รณf voor uw eigen klanten, dan krijgt u als
+                                            zakelijke klant 10% korting op iedere volgende aankoop.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <script type="text/javascript">
+                                JMango(document).ready(function () {
+                                    if (JMango('#zakelijke-yes').is(':checked')) {
+                                        JMango('#japi-zakelijke-content').show();
+                                    }
+                                    if (JMango('#btw-factuur').is(':checked')) {
+                                        JMango('p.btw-info').show();
+                                    }
+                                });
+                                JMango('#zakelijke-yes').click(function () {
+                                    JMango("#japi-zakelijke-content").toggle(this.checked);
+                                });
+                                JMango('#btw-factuur').click(function () {
+                                    JMango("p.btw-info").toggle(this.checked);
+                                });
+                            </script>
+                        <?php endif;//END if (Mage::helper('core')->isModuleEnabled('GoMage_Checkout') && strpos(Mage::getBaseUrl(), 'teakea') !== false)  ?>
+
                         <?php $_streetValidationClass = $this->helper('customer/address')->getAttributeValidationClass('street'); ?>
                         <li class="wide">
                             <label for="billing:street1" class="required"><em>*</em><?php echo $this->__('Address') ?>
@@ -83,26 +145,29 @@
                         ?>
                         <?php for ($_i = 2, $_n = $this->helper('customer/address')->getStreetLines(); $_i <= $_n; $_i++): ?>
                             <li class="wide">
-                                <?php if (!empty($_streetConfig['street'.$_i.'_label'])): ?>
-                                    <label for="billing:street<?php echo $_i ?>" class="<?php echo !$_streetConfig['street'.$_i.'_require'] ? '' : 'required' ?>">
-                                        <?php if ($_streetConfig['street'.$_i.'_require']): ?><em>*</em><?php endif; ?>
-                                        <?php echo Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label'])) ?>
-                                    </label>
-                                <?php endif; //End if (!empty($_streetConfig['street'.$_i.'_label'])) ?>
                                 <?php
-                                $additionValidate = '';
-                                if ($_streetConfig['street'.$_i.'_require']) {
-                                    $additionValidate .= ' required-entry';
-                                }
-                                if (!empty($_streetConfig['street'.$_i.'_type'])
-                                    && $_streetConfig['street'.$_i.'_type'] == 'number') {
-                                    $additionValidate .= ' validate-number';
-                                }
-
-                                if (!empty($_streetConfig['street'.$_i.'_label'])) {
-                                    $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label']));
+                                if (!empty($_streetConfig['street' . $_i . '_label'])) {
+                                    $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street' . $_i . '_label']));
                                 } else {
                                     $_title = Mage::helper('core')->quoteEscape($this->__('Street Address %s', $_i));
+                                }
+                                ?>
+                                <label for="billing:street<?php echo $_i ?>"
+                                       class="<?php echo empty($_streetConfig['street' . $_i . '_require']) ? '' : 'required' ?>">
+                                    <?php if (!empty($_streetConfig['street' . $_i . '_require'])): ?>
+                                        <em>*</em>
+                                    <?php endif; ?>
+                                    <?php echo $_title ?>
+                                </label>
+                                <?php
+                                $additionValidate = '';
+                                if (!empty($_streetConfig['street' . $_i . '_require'])) {
+                                    $additionValidate .= ' required-entry';
+                                }
+                                if (!empty($_streetConfig['street' . $_i . '_type'])
+                                    && $_streetConfig['street' . $_i . '_type'] == 'number'
+                                ) {
+                                    $additionValidate .= ' validate-number';
                                 }
                                 ?>
                                 <div class="input-box">

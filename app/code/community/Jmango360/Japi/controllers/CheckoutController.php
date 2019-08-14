@@ -200,8 +200,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
                     Validation.creditCartTypes.set('ELO', [new RegExp(/^((((636368)|(438935)|(504175)|(451416)|(636297)|(506699))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/), new RegExp('^[0-9]{3}$'), true]);
                     Validation.creditCartTypes.set('hipercard', [new RegExp(/^(606282\d{10}(\d{3})?)|(3841\d{15})$/), new RegExp('^[0-9]{3}$'), true]);
                     Validation.creditCartTypes.set('unionpay', [new RegExp('^62[0-5]\d{13,16}$'), new RegExp('^[0-9]{3}$'), true]);
-                </script>]]>
-            </text>
+                </script>]]></text>
         </action>
     </block>
 </reference>";
@@ -260,6 +259,46 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
     <action method=\"addItem\"><type>js_css</type><stylesheet>pickadate/theme/default.css</stylesheet></action>
     <action method=\"addItem\"><type>js_css</type><stylesheet>pickadate/theme/default.date.css</stylesheet></action>
     <block type=\"core/html_calendar\" name=\"html_calendar\" as=\"html_calendar\" template=\"page/js/calendar.phtml\"/>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('GoMage_DeliveryDate')) {
+            $xml .= "
+<reference name=\"head\">			
+    <action method=\"addItem\"><type>js</type><name>gomage/lc-calendar.js</name></action>
+    <block type=\"core/html_calendar\" name=\"gomage.deliverydate.calendar\" template=\"gomage/deliverydate/js/calendar.phtml\"/>
+</reference>		 
+<reference name=\"checkout.onepage.shipping_method.advanced\">
+    <block type=\"gomage_deliverydate/form\" name=\"checkout.onepage.shipping_method.additional.delivery_date\" template=\"gomage/deliverydate/form.phtml\" />
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('SendCloud_Integration')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><script>sendcloud/onepage.js</script></action>
+    <block type=\"page/html\" name=\"sendcloud_jsvalues\" template=\"sendcloud/servicepointpicker.phtml\" />
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Symfony_Postcode')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\" ifconfig=\"symfony_postcode/settings/enabled\"><type>js</type><file>symfony/postcode.js</file></action>
+    <action method=\"addItem\" ifconfig=\"symfony_postcode/settings/enabled\"><type>skin_css</type><file>css/symfony/postcode.css</file></action>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('TIG_Buckaroo3Extended')) {
+            $xml .= "
+<reference name=\"head\">
+    <block type=\"core/template\" name=\"buckaroo_jquery\" template=\"buckaroo3extended/jquery.phtml\"/>
+    <action method=\"addItem\"><type>skin_css</type><name>japi/css/TIG/Buckaroo3Extended/styles_opc.css</name></action>
+    <action method=\"addItem\"><type>skin_js</type><name>js/TIG/Buckaroo3Extended/paymentGuaranteeObserver.js</name></action>
+    <action method=\"addItem\"><type>skin_js</type><name>js/TIG/Buckaroo3Extended/afterpayObserver.js</name></action>
+</reference>
+<reference name=\"before_body_end\">
+        <block type=\"core/template\" name=\"buckaroo_save_sata_js\" template=\"buckaroo3extended/saveData.phtml\"/>
 </reference>";
         }
 
@@ -427,7 +466,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 
         try {
             $codeLength = strlen($couponCode);
-            if (version_compare(Mage::getVersion(), '1.8.0', '>=')) {
+            if (Mage::getEdition() == 'Community' && version_compare(Mage::getVersion(), '1.8.0', '>=')) {
                 $isCodeLengthValid = $codeLength && $codeLength <= Mage_Checkout_Helper_Cart::COUPON_CODE_MAX_LENGTH;
             } else {
                 $isCodeLengthValid = $codeLength && $codeLength <= 255;

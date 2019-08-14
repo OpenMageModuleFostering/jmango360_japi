@@ -1,0 +1,16 @@
+/* Payment Guarantee Terms & Conditions */
+#checkout-step-payment #payment_form_buckaroo3extended_paymentguarantee .tac-accept .input-checkbox { float:left; }
+#checkout-step-payment #payment_form_buckaroo3extended_paymentguarantee .tac-accept label { margin:-2px 0 0 5px; }
+#checkout-step-payment #payment_form_buckaroo3extended_paymentguarantee .tac-accept .input-checkbox.validation-failed { margin-bottom:18px; }
+#checkout-step-payment #payment_form_buckaroo3extended_paymentguarantee .tac-accept #advice-required-entry-buckaroo3extended_paymentguarantee_BPE_terms_and_conditions { position:absolute; margin-top:17px; }
+
+#checkout-step-payment #paymentguarantee_terms_and_conditions { display:none; }
+#checkout-step-payment #paymentguarantee_terms_and_conditions { position:fixed; width:100%; height:100%; top:0; left:0; background:rgba(0, 0, 0, .35); z-index:100; }
+
+#checkout-step-payment #paymentguarantee_terms_and_conditions .tac-content { position:fixed; background:#fff; width:310px; height:auto; left:50%; top:30px; margin-left:-155px; padding:8px 8px 12px; border: 1px solid #b6b6b6; z-index:200; }
+
+#checkout-step-payment #paymentguarantee_terms_and_conditions .tac-close { float:right; }
+
+#checkout-step-payment #paymentguarantee_terms_and_conditions a.button { text-decoration:none !important; cursor:pointer !important; background:none !important; }
+#checkout-step-payment #paymentguarantee_terms_and_conditions a.button span { display:block; border:1px solid #de5400; background:#f18200; padding: 1em; font:bold 12px/19px Arial, Helvetica, sans-serif; text-align:center; white-space:nowrap; color:#fff; }
+#checkout-step-payment #paymentguarantee_terms_and_conditions a.button span span { border:0; padding:0; }

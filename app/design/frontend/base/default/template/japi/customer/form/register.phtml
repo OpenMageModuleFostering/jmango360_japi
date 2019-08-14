@@ -36,7 +36,7 @@
         <h1><?php echo $this->__('Create an Account') ?></h1>
     </div>
     <?php echo $this->getChildHtml('form_fields_before') ?>
-    <?php echo $this->getMessagesBlock()->toHtml() ?>
+    <?php echo $this->getMessagesBlock()->setEscapeMessageFlag(false)->toHtml() ?>
     <?php /* Extensions placeholder */ ?>
     <?php echo $this->getChildHtml('customer.form.register.extra') ?>
     <form action="<?php echo $this->getUrl('*/*/createPost', array('_secure' => true)) ?>"
@@ -140,27 +140,29 @@
                     ?>
                     <?php for ($_i = 2, $_n = $this->helper('customer/address')->getStreetLines(); $_i <= $_n; $_i++): ?>
                         <li class="wide">
-                            <?php if (!empty($_streetConfig['street'.$_i.'_label'])): ?>
-                                <label for="street_<?php echo $_i ?>" class="<?php echo !$_streetConfig['street'.$_i.'_require'] ? '' : 'required' ?>">
-                                    <?php if ($_streetConfig['street'.$_i.'_require']): ?><em>*</em><?php endif; ?>
-                                    <?php echo Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label'])) ?>
+                            <?php if (!empty($_streetConfig['street' . $_i . '_label'])): ?>
+                                <label for="street_<?php echo $_i ?>"
+                                       class="<?php echo !$_streetConfig['street' . $_i . '_require'] ? '' : 'required' ?>">
+                                    <?php if ($_streetConfig['street' . $_i . '_require']): ?><em>*</em><?php endif; ?>
+                                    <?php echo Mage::helper('core')->quoteEscape($this->__($_streetConfig['street' . $_i . '_label'])) ?>
                                 </label>
                             <?php endif; //End if (!empty($_streetConfig['street'.$_i.'_label'])) ?>
                             <?php
-                                $additionValidate = '';
-                                if ($_streetConfig['street'.$_i.'_require']) {
-                                    $additionValidate .= ' required-entry';
-                                }
-                                if (!empty($_streetConfig['street'.$_i.'_type'])
-                                    && $_streetConfig['street'.$_i.'_type'] == 'number') {
-                                    $additionValidate .= ' validate-number';
-                                }
+                            $additionValidate = '';
+                            if ($_streetConfig['street' . $_i . '_require']) {
+                                $additionValidate .= ' required-entry';
+                            }
+                            if (!empty($_streetConfig['street' . $_i . '_type'])
+                                && $_streetConfig['street' . $_i . '_type'] == 'number'
+                            ) {
+                                $additionValidate .= ' validate-number';
+                            }
 
-                                if (!empty($_streetConfig['street'.$_i.'_label'])) {
-                                    $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street'.$_i.'_label']));
-                                } else {
-                                    $_title = Mage::helper('core')->quoteEscape($this->__('Street Address %s', $_i));
-                                }
+                            if (!empty($_streetConfig['street' . $_i . '_label'])) {
+                                $_title = Mage::helper('core')->quoteEscape($this->__($_streetConfig['street' . $_i . '_label']));
+                            } else {
+                                $_title = Mage::helper('core')->quoteEscape($this->__('Street Address %s', $_i));
+                            }
                             ?>
                             <div class="input-box">
                                 <input type="text" name="street[]"

@@ -7,6 +7,11 @@ require_once 'Mage/Adminhtml/controllers/Report/SalesController.php';
 
 class Jmango360_Japi_Adminhtml_Japi_ReportController extends Mage_Adminhtml_Report_SalesController
 {
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('japi/report');
+    }
+
     protected function _init()
     {
         $this->loadLayout();

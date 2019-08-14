@@ -145,10 +145,17 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
             }
         }
 
+        /* @var $helper Mage_Core_Helper_Data */
+        $helper = Mage::helper('core');
+
         if ($code == 'price') {
-            /* @var $helper Mage_Core_Helper_Data */
-            $helper = Mage::helper('core');
             if ($helper->isModuleEnabled('Smile_ElasticSearch')) {
+                return false;
+            }
+        }
+
+        if ($code == 'cat') {
+            if ($helper->isModuleEnabled('Klevu_Search')) {
                 return false;
             }
         }

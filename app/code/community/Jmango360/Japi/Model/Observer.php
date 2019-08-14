@@ -188,9 +188,11 @@ class Jmango360_Japi_Model_Observer
 
     public function customerRegisterSuccess($observe)
     {
+        if (!Mage::getSingleton('core/session')->getIsRest()) return;
         /* @var $customer Mage_Customer_Model_Customer */
         $customer = $observe->getEvent()->getCustomer();
         if (!$customer->getId()) return;
+        /* @var $session Mage_Customer_Model_Session */
         $session = Mage::getSingleton('customer/session');
         $session->setIsSubmit(true);
         $session->setCustomerId($customer->getId());
@@ -568,5 +570,21 @@ class Jmango360_Japi_Model_Observer
         /** @var Mage_Core_Model_Cookie $cookie */
         $cookie = Mage::getModel('core/cookie');
         $cookie->set('frontend', $sessionId, null, '/japi/checkout', Mage::app()->getRequest()->getHttpHost(), null, true);
+    }
+
+    /**
+     * MPLUGIN-1446: Support Klevu_Search
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function Klevu_Search__applyLandingPageModelRewrites(Varien_Event_Observer $observer)
+    {
+        if (!Mage::helper('core')->isModuleEnabled('Klevu_Search'))
+            return $this;
+
+        /* @var $obj Klevu_Search_Model_Observer */
+        $obj = Mage::getSingleton('klevu_search/observer');
+        if ($obj) $obj->applyLandingPageModelRewrites($observer);
     }
 }

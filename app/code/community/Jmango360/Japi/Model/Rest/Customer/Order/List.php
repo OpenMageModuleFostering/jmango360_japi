@@ -238,10 +238,14 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
 
                 $item = $itemModel->toArray();
 
-                $product = Mage::getModel('catalog/product')->load($itemModel->getProductId(), array('image', 'small_image', 'thumbnail'));
-                if ($product->getId()) {
+                $product = $this->_getProductFromOrderItem($itemModel);
+                if ($product && $product->getId() && $product->getData('status') == 1) {
                     $item['image'] = Mage::helper('japi/product')->getProductImage($product);
-                    $item['product_url'] = $product->getProductUrl();
+                    if ($product->getData('visibility') != '' && $product->getData('visibility') != 1) {
+                        $item['product_url'] = $product->getUrlInStore();
+                    } else {
+                        $item['product_url'] = null;
+                    }
                 } else {
                     $item['image'] = null;
                     $item['product_url'] = null;
@@ -301,10 +305,19 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                     $totals = array_merge($totals, $this->_getTaxTotals($order));
                 } elseif ($blockName) {
                     $html = $totalsBlock->getChildHtml($blockName);
-                    $totals = array_merge($totals, $this->_getHtmlTotals($html));
+                    $totals = array_merge($totals, $this->_getHtmlTotals($html, $order));
                 } else {
                     if (isset($total['value'])) {
-                        $total->setData('formatted_value', $order->getOrderCurrency()->formatPrecision($total['value'], 2, array(), false));
+                        if (is_numeric($total['value'])) {
+                            $total->setData('currency_symbol', $totalsBlock->getOrder()->getOrderCurrencyCode());
+                            $total->setData('formatted_value', $order->getOrderCurrency()->formatPrecision($total['value'], 2, array(), false));
+                        } else {
+                            $total->setData('currency_symbol', $totalsBlock->getOrder()->getBaseCurrencyCode());
+                            $total->setData('formatted_value', strip_tags($total['value']));
+                            if ($total['code'] == 'base_grandtotal') {
+                                $total->setData('value', $totalsBlock->getOrder()->getBaseGrandTotal());
+                            }
+                        }
                     }
                     $totals[] = $total->toArray();
                 }
@@ -385,7 +398,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                     $totals = array_merge($totals, $this->_getTaxTotals($order));
                 } elseif ($blockName) {
                     $html = $totalsBlock->getChildHtml($blockName);
-                    $totals = array_merge($totals, $this->_getHtmlTotals($html));
+                    $totals = array_merge($totals, $this->_getHtmlTotals($html, $order));
                 } else {
                     if (isset($total['value'])) {
                         $total->setData('formatted_value', $order->getOrderCurrency()->formatPrecision($total['value'], 2, array(), false));
@@ -398,6 +411,37 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         }
 
         return $data;
+    }
+
+    /**
+     * Return related product
+     *
+     * @param Mage_Sales_Model_Order_Item $item
+     * @return Mage_Catalog_Model_Product|null
+     */
+    protected function _getProductFromOrderItem($item)
+    {
+        if (!$item || !$item->getId() || !$item->getProductId()) return null;
+
+        $productOptions = $item->getProductOptions();
+        if ($item->getProductType() == 'simple') {
+            if (!empty($productOptions['info_buyRequest']['super_attribute'])) {
+                $productId = $productOptions['info_buyRequest']['product_id'];
+                if (!$productId) $productId = $productOptions['info_buyRequest']['product'];
+            } else {
+                $productId = $item->getProductId();
+            }
+        } else {
+            $productId = $item->getProductId();
+        }
+
+        if (!is_numeric($productId)) return null;
+
+        $product = Mage::getModel('catalog/product')->setStoreId($item->getStoreId())->load($productId, array(
+            'status', 'visibility', 'image', 'small_image', 'thumbnail'
+        ));
+
+        return $product;
     }
 
     /**
@@ -459,7 +503,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
         return null;
     }
 
-    protected function _getHtmlTotals($html)
+    protected function _getHtmlTotals($html, $order = null)
     {
         if (!$html) return array();
 
@@ -471,6 +515,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
 
         foreach ($rows as $index => $row) {
             $total = array('code' => 'total_' . $index);
+            if ($order) $total['currency_symbol'] = $order->getOrderCurrencyCode();
             $columns = $xpath->query('descendant::td', $row);
             foreach ($columns as $i => $column) {
                 if ($i == 0) {
@@ -509,6 +554,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                         $total['label'] .= sprintf(' (%s%%)', (float)$rate['percent']);
                     }
                     $total['value'] = (float)$info['amount'];
+                    $total['currency_symbol'] = $order->getOrderCurrencyCode();
                     $total['formatted_value'] = $order->getOrderCurrency()->formatPrecision($info['amount'], 2, array(), false);
 
                     $totals[] = $total;
@@ -524,6 +570,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
                     'code' => 'wee_' . $weeIndex++,
                     'label' => Mage::helper('japi')->escapeHtml($weeeTitle),
                     'value' => (float)$weeeAmount,
+                    'currency_symbol' => $order->getOrderCurrencyCode(),
                     'formatted_value' => $order->getOrderCurrency()->formatPrecision($weeeAmount, 2, array(), false)
                 );
             }
@@ -533,6 +580,7 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
             'code' => 'tax',
             'label' => Mage::helper('tax')->__('Tax'),
             'value' => (float)$order->getTaxAmount(),
+            'currency_symbol' => $order->getOrderCurrencyCode(),
             'formatted_value' => $order->getOrderCurrency()->formatPrecision($order->getTaxAmount(), 2, array(), false)
         );
 

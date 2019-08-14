@@ -602,7 +602,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'name' => $product->getName(),
             'sku' => $product->getSku(),
             'type' => $product->getTypeId(),
-            'product_url' => $product->getProductUrl(),
+            'product_url' => $product->getData('visibility') != '' && $product->getData('visibility') != 1 ? $product->getUrlInStore() : null,
             'type_id' => $product->getTypeId(),
             'stock' => $this->_getStockLevel($product),
             'is_in_stock' => $product->getStockItem() ? (int)$product->getStockItem()->getIsInStock() : null,
@@ -665,20 +665,21 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 }
             }
 
+            $value = $attribute->getFrontend()->getValue($product);
+
             if ($attribute->getFrontendInput() == 'multiselect') {
                 $options = $attribute->getFrontend()->getOption($product->getData($attributeCode));
                 if (is_array($options)) {
                     $value = implode("\n", $options);
                 }
-            } else {
-                $value = $attribute->getFrontend()->getValue($product);
             }
 
             if ($attribute->getIsVisibleOnFront() || in_array($attributeCode, array($attributeListing, $attributeDetails))) {
                 if (!$product->hasData($attributeCode)) {
                     if ($hideNullValue) continue;
                     $value = Mage::helper('catalog')->__('N/A');
-                } elseif ((string)$value == '') {
+                } elseif ($value == '' || $product->getData($attributeCode) == '') {
+                    if ($hideNullValue) continue;
                     $value = Mage::helper('catalog')->__('No');
                 } elseif ($attribute->getFrontendInput() == 'price' && is_string($value)) {
                     $value = Mage::app()->getStore()->convertPrice($value, true);

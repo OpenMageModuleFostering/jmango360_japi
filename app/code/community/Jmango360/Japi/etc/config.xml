@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>2.9.1</version>
+            <version>2.9.2</version>
         </Jmango360_Japi>
     </modules>
 
@@ -189,6 +189,15 @@
                     </japi_predispatch_japi_checkout_onepage>
                 </observers>
             </controller_action_predispatch_japi_checkout_onepage>
+            <controller_action_predispatch_japi_rest_product_search>
+                <observers>
+                    <klevu_search_landing_page>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>Klevu_Search__applyLandingPageModelRewrites</method>
+                    </klevu_search_landing_page>
+                </observers>
+            </controller_action_predispatch_japi_rest_product_search>
         </events>
         <routers>
             <japi>
@@ -198,6 +207,13 @@
                     <frontName>japi</frontName>
                 </args>
             </japi>
+            <customer>
+                <args>
+                    <modules>
+                        <japi before="Mage_Customer">Jmango360_Japi_Customer</japi>
+                    </modules>
+                </args>
+            </customer>
         </routers>
         <translate>
             <modules>
