@@ -25,13 +25,6 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
         }
 
         /**
-         * MPLUGIN-673
-         * Validate last order increment id of current store
-         * TODO: Need improvement
-         */
-        //$this->_validateLastIncrementId();
-
-        /**
          * Specific for payment forms some data from the ost from collect totals is used in the submit POST
          */
         $this->_callbackPaymentPostUsedInSubmit();
@@ -48,11 +41,6 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
          * Security checks on quote
          */
         $quote = $this->getCheckout()->getQuote();
-
-        /**
-         * Flag as JMango360 order
-         */
-        $quote->setData('japi', 1);
 
         /**
          * Security check parameters
@@ -98,6 +86,11 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
         $makeCartInactiveAfterSubmit = $request->getParam('make_cart_inactive_after_submit', $this->_makeCartInactiveAfterSubmit);
 
         /**
+         * Flag as JMango360 order
+         */
+        $quote->setData('japi', 1);
+
+        /**
          * Convert the quote to order
          */
         $this->saveOrder();
@@ -118,16 +111,15 @@ class Jmango360_Japi_Model_Rest_Checkout_Submit extends Jmango360_Japi_Model_Res
             $quote->setIsActive(false);
         }
 
-        // Save quote to apply any changes
+        /**
+         * Save quote to apply any changes
+         */
         $quote->save();
 
         /**
          * Return payment data
          */
         $data = $this->_getPaymentData();
-
-        // Clear checkout session
-        $this->_getSession()->clear();
 
         return $data;
     }

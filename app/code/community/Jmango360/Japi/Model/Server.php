@@ -133,6 +133,11 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             $this->_renderException($e, $renderer, $response);
         }
 
+        // Init empty admin user for Openwriter_Cartmart
+        if (Mage::helper('core')->isModuleEnabled('Openwriter_Cartmart')) {
+            Mage::getSingleton('admin/session')->setUser(Mage::getModel('admin/user'));
+        }
+
         try {
             /*
              * $response could have an exception in session or token check

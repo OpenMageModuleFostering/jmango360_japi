@@ -470,7 +470,8 @@ class Jmango360_Japi_Model_Observer
     }
 
     /**
-     * Inject customer collection to join japi filter
+     * Inject product collection to join 'japi' filter
+     * Inject customer collection to join 'japi' filter
      */
     public function eavCollectionAbstractLoadBefore($observe)
     {
@@ -492,6 +493,22 @@ class Jmango360_Japi_Model_Observer
                 //$this->_addJapiToProductSelect($collection);
                 $collection->addAttributeToSelect('hide_in_jm360');
             }
+        }
+    }
+
+    /**
+     * Inject order grid collectio to add 'japi' filter
+     */
+    public function coreCollectionAbstractLoadBefore($observe)
+    {
+        /* @var $collection Mage_Core_Model_Resource_Db_Collection_Abstract */
+        $collection = $observe->getEvent()->getCollection();
+        if (!$collection) return;
+
+        switch (get_class($collection)) {
+            case 'IWD_OrderManager_Model_Resource_Order_Grid_Collection':
+                $collection->addFieldToSelect('japi');
+                break;
         }
     }
 

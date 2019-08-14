@@ -32,13 +32,7 @@ class Jmango360_Japi_Model_Rest_Product_List extends Jmango360_Japi_Model_Rest_C
 
             $data['filters'] = $this->_getFilters();
             $helper->addPageSettings($productCollection);
-            $data['toolbar_info'] = $helper->getToolBarInfo($productCollection);
-            /**
-             * Add group by product's ID to collection
-             */
-            if (version_compare(Mage::getVersion(), '1.9.2.1', '>')) {
-                $productCollection->getSelect()->group('e.entity_id');
-            }
+            $data['toolbar_info'] = $helper->getToolbarInfo($productCollection);
 
             $productCollection->clear();
             $data['products'] = $helper->convertProductCollectionToApiResponseV2($productCollection);

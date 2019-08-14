@@ -238,8 +238,7 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
             $price = $product->getFinalPrice() * $price / 100;
         }
 
-        /* @var $taxHelper Japi_Product_Helper */
-        $configurableItemPriceWithTax = Mage::helper('japi/product')->calculatePriceIncludeTax($product, $price);
+        $configurableItemPriceWithTax = Mage::helper('japi/product')->calculatePriceIncludeTax($product, $price, false);
 
         return $this->_registerJsPrice($this->_convertPrice($configurableItemPriceWithTax, true));
     }
@@ -258,8 +257,7 @@ class Jmango360_Japi_Helper_Product_Configurable extends Mage_Core_Helper_Abstra
             $price = $product->getPrice() * $price / 100;
         }
 
-        /* @var $taxHelper Japi_Product_Helper */
-        $configurableItemPriceWithTax = Mage::helper('japi/product')->calculatePriceIncludeTax($product, $price);
+        $configurableItemPriceWithTax = Mage::helper('japi/product')->calculatePriceIncludeTax($product, $price, false);
 
         return $this->_registerJsPrice($this->_convertPrice($configurableItemPriceWithTax, true));
     }

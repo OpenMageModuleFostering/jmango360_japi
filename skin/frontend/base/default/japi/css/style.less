@@ -793,27 +793,26 @@ span.price {
 }
 
 /******** Afterpay_Afterpay ********/
-#dd_method_msp_klarna {
-  .form-list li {
-    br {
-      display: none;
+#dd_method_msp_klarna .form-list li,
+#payment_form_msp_klarna li {
+  br {
+    display: none;
+  }
+
+  label {
+    margin-top: 1em;
+    display: block;
+
+    &:first-child {
+      margin-top: 0;
     }
+  }
 
-    label {
-      margin-top: 1em;
-      display: block;
+  input {
+    width: 100%;
 
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-
-    input {
-      width: 100%;
-
-      &[type="radio"], &[type="checkbox"] {
-        width: auto;
-      }
+    &[type="radio"], &[type="checkbox"] {
+      width: auto;
     }
   }
 }

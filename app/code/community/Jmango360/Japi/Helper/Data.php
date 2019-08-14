@@ -355,7 +355,8 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfigFlag('web/session/use_remote_addr')
         || Mage::getStoreConfigFlag('web/session/use_http_via')
         || Mage::getStoreConfigFlag('web/session/use_http_x_forwarded_for')
-        || Mage::getStoreConfigFlag('web/session/use_http_user_agent');
+        || Mage::getStoreConfigFlag('web/session/use_http_user_agent')
+        || version_compare(Mage::getVersion(), '1.9.3.0', '>=');
     }
 
     public function isNeedByPassMIMT()

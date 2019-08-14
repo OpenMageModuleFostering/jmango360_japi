@@ -9,7 +9,7 @@ class Jmango360_Japi_Block_Adminhtml_Report_Customers extends Mage_Adminhtml_Blo
     {
         $this->_blockGroup = 'japi';
         $this->_controller = 'adminhtml_report_customers';
-        $this->_headerText = Mage::helper('reports')->__('Total Customers from JMango360 Report');
+        $this->_headerText = Mage::helper('japi')->__('JMango360 Report - Total number of registered customers');
 
         parent::__construct();
 

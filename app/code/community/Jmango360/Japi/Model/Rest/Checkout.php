@@ -227,7 +227,7 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
             return array(
                 'session_id' => Mage::getSingleton('core/session')->getSessionId(),
                 'online_payment' => true,
-                'payment_url' => Mage::helper('japi')->addJapiKey($checkoutRedirectUrl)
+                'payment_url' => $this->_processPaymentUrl($checkoutRedirectUrl)
             );
         }
 
@@ -236,6 +236,23 @@ class Jmango360_Japi_Model_Rest_Checkout extends Mage_Checkout_Model_Type_Onepag
         $data = $model->submitOrder();
 
         return $data;
+    }
+
+    protected function _processPaymentUrl($url)
+    {
+        if (!$url) return '';
+
+        if (strpos($url, 'SID') === false) {
+            if (strpos($url, '?') === false) $url .= '?SID=' . Mage::getSingleton('core/session')->getSessionId();
+            else $url .= '&SID=' . Mage::getSingleton('core/session')->getSessionId();
+        }
+
+        if (Mage::app()->getStore()->getId() != Mage::app()->getWebsite()->getDefaultStore()->getId()) {
+            if (strpos($url, '?') === false) $url .= '?___store=' . Mage::app()->getStore()->getCode();
+            else $url .= '&___store=' . Mage::app()->getStore()->getCode();
+        }
+
+        return $url;
     }
 
     protected function _updateCartAddresses()

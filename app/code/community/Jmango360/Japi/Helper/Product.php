@@ -167,6 +167,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $toolBarBlock = Mage::helper('japi')->getBlock('catalog/product_list_toolbar');
 
         if ($limit = $request->getParam('limit')) {
+            $toolBarBlock->setDefaultListPerPage($limit);
+            $toolBarBlock->setDefaultGridPerPage($limit);
             $toolBarBlock->addPagerLimit('list', $limit);
             $toolBarBlock->addPagerLimit('grid', $limit);
         }
@@ -202,7 +204,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $paramDirection = $request->getParam('dir');
         if (empty($paramDirection) || !in_array(strtolower($paramDirection), $this->_directionAvailable)) {
             $directionConfig = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/default_direction');
-            if ($directionConfig)
+            if ($directionConfig && !$isSearch)
                 $toolBarBlock->setData('_current_grid_direction', $directionConfig);
         }
         $toolBarBlock->setCollection($collection);
@@ -238,9 +240,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 if ($toolBarBlock->getCurrentOrder() != 'position')
                     $collection->setOrder('position', 'asc');
             }
-            if ($_isUseFlatOnWeb) {
-                $collection->setOrder('entity_id', 'asc');
-            } elseif ($this->isModuleEnabled('Samiflabs_Shopby')) {
+            if ($this->isModuleEnabled('Samiflabs_Shopby')) {
                 //Always add sort by 'entity_id' for website http://www.gopro-mania.nl
                 $collection->setOrder('entity_id', 'asc');
             }
@@ -283,6 +283,10 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             return $dir;
         }
 
+        if ($request->getAction() == 'search') {
+            return '';
+        }
+
         //Get sort direction from Jmango360 config
         $dir = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/default_direction');
         if ($dir && $dir != '') {
@@ -313,6 +317,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 return $dir;
             }
         }
+
         return '';
     }
 
@@ -1082,13 +1087,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     /**
      * This function will return product final price with/without tax
      * that based on Tax settings in Sale -> Tax & System -> Sale -> Tax
+     * and convert to store currency
      *
      * @param Mage_Catalog_Model_Product $_product
      * @param float $productFinalPrice
+     * @param bool $convertPrice
      * @return float
      */
 
-    public function calculatePriceIncludeTax(Mage_Catalog_Model_Product $_product, $productFinalPrice)
+    public function calculatePriceIncludeTax(Mage_Catalog_Model_Product $_product, $productFinalPrice, $convertPrice = true)
     {
         if (version_compare(Mage::getVersion(), '1.8.1.0', '<')) {
             /* @var $taxHelper Jmango360_Japi_Helper_Tax */
@@ -1123,6 +1130,12 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         } else {
             // Including tax or both
             $productFinalPrice = $taxHelper->getPrice($_product, $productFinalPrice, true, null, null, $customerTaxClass, null, null, false);
+        }
+
+        if ($convertPrice) {
+            // Convert store price
+            $store = Mage::app()->getStore();
+            $productFinalPrice = $store->convertPrice($productFinalPrice, false, false);
         }
 
         return $productFinalPrice;

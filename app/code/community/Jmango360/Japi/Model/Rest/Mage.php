@@ -108,6 +108,11 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'events' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getEvents();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             default:
                 throw new Jmango360_Japi_Exception('Resource method not implemented', Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR);
                 break;
@@ -128,6 +133,31 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
         }
 
         return $output;
+    }
+
+    protected function _getEvents()
+    {
+        $events = $this->_loadEvents();
+        $data = array();
+
+        foreach ($events as $eventNodes) {
+            foreach ($eventNodes as $eventNode) {
+                foreach ($eventNode->children() as $event) {
+                    $eventName = $event->getName();
+                    if (!isset($data[$eventName])) $data[$eventName] = array();
+                    $observers = $event->xpath('observers');
+                    foreach ($observers as $observer) {
+                        foreach ($observer->children() as $observerNode) {
+                            $class = (string)$observerNode->xpath('class')[0];
+                            $method = (string)$observerNode->xpath('method')[0];
+                            $data[$eventName][] = sprintf('%s:%s', $class, $method);
+                        }
+                    }
+                }
+            }
+        }
+
+        return array('events' => $data);
     }
 
     /**
@@ -192,6 +222,28 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             }
         }
         return $return;
+    }
+
+    protected function _loadEvents()
+    {
+        $fileName = 'config.xml';
+        $modules = Mage::getConfig()->getNode('modules')->children();
+        $data = array();
+
+        foreach ($modules as $moduleName => $module) {
+            if ($module->is('active')) {
+                $configFile = Mage::getConfig()->getModuleDir('etc', $moduleName) . DS . $fileName;
+                if (file_exists($configFile)) {
+                    $xml = file_get_contents($configFile);
+                    $xml = simplexml_load_string($xml);
+                    if ($xml instanceof SimpleXMLElement) {
+                        $data[$moduleName] = $xml->xpath('//events');
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     protected function _getDirectoryCountryList()

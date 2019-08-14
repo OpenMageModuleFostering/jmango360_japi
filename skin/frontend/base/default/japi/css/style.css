@@ -653,21 +653,27 @@ span.price {
   margin-bottom: 0;
 }
 /******** Afterpay_Afterpay ********/
-#dd_method_msp_klarna .form-list li br {
+#dd_method_msp_klarna .form-list li br,
+#payment_form_msp_klarna li br {
   display: none;
 }
-#dd_method_msp_klarna .form-list li label {
+#dd_method_msp_klarna .form-list li label,
+#payment_form_msp_klarna li label {
   margin-top: 1em;
   display: block;
 }
-#dd_method_msp_klarna .form-list li label:first-child {
+#dd_method_msp_klarna .form-list li label:first-child,
+#payment_form_msp_klarna li label:first-child {
   margin-top: 0;
 }
-#dd_method_msp_klarna .form-list li input {
+#dd_method_msp_klarna .form-list li input,
+#payment_form_msp_klarna li input {
   width: 100%;
 }
 #dd_method_msp_klarna .form-list li input[type="radio"],
-#dd_method_msp_klarna .form-list li input[type="checkbox"] {
+#payment_form_msp_klarna li input[type="radio"],
+#dd_method_msp_klarna .form-list li input[type="checkbox"],
+#payment_form_msp_klarna li input[type="checkbox"] {
   width: auto;
 }
 /******** Afterpay_Afterpay ********/

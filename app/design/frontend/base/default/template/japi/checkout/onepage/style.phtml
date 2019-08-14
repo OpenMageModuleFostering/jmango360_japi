@@ -19,7 +19,7 @@ $customCss = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/custom_css
 $TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
 ?>
 <link type="text/css" rel="stylesheet" media="all"
-      href="<?php echo $this->getSkinUrl('japi/css/style.css?v=2.9.1') ?>"/>
+      href="<?php echo $this->getSkinUrl('japi/css/style.css?v=2.9.3') ?>"/>
 
 <?php if (Mage::helper('japi')->isModuleEnabled('GoMage_Checkout')): ?>
     <link type="text/css" rel="stylesheet" media="all"
@@ -30,7 +30,6 @@ $TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
     <link type="text/css" rel="stylesheet" media="all"
           href="<?php echo $this->getSkinUrl('japi/css/send-cloud.css') ?>"/>
 <?php endif;//END if (Mage::helper('japi')->isModuleEnabled('SendCloud_Integration')) ?>
-
 
 <style type="text/css">
     .ladda-button[data-color=jmango] {

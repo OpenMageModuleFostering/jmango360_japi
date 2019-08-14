@@ -26,6 +26,7 @@ class Jmango360_Japi_Block_Catalogsearch_Layer extends Mage_CatalogSearch_Block_
         switch (get_class($layer)) {
             case 'Mage_CatalogSearch_Model_Layer':
             case 'Mirasvit_SearchIndex_Model_Catalogsearch_Layer':
+            case 'Flagbit_FactFinder_Model_Layer':
                 return $layer;
                 break;
             default:

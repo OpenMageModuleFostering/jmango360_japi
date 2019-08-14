@@ -117,4 +117,11 @@ class Jmango360_Japi_Rest_MageController extends Jmango360_Japi_Controller_Abstr
         $server->setRestDispatchModel(Mage::getModel('japi/rest_mage'));
         $server->run();
     }
+
+    public function eventsAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_mage'));
+        $server->run();
+    }
 }

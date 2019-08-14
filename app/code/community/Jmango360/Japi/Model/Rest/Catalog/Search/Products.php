@@ -91,17 +91,18 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
     }
 
     /**
-     * @return Mage_CatalogSearch_Block_Layer
+     * @return Jmango360_Japi_Block_Catalogsearch_Layer
      */
     protected function _getSearchLayerBlock()
     {
+        Mage::app()->getRequest()->setModuleName('catalogsearch');
+
         /* @var $coreHelper Mage_Core_Helper_Data */
         $coreHelper = Mage::helper('core');
 
         if ($coreHelper->isModuleEnabled('Smile_ElasticSearch')) {
             return Mage::app()->getLayout()->createBlock('Smile_ElasticSearch_Block_Catalogsearch_Layer');
         } else if ($coreHelper->isModuleEnabled('Amasty_Shopby')) {
-            Mage::app()->getRequest()->setModuleName('catalogsearch');
             return Mage::app()->getLayout()->createBlock('Amasty_Shopby_Block_Search_Layer');
         } else {
             return Mage::app()->getLayout()->createBlock('Jmango360_Japi_Block_Catalogsearch_Layer');

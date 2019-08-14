@@ -9,4 +9,5 @@ if (!Mage::getStoreConfig($PATH_XML_API_KEY)) {
     $apiKey = strtoupper(substr($helper->uniqHash(), 0, 16));
     $config->saveConfig($PATH_XML_API_KEY, $apiKey);
     $config->saveConfig($PATH_XML_API_USER, 'jmango360');
+    Mage::app()->cleanCache(array(Mage_Core_Model_Config::CACHE_TAG));
 }

@@ -544,6 +544,11 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
             return;
         }
 
+        /**
+         * Flag as JMango360 order
+         */
+        $this->getOnepage()->getQuote()->setData('japi', 1);
+
         parent::saveOrderAction();
     }
 
