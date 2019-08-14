@@ -48,12 +48,19 @@ class Jmango360_Japi_Model_Observer_Controller_Front
 
     /**
      * What modules should bypass core session validation
+     * MPLUGIN-1893: Refactor for flexible solution
      *
      * @return bool
      */
     protected function _getListModuleNeedToByPassSession()
     {
+        $modules = explode("\n", Mage::getStoreConfig('japi/jmango_rest_developer_settings/exclude_modules'));
+        if (!count($modules)) return false;
         $helper = Mage::helper('core');
-        return $helper->isModuleEnabled('TIG_PostNL');
+        foreach ($modules as $module) {
+            if ($helper->isModuleEnabled(trim($module))) {
+                return true;
+            }
+        }
     }
 }

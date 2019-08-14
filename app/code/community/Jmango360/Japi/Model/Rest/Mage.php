@@ -800,6 +800,16 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             );
         }
 
+        if (strpos(Mage::getUrl(), 'voordeelwijnen.nl')) {
+            $attributes[] = array(
+                'label' => Mage::helper('japi')->__('Ja, ik ben 18 jaar of ouder.'),
+                'key' => '16year',
+                'enable' => true,
+                'required' => true,
+                'display_type' => 'checkbox'
+            );
+        }
+
         if ($customer && $customer->getId()) {
             foreach ($attributes as $key => $attribute) {
                 if (!empty($attribute['key'])) {

@@ -1,0 +1,15 @@
+<?php if (strpos(Mage::getUrl(), 'voordeelwijnen.nl')): ?>
+    <form action="" method="post" id="yearCheckForm" class="form-list" style="padding-top: 1em">
+        <p>Om te kunnen bestellen moet u 18 jaar of ouder zijn.</p>
+        <input type="checkbox" name="16year" id="yearcheck" class="required-entry"/>
+        <label for="yearcheck">Ja, ik ben 18 jaar of ouder.</label>
+    </form>
+    <script type="text/javascript">
+        setTimeout(function () {
+            review.addMoreValidateFunction('yearcheck', function () {
+                var validator = new Validation('yearCheckForm');
+                return validator.validate();
+            });
+        });
+    </script>
+<?php endif; ?>

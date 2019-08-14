@@ -693,9 +693,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             'image' => $this->_getProductImage($product, $details)
         );
 
-        /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
-        $reviewHelper = Mage::helper('japi/product_review');
-        $result['review_enable'] = $reviewHelper->isReviewEnable();
+        $result['review_enable'] = $this->_isReviewEnable();
         $this->_addProductReviewSummary($product, $result);
 
         if ($details) {
@@ -849,6 +847,19 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         }
 
         return $result;
+    }
+
+    protected function _isReviewEnable()
+    {
+        /** @var $japiHelper Jmango360_Japi_Helper_Data */
+        $japiHelper = Mage::helper('japi');
+        if ($japiHelper->isBazaarvoiceEnabled()) {
+            return true;
+        } else {
+            /* @var $reviewHelper Jmango360_Japi_Helper_Product_Review */
+            $reviewHelper = Mage::helper('japi/product_review');
+            return $reviewHelper->isReviewEnable();
+        }
     }
 
     /**
@@ -1434,20 +1445,22 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         /**
          * MPLUGIN-1742: Fix duplicate review summary data
          */
-        if (strpos(Mage::getBaseUrl(), 'ekonoom') !== false) {
+        if (!$product->getRatingSummary()
+            || strpos(Mage::getBaseUrl(), 'ekonoom') !== false
+        ) {
             Mage::getModel('review/review')->getEntitySummary($product, Mage::app()->getStore()->getId());
         }
 
         /* @var $helper Jmango360_Japi_Helper_Product_Review */
         $helper = Mage::helper('japi/product_review');
-        $reviewSummary = $helper->getProductReviewSummary($product);
-        if ($reviewSummary) {
+        $reviewCount = $helper->getProductReviewCount($product);
+        if ($reviewCount) {
             $result['review'] = array(
                 'type' => 'overview',
                 'code' => 'overview',
                 'values' => array('1', '2', '3', '4', '5'),
                 'review_counter' => $helper->getProductReviewCount($product),
-                'percent' => $reviewSummary
+                'percent' => $helper->getProductReviewSummary($product)
             );
         } else {
             $result['review'] = null;

@@ -512,6 +512,7 @@ if (typeof Payment !== 'undefined') {
 if (typeof Review !== 'undefined') {
     Review.prototype.save = function () {
         if (checkout.loadWaiting != false) return;
+        if (!this.moreValidate()) return;
         checkout.setLoadWaiting('review');
         var params = Form.serialize(payment.form);
         if (this.agreementsForm) {
@@ -529,5 +530,21 @@ if (typeof Review !== 'undefined') {
 
     Review.prototype.resetLoadWaiting = function (transport) {
         checkout.setLoadWaiting(false, this.isSuccess);
+    };
+
+    Review.prototype.addMoreValidateFunction = function (code, func) {
+        if (!this.moreValidateFunc) this.moreValidateFunc = $H({});
+        this.moreValidateFunc.set(code, func);
+    };
+
+    Review.prototype.moreValidate = function () {
+        var validateResult = true;
+        if (!this.moreValidateFunc) this.moreValidateFunc = $H({});
+        (this.moreValidateFunc).each(function (validate) {
+            if ((validate.value)() == false) {
+                validateResult = false;
+            }
+        }.bind(this));
+        return validateResult;
     };
 }

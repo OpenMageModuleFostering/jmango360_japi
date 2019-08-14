@@ -504,7 +504,7 @@ class Jmango360_Japi_Model_Observer
     }
 
     /**
-     * Inject order grid collectio to add 'japi' filter
+     * Inject order grid collection to add 'japi' filter
      */
     public function coreCollectionAbstractLoadBefore($observe)
     {
@@ -513,8 +513,26 @@ class Jmango360_Japi_Model_Observer
         if (!$collection) return;
 
         switch (get_class($collection)) {
+            /**
+             * MPLUGIN-1510: Support IWD_OrderManager v1.7.2.1
+             * MPLUGIN-1843: Support IWD_OrderManager v1.6.0.4
+             */
             case 'IWD_OrderManager_Model_Resource_Order_Grid_Collection':
-                $collection->addFieldToSelect('japi');
+                try {
+                    $columns = $collection->getSelect()->getPart('columns');
+                    $needAddColumn = true;
+                    if (is_array($columns)) {
+                        foreach ($columns as $column) {
+                            if (in_array('*', $column) || in_array('japi', $column)) {
+                                $needAddColumn = false;
+                            }
+                        }
+                    }
+                    if ($needAddColumn) {
+                        $collection->addFieldToSelect('japi');
+                    }
+                } catch (Exception $e) {
+                }
                 break;
         }
     }

@@ -126,6 +126,7 @@
                 <label>Items After</label>
             </block>
             <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="japi/checkout/onepage/agreements.phtml"/>
+            <block type="core/template" name="checkout.onepage.additional_agreements" as="additional_agreements" template="japi/checkout/onepage/additional_agreements.phtml"/>
             <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon">
                 <action method="setTemplate" ifconfig="japi/jmango_rest_checkout_settings/enable_coupon">
                     <template>japi/checkout/onepage/coupon.phtml</template>

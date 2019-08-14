@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.3.0</version>
+            <version>3.3.1</version>
         </Jmango360_Japi>
     </modules>
 
@@ -415,6 +415,8 @@
             </jmango_rest_bazaarvoice_settings>
             <jmango_rest_developer_settings>
                 <enable>0</enable>
+                <exclude_modules><![CDATA[TIG_PostNL
+Chronopost_Chronorelais]]></exclude_modules>
             </jmango_rest_developer_settings>
         </japi>
     </default>
