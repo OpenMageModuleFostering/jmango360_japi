@@ -97,12 +97,15 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
 
         if (!$filters || !is_array($filters)) return $data;
 
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+
         foreach ($filters as $key => $filter) {
             /* @var $filter Mage_Catalog_Block_Layer_Filter_Abstract */
             if ($filter->getType() == 'catalog/layer_filter_category') {
                 continue;
             }
-            if ($filter->getItemsCount()) {
+            if ($filter->getItemsCount() && $helper->isFilterEnabled($filter, $block)) {
                 $data[] = $this->_filterToArray($filter);
             }
         }

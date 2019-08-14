@@ -86,6 +86,7 @@ class Jmango360_Japi_Model_Core_Session extends Mage_Core_Model_Session
         $this->setSessionId();
 
         Varien_Profiler::start(__METHOD__ . '/start');
+
         $sessionCacheLimiter = Mage::getConfig()->getNode('global/session_cache_limiter');
         if ($sessionCacheLimiter) {
             session_cache_limiter((string)$sessionCacheLimiter);
@@ -104,6 +105,7 @@ class Jmango360_Japi_Model_Core_Session extends Mage_Core_Model_Session
         if ($cookie->get(session_name()) == $this->getSessionId()) {
             $cookie->renew(session_name());
         }
+
         Varien_Profiler::stop(__METHOD__ . '/start');
 
         // FORCE SESSION DATA TO CURRENT REQUEST TO BYPASS VALIDATOR
@@ -126,7 +128,7 @@ class Jmango360_Japi_Model_Core_Session extends Mage_Core_Model_Session
     /**
      * Check whether SID can be used for session initialization
      * Admin area will always have this feature enabled
-     * Always enabled with 'japi' routers or extist param request 'jkey'
+     * Always enabled with 'japi' routers
      *
      * @return bool
      */

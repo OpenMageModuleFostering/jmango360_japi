@@ -571,7 +571,26 @@ class Jmango360_Japi_Model_Observer
 
         /* @var $obj Vaimo_Klarna_Model_Observer */
         $obj = Mage::getSingleton('klarna/observer');
-        $obj->checkLaunchKlarnaCheckout($observer);
+
+        if (method_exists($obj, 'checkLaunchKlarnaCheckout')) {
+            $obj->checkLaunchKlarnaCheckout($observer);
+        }
+    }
+
+    /**
+     * Support Vaimo_Klarna
+     * Redirect to JMango360 checkout success page
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function Vaimo_Klarna__checkoutKlarnaSuccess(Varien_Event_Observer $observer)
+    {
+        /* @var $server Jmango360_Japi_Model_Server */
+        $server = Mage::getSingleton('japi/server');
+        if ($server->getIsRest()) {
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getUrl('japi/klarna/success'));
+        }
     }
 
     /**
@@ -582,6 +601,8 @@ class Jmango360_Japi_Model_Observer
      */
     public function japiOnepagePreDispatch(Varien_Event_Observer $observer)
     {
+        if (strpos(Mage::getBaseUrl(), 'eleganza') === false) return $this;
+
         $session = Mage::getSingleton('core/session');
         $sessionId = $session->getSessionId();
         /** @var Mage_Core_Model_Cookie $cookie */
@@ -602,6 +623,9 @@ class Jmango360_Japi_Model_Observer
 
         /* @var $obj Klevu_Search_Model_Observer */
         $obj = Mage::getSingleton('klevu_search/observer');
-        if ($obj) $obj->applyLandingPageModelRewrites($observer);
+
+        if (method_exists($obj, 'applyLandingPageModelRewrites')) {
+            $obj->applyLandingPageModelRewrites($observer);
+        }
     }
 }

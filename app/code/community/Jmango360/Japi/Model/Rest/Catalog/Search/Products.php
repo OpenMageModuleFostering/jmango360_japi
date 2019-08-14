@@ -112,8 +112,12 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
     protected function _getFilters($block)
     {
         $data = array();
-
         $filters = $block->getFilters();
+
+        if (!$filters || !is_array($filters)) return $data;
+
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
 
         foreach ($filters as $key => $filter) {
             /* @var $filter Mage_Catalog_Block_Layer_Filter_Abstract */
@@ -121,7 +125,7 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
                 continue;
             }
 
-            if ($filter->getItemsCount()) {
+            if ($filter->getItemsCount() && $helper->isFilterEnabled($filter, $block)) {
                 $arrFilter = $this->_filterToArray($filter);
                 if ($arrFilter != null) {
                     $data[] = $arrFilter;
@@ -202,7 +206,6 @@ class Jmango360_Japi_Model_Rest_Catalog_Search_Products extends Mage_CatalogSear
                 if ($filter->getAttributeModel()) {
                     return (string)$filter->getAttributeModel()->getAttributeCode();
                 } else {
-                    Mage::log(get_class($filter));
                     return null;
                 }
                 break;

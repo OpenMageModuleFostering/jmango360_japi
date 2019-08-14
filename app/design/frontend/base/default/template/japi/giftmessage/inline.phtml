@@ -61,6 +61,34 @@ if(!window.toogleVisibilityOnObjects) {
     }
 }
 
+if(!window.toogleVisibility) {
+    var toogleVisibility = function(objects, show) {
+        objects.each(function(item){
+            if (show) {
+                $(item).show();
+                $(item).removeClassName('no-display');
+            }
+            else {
+                $(item).hide();
+                $(item).addClassName('no-display');
+            }
+        });
+    }
+}
+
+if(!window.displayContainer) {
+    var displayContainer = function(source) {
+        if ($(source)) {
+            if ($(source).hasClassName('no-display')) {
+                $(source).removeClassName('no-display');
+            } else {
+                $(source).addClassName('no-display');
+            }
+        }
+        return false;
+    }
+}
+
 if(!window.toogleRequired) {
     var toogleRequired = function (source, objects)
     {

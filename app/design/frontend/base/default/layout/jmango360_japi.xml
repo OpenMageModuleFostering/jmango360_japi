@@ -5,10 +5,16 @@
  */
 -->
 <layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <block type="japi/banner" name="japi_smart_app_banner" template="japi/page/html/smart-app-banner.phtml"/>
+        </reference>
+    </default>
+
     <japi_checkout_default translate="label">
         <label>JMango360 Onepage Checkout Page</label>
         <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
-            <block type="page/html_head" name="head" as="head" template="japi/page/html/head.phtml">
+            <block type="Mage_Page_Block_Html_Head" name="head" as="head" template="japi/page/html/head.phtml">
                 <action method="addItem"><type>skin_css</type><file>japi/lib/bootstrap/css/bootstrap.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>
@@ -210,4 +216,96 @@
             </action>
         </reference>
     </japi_checkout_onepage_paymentmethod>
+
+    <japi_klarna_checkout>
+        <update handle="japi_checkout_default"/>
+
+        <label>Jmango360 Klarna Checkout</label>
+
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/vaimo/klarna/vendor/bootstrap-grid.min.css</stylesheet><group>klarna</group></action>
+            <action method="addCss"><stylesheet>css/vaimo/klarna/vendor/fontawesome.min.css</stylesheet><group>klarna</group></action>
+            <action method="addCss"><stylesheet>css/vaimo/klarna/klarnadefault.css</stylesheet><group>klarna</group></action>
+            <action method="addCss"><stylesheet>css/vaimo/klarna/klarnacheckout.css</stylesheet><group>klarna</group></action>
+            <action method="addCss"><stylesheet>japi/css/style.css?v=2.10.0</stylesheet></action>
+            <action method="addJs"><script>vaimo/klarna/klarnautils.js</script><group>klarna</group></action>
+            <action method="addJs"><script>vaimo/klarna/klarnacheckout.js</script><group>klarna</group></action>
+        </reference>
+
+        <reference name="content">
+            <block type="core/template" name="klarna_container" as="klarna_container" template="japi/vaimo/klarna/klarnacheckout/main.phtml">
+                <block type="core/template" name="klarna_header" template="vaimo/klarna/klarnacheckout/header.phtml">
+                    <block type="core/template" name="klarna_msg" template="vaimo/klarna/klarnacheckout/msg.phtml"/>
+                </block>
+
+                <block type="core/template" name="klarna_default" as="klarna_default" template="vaimo/klarna/klarnacheckout/default.phtml">
+                    <block type="klarna/klarnacheckout_othermethod" name="other.payment.methods" template="vaimo/klarna/klarnacheckout/othermethod.phtml"/>
+                    <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="vaimo/klarna/klarnacheckout/shipping_method.phtml">
+                        <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="vaimo/klarna/klarnacheckout/shipping_method/available.phtml"/>
+                    </block>
+                    <block type="checkout/cart" name="checkout.cart">
+                        <action method="setCartTemplate"><value>japi/vaimo/klarna/klarnacheckout/cart.phtml</value></action>
+                        <action method="setEmptyTemplate"><value>checkout/cart/noItems.phtml</value></action>
+                        <action method="chooseTemplate"/>
+                        <action method="addItemRender"><type>simple</type><block>checkout/cart_item_renderer</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>grouped</type><block>checkout/cart_item_renderer_grouped</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>configurable</type><block>checkout/cart_item_renderer_configurable</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>bundle</type><block>checkout/cart_item_renderer</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>ugiftcert</type><block>ugiftcert/cart_item</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                    </block>
+                    <block type="checkout/cart_totals" name="checkout.cart.totals" as="totals" template="vaimo/klarna/klarnacheckout/cart/totals.phtml"/>
+                    <block type="klarna/klarnacheckout_discount" name="discount" as="discount" template="vaimo/klarna/klarnacheckout/discount.phtml">
+                        <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon" template="vaimo/klarna/klarnacheckout/discount/coupon.phtml"/>
+                    </block>
+                </block>
+
+                <block type="core/template" name="klarna_login" template="vaimo/klarna/klarnacheckout/account-login.phtml">
+                    <block type="klarna/klarnacheckout_autofill" name="klarnacheckout.autofill" after="-" template="vaimo/klarna/klarnacheckout/autofill.phtml"/>
+                </block>
+
+                <block type="core/template" name="klarna_sidebar" as="klarna_sidebar" template="vaimo/klarna/klarnacheckout/sidebar.phtml">
+                    <block type="klarna/klarnacheckout_othermethod" name="other.payment.methods" template="vaimo/klarna/klarnacheckout/othermethod.phtml"/>
+                    <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="vaimo/klarna/klarnacheckout/shipping_method.phtml">
+                        <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="vaimo/klarna/klarnacheckout/shipping_method/available.phtml"/>
+                    </block>
+                    <block type="klarna/klarnacheckout_reward" name="klarnacheckout.reward" template="vaimo/klarna/klarnacheckout/reward.phtml"/>
+                    <block type="klarna/klarnacheckout_customer_balance" name="klarnacheckout.customer_balance" template="vaimo/klarna/klarnacheckout/customer/balance.phtml"/>
+                    <block type="klarna/klarnacheckout_newsletter" name="checkout.newsletter" template="vaimo/klarna/klarnacheckout/newsletter.phtml"/>
+                    <block type="checkout/cart" name="checkout.cart">
+                        <action method="setCartTemplate"><value>japi/vaimo/klarna/klarnacheckout/cart.phtml</value></action>
+                        <action method="setEmptyTemplate"><value>checkout/cart/noItems.phtml</value></action>
+                        <action method="chooseTemplate"/>
+                        <action method="addItemRender"><type>simple</type><block>checkout/cart_item_renderer</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>grouped</type><block>checkout/cart_item_renderer_grouped</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>configurable</type><block>checkout/cart_item_renderer_configurable</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>bundle</type><block>checkout/cart_item_renderer</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <action method="addItemRender"><type>ugiftcert</type><block>ugiftcert/cart_item</block><template>japi/vaimo/klarna/klarnacheckout/cart/item/default.phtml</template></action>
+                        <block type="checkout/cart_totals" name="checkout.cart.totals" as="totals" template="vaimo/klarna/klarnacheckout/cart/totals.phtml"/>
+                    </block>
+                    <block type="klarna/klarnacheckout_discount" name="discount" as="discount" template="vaimo/klarna/klarnacheckout/discount.phtml">
+                        <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon" template="vaimo/klarna/klarnacheckout/discount/coupon.phtml"/>
+                    </block>
+                </block>
+
+                <block type="core/template" name="klarna_checkout" as="klarna_checkout" template="vaimo/klarna/klarnacheckout/checkout.phtml">
+                    <action method="setElementId"><value>klarna_checkout</value></action>
+                    <block type="klarna/klarnacheckout_klarnacheckout" name="checkout" template="vaimo/klarna/klarnacheckout/klarnacheckout.phtml"/>
+                </block>
+            </block>
+        </reference>
+    </japi_klarna_checkout>
+
+    <japi_klarna_success>
+        <update handle="japi_checkout_default"/>
+
+        <label>Klarna Checkout Success</label>
+
+        <reference name="head">
+            <action method="addCss"><stylesheet>css/vaimo/klarna/klarnacheckout.css</stylesheet></action>
+        </reference>
+
+        <reference name="content">
+            <block type="klarna/klarnacheckout_success" name="checkout" template="vaimo/klarna/klarnacheckout/success.phtml"/>
+        </reference>
+    </japi_klarna_success>
 </layout>

@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>2.9.3</version>
+            <version>2.9.4</version>
         </Jmango360_Japi>
     </modules>
 
@@ -81,7 +81,16 @@
 
     <frontend>
         <events>
-            <controller_action_predispatch_japi_checkout_onepage>
+            <controller_action_predispatch_checkout_klarna_success>
+                <observers>
+                    <vaimo_klarna>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>Vaimo_Klarna__checkoutKlarnaSuccess</method>
+                    </vaimo_klarna>
+                </observers>
+            </controller_action_predispatch_checkout_klarna_success>
+            <!--controller_action_predispatch_japi_checkout_onepage>
                 <observers>
                     <vaimo_klarna>
                         <type>singleton</type>
@@ -89,7 +98,7 @@
                         <method>Vaimo_Klarna__checkLaunchKlarnaCheckout</method>
                     </vaimo_klarna>
                 </observers>
-            </controller_action_predispatch_japi_checkout_onepage>
+            </controller_action_predispatch_japi_checkout_onepage-->
             <controller_action_postdispatch_japi_checkout_saveShippingMethod>
                 <observers>
                     <tig_postnl>
@@ -315,15 +324,30 @@
         <japi>
             <jmango_rest_api>
                 <apiuser>jmango360</apiuser>
+                <apikey></apikey>
                 <use_token>0</use_token>
             </jmango_rest_api>
             <jmango_rest_catalog_settings>
                 <include_all_active>1</include_all_active>
+                <attribute_on_listing></attribute_on_listing>
+                <attribute_on_details></attribute_on_details>
                 <hide_null_value>0</hide_null_value>
+                <show_grouped_item_image>0</show_grouped_item_image>
+                <custom_css></custom_css>
                 <visible_on_app>0</visible_on_app>
+                <default_direction></default_direction>
             </jmango_rest_catalog_settings>
+            <jmango_app_login_settings>
+                <require_login>0</require_login>
+            </jmango_app_login_settings>
             <jmango_rest_checkout_settings>
+                <shipping_excluded></shipping_excluded>
+                <payment_excluded></payment_excluded>
                 <onepage>1</onepage>
+                <custom_xml></custom_xml>
+                <custom_css></custom_css>
+                <checkout_url></checkout_url>
+                <klarna_popup_urls></klarna_popup_urls>
             </jmango_rest_checkout_settings>
             <jmango_rest_gallery_settings>
                 <image_width>1200</image_width>
@@ -334,25 +358,44 @@
                 <thumbnail_height>400</thumbnail_height>
                 <image_default_listing>thumbnail</image_default_listing>
                 <catalog_image_default>thumbnail</catalog_image_default>
-                <show_grouped_item_image>0</show_grouped_item_image>
             </jmango_rest_gallery_settings>
-            <jmango_rest_developer_settings>
-                <enable>0</enable>
-            </jmango_rest_developer_settings>
+            <jmango_rest_stock_settings>
+                <display_product_stock_status>0</display_product_stock_status>
+            </jmango_rest_stock_settings>
             <jmango_rest_sales_settings>
                 <display_order_from>1</display_order_from>
             </jmango_rest_sales_settings>
             <jmango_rest_customer_settings>
                 <display_customer_from>1</display_customer_from>
                 <enable_address>0</enable_address>
+                <street2_label></street2_label>
                 <street2_require>1</street2_require>
                 <street2_type>number</street2_type>
+                <street3_label></street3_label>
                 <street3_require>0</street3_require>
+                <street4_label></street4_label>
                 <street4_require>0</street4_require>
             </jmango_rest_customer_settings>
-            <jmango_app_login_settings>
-                <require_login>0</require_login>
-            </jmango_app_login_settings>
+            <jmango_smart_app_banner>
+                <enable>0</enable>
+                <ios_app_id></ios_app_id>
+                <android_app_id></android_app_id>
+                <days_hidden>15</days_hidden>
+                <days_reminder>90</days_reminder>
+                <app_store_language>nl</app_store_language>
+                <title>My App</title>
+                <author>My Company</author>
+                <button>VIEW</button>
+                <store_ios>On the App Store</store_ios>
+                <store_android>In Google Play</store_android>
+                <price_ios>FREE</price_ios>
+                <price_android>FREE</price_android>
+                <apple_touch_icon></apple_touch_icon>
+                <android_touch_icon></android_touch_icon>
+            </jmango_smart_app_banner>
+            <jmango_rest_developer_settings>
+                <enable>0</enable>
+            </jmango_rest_developer_settings>
         </japi>
     </default>
 </config>

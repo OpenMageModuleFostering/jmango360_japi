@@ -8,8 +8,8 @@
             <frontend_type>text</frontend_type>
             <sort_order>400</sort_order>
             <show_in_default>1</show_in_default>
-            <show_in_website>0</show_in_website>
-            <show_in_store>0</show_in_store>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
             <groups>
                 <jmango_rest_api translate="label" module="japi">
                     <label>Connection credentials</label>
@@ -162,7 +162,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>21</sort_order>
+                    <sort_order>30</sort_order>
                     <fields>
                         <require_login translate="label comment" module="japi">
                             <label>App users must login to see product prices</label>
@@ -181,7 +181,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>25</sort_order>
+                    <sort_order>40</sort_order>
                     <fields>
                         <shipping_excluded translate="label comment" module="japi">
                             <label>Excluded shipping methods</label>
@@ -193,7 +193,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <can_be_empty>1</can_be_empty>
-                            <comment>Select one or more but not all shipping methods that are not suitable/compatible to be used in mobile app environment. This can be set anytime during or after creation of JMango360 application.</comment>
+                            <comment>Select one or more, but not all shipping methods that are not suitable/compatible to be used in mobile app environment. This can be set anytime during or after creation of JMango360 application.</comment>
                         </shipping_excluded>
                         <payment_excluded translate="label comment" module="japi">
                             <label>Excluded payment methods</label>
@@ -255,6 +255,16 @@
                                 <onepage>0</onepage>
                             </depends>
                         </checkout_url>
+                        <klarna_popup_urls translate="label comment" module="japi">
+                            <label>Klarna Popup URLs</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>URLs that will be shown as pop-up in checkout page.</comment>
+                        </klarna_popup_urls>
                     </fields>
                 </jmango_rest_checkout_settings>
                 <jmango_rest_gallery_settings translate="label" module="japi">
@@ -262,7 +272,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>30</sort_order>
+                    <sort_order>50</sort_order>
                     <fields>
                         <image_width translate="label comment" module="japi">
                             <label>Detail page image cache-width</label>
@@ -345,7 +355,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>35</sort_order>
+                    <sort_order>60</sort_order>
                     <fields>
                         <display_product_stock_status translate="label comment" module="japi">
                             <label>Display products availability in stock in mobile app</label>
@@ -363,7 +373,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>36</sort_order>
+                    <sort_order>70</sort_order>
                     <fields>
                         <display_order_from translate="label comment" module="japi">
                             <label>Enable Order From in orders list</label>
@@ -382,7 +392,7 @@
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>37</sort_order>
+                    <sort_order>80</sort_order>
                     <fields>
                         <display_customer_from translate="label comment" module="japi">
                             <label>Enable JMango360 User in Customers list</label>
@@ -495,12 +505,203 @@
                         </street4_require>
                     </fields>
                 </jmango_rest_customer_settings>
+                <jmango_smart_app_banner translate="label" module="japi">
+                    <label>Smart App Banner Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <sort_order>90</sort_order>
+                    <fields>
+                        <enable translate="label comment" module="japi">
+                            <label>Enable smart app banner</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enable smart app banner when mobile users open your webshop</comment>
+                        </enable>
+                        <ios_app_id translate="label comment" module="japi">
+                            <label>App ID on App Store</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter the App ID on App Store.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </ios_app_id>
+                        <android_app_id translate="label comment" module="japi">
+                            <label>App ID on Google Play</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter the App ID on Google Play.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </android_app_id>
+                        <days_hidden translate="label comment" module="japi">
+                            <label>Days Hidden</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Days to hide banner after button Close is clicked.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </days_hidden>
+                        <days_reminder translate="label comment" module="japi">
+                            <label>Days Reminder</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Days to hide banner after button View is clicked.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </days_reminder>
+                        <app_store_language translate="label comment" module="japi">
+                            <label>App Store Language</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Language code for the app store.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </app_store_language>
+                        <title translate="label comment" module="japi">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter customer's store displaying name. Ex: My App.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </title>
+                        <author translate="label comment" module="japi">
+                            <label>Author</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter customer's company name. Ex: My Company.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </author>
+                        <button translate="label comment" module="japi">
+                            <label>Button</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter title for button displaying on smart app banner.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </button>
+                        <store_ios translate="label comment" module="japi">
+                            <label>Store for iOS</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter the store where iOS app is available.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </store_ios>
+                        <store_android translate="label comment" module="japi">
+                            <label>Store for Android</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter the store where Android app is available.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </store_android>
+                        <price_ios translate="label comment" module="japi">
+                            <label>Price for iOS app</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter price for iOS app.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </price_ios>
+                        <price_android translate="label comment" module="japi">
+                            <label>Price for Android app</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter price for Android app.</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </price_android>
+                        <apple_touch_icon translate="label comment" module="japi">
+                            <label>Icon for iOS app</label>
+                            <comment>Allowed file types: png, gif, jpg, jpeg, svg</comment>
+                            <frontend_type>image</frontend_type>
+                            <backend_model>japi/system_config_backend_icon</backend_model>
+                            <base_url type="media" scope_info="1">japi/icon</base_url>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </apple_touch_icon>
+                        <android_touch_icon translate="label comment" module="japi">
+                            <label>Icon for Android app</label>
+                            <comment>Allowed file types: png, gif, jpg, jpeg, svg</comment>
+                            <frontend_type>image</frontend_type>
+                            <backend_model>japi/system_config_backend_icon</backend_model>
+                            <base_url type="media" scope_info="1">japi/icon</base_url>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </android_touch_icon>
+                    </fields>
+                </jmango_smart_app_banner>
                 <jmango_rest_developer_settings translate="label" module="japi">
                     <label>Developer</label>
                     <show_in_default>1</show_in_default>
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
-                    <sort_order>40</sort_order>
+                    <sort_order>100</sort_order>
                     <fields>
                         <enable translate="label comment" module="japi">
                             <label>Enable debug logging</label>

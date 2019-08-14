@@ -16,6 +16,87 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         'region', 'region_id', 'postcode', 'telephone', 'fax', 'vat_id'
     );
 
+    protected $systemConfigPathExcludes = array(
+        'jmango_rest_api',
+        'jmango_rest_developer_settings'
+    );
+
+    protected $_filters;
+
+    /**
+     * Support Mana Filters
+     */
+    public function isFilterEnabled($filter, $block)
+    {
+        if (!$this->isModuleEnabled('Mana_Filters')) return true;
+
+        $attributeCode = $filter->getAttributeModel() ? $filter->getAttributeModel()->getAttributeCode() : '';
+        if (!$attributeCode) return false;
+
+        if (!$this->_filters) {
+            /* @var $manaFiltersHelper Mana_Filters_Helper_Data */
+            $manaFiltersHelper = Mage::helper('mana_filters');
+            /* @var $manaCoreHelper Mana_Core_Helper_Data */
+            $manaCoreHelper = Mage::helper('mana_core');
+
+            $request = Mage::app()->getRequest();
+
+            if ($request->getModuleName() == 'catalogsearch' && $request->getActionName() == 'search') {
+                $manaFiltersHelper->setMode('search');
+                $_filterOptionsCollection = Mage::getResourceModel('mana_filters/filter2_store_collection')
+                    ->addColumnToSelect('*')
+                    ->addStoreFilter(Mage::app()->getStore())
+                    ->setOrder('position', 'ASC');
+                Mage::dispatchEvent('m_before_load_filter_collection', array('collection' => $_filterOptionsCollection));
+            } else {
+                $setIds = Mage::getSingleton('catalog/layer')->getProductCollection()->getSetIds();
+                $_filterOptionsCollection = Mage::getResourceModel('mana_filters/filter2_store_collection')
+                    ->addFieldToSelect('*')
+                    ->addCodeFilter($this->_getAttributeCodes($setIds))
+                    ->addStoreFilter(Mage::app()->getStore())
+                    ->setOrder('position', 'ASC');
+                Mage::dispatchEvent('m_before_load_filter_collection', array('collection' => $_filterOptionsCollection));
+            }
+
+            foreach ($_filterOptionsCollection as $filterOptions) {
+                /* @var $filterOptions Mana_Filters_Model_Filter2_Store */
+                if ($manaFiltersHelper->isFilterEnabled($filterOptions)
+                    && (!$manaCoreHelper->isManadevDependentFilterInstalled() || !Mage::helper('manapro_filterdependent')->hide($filterOptions, $_filterOptionsCollection))
+                    && $manaFiltersHelper->canShowFilterInBlock($block, $filterOptions)
+                ) {
+                    $this->_filters[] = $filterOptions->getCode();
+                }
+            }
+        }
+
+        if (is_array($this->_filters)) {
+            return in_array($attributeCode, $this->_filters);
+        }
+
+        return true;
+    }
+
+    protected function _getAttributeCodes($setIds)
+    {
+        /* @var $collection Mage_Catalog_Model_Resource_Eav_Mysql4_Product_Attribute_Collection */
+        $collection = Mage::getResourceModel('catalog/product_attribute_collection');
+        $collection->setAttributeSetFilter($setIds);
+        $select = $collection->getSelect()
+            ->reset(Zend_Db_Select::COLUMNS)
+            ->columns('attribute_code');
+
+        return array_merge($collection->getConnection()->fetchCol($select), array('category'));
+    }
+
+    /**
+     * Check if we should wrap payment methods block html
+     */
+    public function wrapPaymentBlockMethods()
+    {
+        return version_compare(Mage::getVersion(), '1.8', '<') === true
+        || $this->isModuleEnabled('AW_Points');
+    }
+
     /**
      * Set session cookie if website not accept SID
      */
@@ -575,6 +656,11 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
 
         if (Mage::getStoreConfigFlag('japi/jmango_rest_checkout_settings/onepage')) {
             $checkoutUrl = Mage::getUrl('japi/checkout/onepage', array('_secure' => true));
+            if (Mage::helper('core')->isModuleEnabled('Vaimo_Klarna')) {
+                if (Mage::getStoreConfigFlag('payment/vaimo_klarna_checkout/active')) {
+                    $checkoutUrl = Mage::getUrl('japi/klarna/checkout', array('_secure' => true));
+                }
+            }
         } else {
             $checkoutUrl = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/checkout_url');
         }
@@ -963,5 +1049,89 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     public function setLastCheckUpdate()
     {
         Mage::app()->saveCache(time(), 'admin_japi_lastcheck_update', array(Mage_Core_Model_Config::CACHE_TAG));
+    }
+
+    /**
+     * Get Jmango360 system config
+     *
+     * @return array
+     */
+    public function getPluginSystemConfigs()
+    {
+        $data = array();
+        /** @var Mage_Core_Model_Config_System $configSystem */
+        $configSystem = Mage::getModel('core/config_system');
+        $systemXml = $configSystem->load('Jmango360_Japi');
+
+        /** @var Mage_Core_Model_Config_Element $nodes */
+        $nodes = $systemXml->getNode('sections/japi/groups')->children();
+
+        /** @var  Mage_Core_Model_Config_Element  $value */
+        foreach ($nodes as $key => $value) {
+            if (in_array($key, $this->systemConfigPathExcludes))
+                continue;
+            $valueArr = $value->asArray();
+
+            if (count($valueArr)) {
+                //Remove some elements not using
+                unset($valueArr['@']);
+                unset($valueArr['show_in_default']);
+                unset($valueArr['show_in_website']);
+                unset($valueArr['show_in_store']);
+            }
+            if ($valueArr['fields']) {
+                unset($valueArr['fields']['@']);
+                foreach ($valueArr['fields'] as $k => $val) {
+                    //Remove some elements not using
+                    unset($valueArr['fields'][$k]['@']);
+                    unset($valueArr['fields'][$k]['show_in_default']);
+                    unset($valueArr['fields'][$k]['show_in_website']);
+                    unset($valueArr['fields'][$k]['show_in_store']);
+                    unset($valueArr['fields'][$k]['frontend_model']);
+                    unset($valueArr['fields'][$k]['backend_model']);
+                    unset($valueArr['fields'][$k]['source_model']);
+
+                    //Get config's options
+                    $valueArr['fields'][$k]['options'] = $this->_getPluginConfigOptions($val['source_model']);
+                    //Get config's value
+                    $valueArr['fields'][$k]['value'] = $this->_getPluginConfigValue($key, $k);
+                }
+            }
+            $data['settings'][$key] = $valueArr;
+        }
+        return $data;
+    }
+
+    /**
+     * Get Jmango360 config's value
+     *
+     * @param $group
+     * @param $filed
+     * @return mixed|string
+     */
+    protected function _getPluginConfigValue($group, $filed)
+    {
+        if ($group == 'jmango_rest_api' && $filed == 'version')
+        {
+            return $this->getPluginVersion();
+        } else {
+            $configPath = 'japi/' . $group . '/' . $filed;
+            return Mage::getStoreConfig($configPath);
+        }
+    }
+
+    /**
+     * Get Jmango360 config's options
+     *
+     * @param $sourceModel
+     * @return null|array
+     */
+    protected function _getPluginConfigOptions($sourceModel)
+    {
+        if (!$sourceModel) return null;
+        $model = Mage::getModel($sourceModel);
+        if (!is_object($model)) return null;
+        if (!$model->toOptionArray()) return null;
+        return $model->toOptionArray();
     }
 }

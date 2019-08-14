@@ -173,7 +173,7 @@
 "This attribute will be displayed in product details", "Cet attribut sera affiché sur les détails des produits"
 "Mobile App Checkout Settings", "Réglage du paiement des applications mobiles"
 "Excluded shipping methods", "Méthode d'expédition exclues"
-"Select one or more but not all shipping methods that are not suitable/compatible to be used in mobile app environment. This can be set anytime during or after creation of JMango360 application.", "Sélectionnez une ou plusieurs mais pas toutes les méthodes d'expédition qui ne sont pas appropriées/compatibles à l'utilisation dans l'environnement des applications mobiles. Cela peut être réglé à tout moment pendant ou après la création de l'application Jmango360."
+"Select one or more, but not all shipping methods that are not suitable/compatible to be used in mobile app environment. This can be set anytime during or after creation of JMango360 application.", "Sélectionnez une ou plusieurs mais pas toutes les méthodes d'expédition qui ne sont pas appropriées/compatibles à l'utilisation dans l'environnement des applications mobiles. Cela peut être réglé à tout moment pendant ou après la création de l'application Jmango360."
 "Excluded payment methods", "Moyens de paiement exclus"
 "Select one or more, but not all payment methods that are not suitable/compatible to be used in mobile app environment. This can be set anytime during or after creation of JMango360 application.", "Sélectionnez une ou plusieurs mais pas tous les moyens de paiement qui ne sont pas appropriées/compatibles à l'utilisation dans l'environnement des applications mobiles. Cela peut être réglé à tout moment pendant ou après la création de l'application Jmango360."
 "Web checkout URL", "Lien de la page de paiement"

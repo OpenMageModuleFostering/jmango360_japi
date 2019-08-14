@@ -147,8 +147,8 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Tree extends Mage_Catalog_Model
         if (!$productCollection->getSize()) return '';
 
         $imageAttributes = array('image', 'small_image', 'thumbnail');
-        $imageSizeW = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/thumbnail_width');
-        $imageSizeH = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/thumbnail_height');
+        $imageSizeW = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/small_image_width');
+        $imageSizeH = Mage::getStoreConfig('japi/jmango_rest_gallery_settings/small_image_height');
 
         $productCollection->addAttributeToSelect($imageAttributes);
 

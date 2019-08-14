@@ -496,19 +496,69 @@ span.price {
   }
 }
 
-.gift-messages-form .inner-box p, .gift-messages p.control {
+.gift-messages-form .inner-box p,
+.gift-messages p.control,
+.gift-message-form .inner-box p {
   margin: 5px 0;
+
   > * {
     padding: 0;
     margin: 0;
     vertical-align: middle;
   }
+
   input[type="checkbox"] {
     display: inline-block;
     margin: 0 5px 0 0;
   }
+
   label {
     font-weight: normal;
+  }
+}
+
+.gift-messages-form,
+.gift-message-form {
+  h4 {
+    font-size: 1em;
+    font-weight: 700;
+    margin: 1em 0 0 0;
+  }
+
+  select {
+    width: 100%;
+  }
+
+  .gift-wrapping-design {
+    margin-top: 1em;
+    float: left;
+    width: 100%;
+
+    img {
+      float: left;
+    }
+  }
+
+  .label {
+    color: #333;
+    font-size: 1em;
+  }
+}
+
+.add-gift-message {
+  h3 {
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+  }
+
+  input[type=checkbox], input[type=radio] {
+    float: left;
+
+    + label {
+      margin-left: 5px;
+      font-weight: normal;
+      font-size: 1em;
+    }
   }
 }
 
@@ -593,6 +643,10 @@ span.price {
   }
 }
 
+.no-display {
+  display: none;
+}
+
 /******** PostcodeNl_Api ********/
 #billing\:postcode_input\:wrapper, #shipping\:postcode_input\:wrapper {
   .field {
@@ -645,6 +699,12 @@ span.price {
     text-align: center;
     margin: 0.5em 0;
   }
+
+  .field-postcode,
+  .field-housenumber {
+    width: 49% !important;
+    margin-right: 1%;
+  }
 }
 
 #s_method_postnl_tablerate,
@@ -652,6 +712,7 @@ span.price {
 #s_method_postnl_flatrate,
 #s_method_postnl_flatrate + label {
   display: inline;
+  vertical-align: middle;
 }
 
 .postnl-container {
@@ -918,5 +979,60 @@ span.price {
         background: none;
       }
     }
+  }
+}
+
+/******** Vaimo_Klarna ************/
+.klarna_wrapper {
+  .page-title {
+    padding: 0 10px;
+  }
+
+  .klarna_totals {
+    margin: 20px 0 0 0;
+  }
+
+  #klarna_methods {
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  .klarna_loader {
+    position: fixed;
+  }
+
+  .messages {
+    > li {
+      padding: 10px;
+    }
+
+    span {
+      font-size: 12px;
+    }
+  }
+
+  .klarna_totals {
+    td {
+      * {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .sp-methods dd ul li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .klarna_product-remove {
+    display: none;
+  }
+
+  input.input-text {
+    font-size: 14px;
+  }
+
+  .klarna_other-payment-methods {
+    display: none;
   }
 }

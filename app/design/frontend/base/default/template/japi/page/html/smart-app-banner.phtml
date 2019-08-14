@@ -1,0 +1,46 @@
+<?php
+/**
+ * Copyright 2016 JMango360
+ */
+/* @var $this Jmango360_Japi_Block_Banner */
+
+$request = Mage::app()->getRequest();
+if ($request->getModuleName() == 'japi') return;
+
+/* @var $server Jmango360_Japi_Model_Server */
+$server = Mage::getSingleton('japi/server');
+if ($server->getIsRest()) return;
+
+if (!Mage::getStoreConfigFlag('japi/jmango_smart_app_banner/enable')) return;
+?>
+<meta name="apple-itunes-app"
+      content="app-id=<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/ios_app_id') ?>">
+<meta name="google-play-app"
+      content="app-id=<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/android_app_id') ?>">
+<link rel="stylesheet" href="<?php echo $this->getSkinUrl('japi/lib/smart-app-banner/smart-app-banner.css') ?>"
+      type="text/css" media="screen">
+<link rel="apple-touch-icon" href="<?php echo $this->getIcon('apple_touch_icon') ?>">
+<link rel="android-touch-icon" href="<?php echo $this->getIcon('android_touch_icon') ?>"/>
+<script type="text/javascript"
+        src="<?php echo $this->getSkinUrl('japi/lib/smart-app-banner/smart-app-banner.js') ?>"></script>
+<script type="text/javascript">
+    new SmartBanner({
+        daysHidden: <?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/days_hidden') ?>,
+        daysReminder: <?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/days_reminder') ?>,
+        appStoreLanguage: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/app_store_language') ?>',
+        title: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/title') ?>',
+        author: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/author') ?>',
+        button: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/button') ?>',
+        store: {
+            ios: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/store_ios') ?>',
+            android: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/store_android') ?>'
+        },
+        price: {
+            ios: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/price_ios') ?>',
+            android: '<?php echo Mage::getStoreConfig('japi/jmango_smart_app_banner/price_android') ?>'
+        },
+        theme: 'ios' // put platform type ('ios', 'android', etc.) here to force single theme on all device
+        //icon: '' // full path to icon image if not using website icon image
+        //force: 'ios' // Uncomment for platform emulation
+    });
+</script>

@@ -7,15 +7,15 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected $_defaultImagesPaths = array(
         'image' => array(
             'width' => 'japi/jmango_rest_gallery_settings/image_width',
-            'height' => 'japi/jmango_rest_gallery_settings/image_height',
+            'height' => 'japi/jmango_rest_gallery_settings/image_height'
         ),
         'small_image' => array(
             'width' => 'japi/jmango_rest_gallery_settings/small_image_width',
-            'height' => 'japi/jmango_rest_gallery_settings/small_image_height',
+            'height' => 'japi/jmango_rest_gallery_settings/small_image_height'
         ),
         'thumbnail' => array(
-            'width' => 'japi/jmango_rest_gallery_settings/thumbnail_width',
-            'height' => 'japi/jmango_rest_gallery_settings/thumbnail_height',
+            'width' => 'japi/jmango_rest_gallery_settings/small_image_width',
+            'height' => 'japi/jmango_rest_gallery_settings/small_image_height'
         )
     );
 
@@ -94,9 +94,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     public function isSCPActive()
     {
         return $this->isModuleEnabled('OrganicInternet_SimpleConfigurableProducts')
-        || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
-        || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
-        || $this->isModuleEnabled('Itonomy_SimpleConfigurable');
+            || ($this->isModuleEnabled('Amasty_Conf') && Mage::getStoreConfigFlag('amconf/general/use_simple_price'))
+            || ($this->isModuleEnabled('Ayasoftware_SimpleProductPricing') && Mage::getStoreConfigFlag('spp/setting/enableModule'))
+            || $this->isModuleEnabled('Itonomy_SimpleConfigurable');
     }
 
     /**
@@ -1363,7 +1363,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected function _isAllowedAttribute($attribute, $attributes = null)
     {
         return !in_array($attribute->getFrontendInput(), $this->_ignoredAttributeTypes)
-        && !in_array($attribute->getAttributeCode(), $this->_ignoredAttributeCodes);
+            && !in_array($attribute->getAttributeCode(), $this->_ignoredAttributeCodes);
     }
 
     /**

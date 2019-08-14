@@ -84,7 +84,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
     protected function _allowGuestCheckout()
     {
         return Mage::getSingleton('customer/session')->isLoggedIn()
-        || Mage::helper('checkout')->isAllowedGuestCheckout($this->getOnepage()->getQuote());
+            || Mage::helper('checkout')->isAllowedGuestCheckout($this->getOnepage()->getQuote());
     }
 
     /**
@@ -148,6 +148,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 
         // Bypass merge js
         Mage::app()->getStore()->setConfig('dev/js/merge_files', 0);
+        Mage::app()->getStore()->setConfig('dev/js/meanbee_footer_js_enabled', 0);
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/min_js', 0);
         Mage::app()->getStore()->setConfig('gtspeed/cssjs/merge_js', 0);
         Mage::app()->getStore()->setConfig('hsmedia/mediasetting/hsmedia_enabled', 0);

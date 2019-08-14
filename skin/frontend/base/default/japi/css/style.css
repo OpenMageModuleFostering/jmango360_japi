@@ -400,23 +400,66 @@ span.price {
   padding: 5px 0 8px 0;
 }
 .gift-messages-form .inner-box p,
-.gift-messages p.control {
+.gift-messages p.control,
+.gift-message-form .inner-box p {
   margin: 5px 0;
 }
 .gift-messages-form .inner-box p > *,
-.gift-messages p.control > * {
+.gift-messages p.control > *,
+.gift-message-form .inner-box p > * {
   padding: 0;
   margin: 0;
   vertical-align: middle;
 }
 .gift-messages-form .inner-box p input[type="checkbox"],
-.gift-messages p.control input[type="checkbox"] {
+.gift-messages p.control input[type="checkbox"],
+.gift-message-form .inner-box p input[type="checkbox"] {
   display: inline-block;
   margin: 0 5px 0 0;
 }
 .gift-messages-form .inner-box p label,
-.gift-messages p.control label {
+.gift-messages p.control label,
+.gift-message-form .inner-box p label {
   font-weight: normal;
+}
+.gift-messages-form h4,
+.gift-message-form h4 {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 1em 0 0 0;
+}
+.gift-messages-form select,
+.gift-message-form select {
+  width: 100%;
+}
+.gift-messages-form .gift-wrapping-design,
+.gift-message-form .gift-wrapping-design {
+  margin-top: 1em;
+  float: left;
+  width: 100%;
+}
+.gift-messages-form .gift-wrapping-design img,
+.gift-message-form .gift-wrapping-design img {
+  float: left;
+}
+.gift-messages-form .label,
+.gift-message-form .label {
+  color: #333;
+  font-size: 1em;
+}
+.add-gift-message h3 {
+  font-size: 1.2em;
+  margin-bottom: 0.5em;
+}
+.add-gift-message input[type=checkbox],
+.add-gift-message input[type=radio] {
+  float: left;
+}
+.add-gift-message input[type=checkbox] + label,
+.add-gift-message input[type=radio] + label {
+  margin-left: 5px;
+  font-weight: normal;
+  font-size: 1em;
 }
 .customer-dob .dob-month,
 .customer-dob .dob-day,
@@ -495,6 +538,9 @@ span.price {
 #checkout-step-shipping textarea {
   background: #fafafa;
 }
+.no-display {
+  display: none;
+}
 /******** PostcodeNl_Api ********/
 #billing\:postcode_input\:wrapper .field,
 #shipping\:postcode_input\:wrapper .field {
@@ -545,11 +591,17 @@ span.price {
   text-align: center;
   margin: 0.5em 0;
 }
+#opc_postnl_ce .field-postcode,
+#opc_postnl_ce .field-housenumber {
+  width: 49% !important;
+  margin-right: 1%;
+}
 #s_method_postnl_tablerate,
 #s_method_postnl_tablerate + label,
 #s_method_postnl_flatrate,
 #s_method_postnl_flatrate + label {
   display: inline;
+  vertical-align: middle;
 }
 .postnl-container {
   display: block;
@@ -750,4 +802,40 @@ span.price {
 }
 .sp-methods dd ul.klarna-input-box .klarna_notification:before {
   background: none;
+}
+/******** Vaimo_Klarna ************/
+.klarna_wrapper .page-title {
+  padding: 0 10px;
+}
+.klarna_wrapper .klarna_totals {
+  margin: 20px 0 0 0;
+}
+.klarna_wrapper #klarna_methods {
+  margin: 0;
+  padding: 0 10px;
+}
+.klarna_wrapper .klarna_loader {
+  position: fixed;
+}
+.klarna_wrapper .messages > li {
+  padding: 10px;
+}
+.klarna_wrapper .messages span {
+  font-size: 12px;
+}
+.klarna_wrapper .klarna_totals td * {
+  font-size: 12px;
+}
+.klarna_wrapper .sp-methods dd ul li {
+  margin: 0;
+  padding: 0;
+}
+.klarna_wrapper .klarna_product-remove {
+  display: none;
+}
+.klarna_wrapper input.input-text {
+  font-size: 14px;
+}
+.klarna_wrapper .klarna_other-payment-methods {
+  display: none;
 }

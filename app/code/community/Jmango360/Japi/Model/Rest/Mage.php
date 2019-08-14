@@ -113,10 +113,181 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'getSettings' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getSettings();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getSettingAttributes' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getSettingAttributes();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getShippingAndPaymentMethods' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getShippingAndPaymentMethods();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getAllSystemSettings' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getAllSystemSettings();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'saveSettings' . Jmango360_Japi_Model_Request::OPERATION_CREATE:
+                $data = $this->_savePluginSettings();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             default:
                 throw new Jmango360_Japi_Exception('Resource method not implemented', Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR);
                 break;
         }
+    }
+
+    /**
+     * Save Japi system config
+     * @return array
+     * @throws Jmango360_Japi_Exception
+     */
+    protected function _savePluginSettings()
+    {
+        $data = array();
+        $groups = $this->_getRequest()->getParam('groups');
+
+        if (isset($_FILES['groups']['name']) && is_array($_FILES['groups']['name'])) {
+            /**
+             * Carefully merge $_FILES and $_POST information
+             * None of '+=' or 'array_merge_recursive' can do this correct
+             */
+            foreach ($_FILES['groups']['name'] as $groupName => $group) {
+                if (is_array($group)) {
+                    foreach ($group['fields'] as $fieldName => $field) {
+                        if (!empty($field['value'])) {
+                            $groups[$groupName]['fields'][$fieldName] = array('value' => $field['value']);
+                        }
+                    }
+                }
+            }
+        }
+
+        try {
+            $section = 'japi';
+
+            $storeId = $this->_getRequest()->getParam('store_id');
+            $storeModel = Mage::app()->getStore($storeId);
+            if (!$storeModel->getId()) {
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__('Store not found.'),
+                    Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+                );
+            }
+            $website = $storeModel->getWebsite()->getCode();
+            $store = $storeModel->getCode();
+
+            Mage::getSingleton('adminhtml/config_data')
+                ->setSection($section)
+                ->setWebsite($website)
+                ->setStore($store)
+                ->setGroups($groups)
+                ->save();
+
+            // reinit configuration
+            Mage::getConfig()->reinit();
+            Mage::dispatchEvent('admin_system_config_section_save_after', array(
+                'website' => $website,
+                'store' => $store,
+                'section' => $section
+            ));
+            Mage::app()->reinitStores();
+
+            // website and store codes can be used in event implementation, so set them as well
+            Mage::dispatchEvent("admin_system_config_changed_section_{$section}",
+                array('website' => $website, 'store' => $store)
+            );
+            $data['message'][] = (Mage::helper('japi')->__('The configuration has been saved.'));
+        } catch (Exception $e) {
+            throw new Jmango360_Japi_Exception(
+                $e->getMessage(),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get Japi System settings
+     * @return array
+     */
+    protected function _getAllSystemSettings()
+    {
+        /** @var Jmango360_Japi_Helper_Data $helper */
+        $helper = Mage::helper('japi');
+        $data = $helper->getPluginSystemConfigs();
+
+        return $data;
+    }
+
+    /**
+     * Get Japi Setting Attributes
+     * @return array
+     */
+    protected function _getSettingAttributes()
+    {
+        $data = array();
+        /** @var $sourceModel Jmango360_Japi_Model_System_Config_Source_Attributes */
+        $sourceModel = Mage::getModel('japi/system_config_source_attributes');
+        $data['attributes'] = $sourceModel->toOptionArray();
+
+        return $data;
+    }
+
+    protected function _getShippingAndPaymentMethods()
+    {
+        $data = array();
+
+        /** @var $shippingSource Jmango360_Japi_Model_System_Config_Source_Shipping */
+        $shippingSource = Mage::getModel('japi/system_config_source_shipping');
+        $data['shipping_methods'] = $shippingSource->toOptionArray();
+
+        /** @var $paymentSource Jmango360_Japi_Model_System_Config_Source_Payment */
+        $paymentSource = Mage::getModel('japi/system_config_source_payment');
+        $data['payment_methods'] = $paymentSource->toOptionArray();
+
+        return $data;
+    }
+
+    protected function _getSettings()
+    {
+        $storeId = $this->_getRequest()->getParam('store_id');
+        $store = Mage::app()->getStore($storeId);
+        if (!$store->getId()) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Store not found.'),
+                Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+            );
+        }
+
+        $configFile = Mage::app()->getConfig()->getModuleDir('etc', 'Jmango360_Japi') . DS . 'config.xml';
+        /* @var $xml Varien_Simplexml_Element */
+        $xml = simplexml_load_string(file_get_contents($configFile), 'Varien_Simplexml_Element');
+        $xmlData = $xml->asArray();
+        $data = array();
+
+        if (isset($xmlData['default'])) {
+            foreach ($xmlData['default'] as $section => $sections) {
+                if (!isset($data[$section])) $data[$section] = array();
+                foreach ($sections as $group => $groups) {
+                    if (!isset($data[$section][$group])) $data[$section][$group] = array();
+                    foreach ($groups as $field => $value) {
+                        $path = sprintf('%s/%s/%s', $section, $group, $field);
+                        $data[$section][$group][$field] = Mage::getStoreConfig($path, $store->getId());
+                    }
+                }
+            }
+        }
+
+        return array('settings' => $data);
     }
 
     protected function _getModules()
@@ -149,6 +320,12 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
                     foreach ($observers as $observer) {
                         foreach ($observer->children() as $observerNode) {
                             $class = (string)$observerNode->xpath('class')[0];
+                            if ($class) {
+                                $className = Mage::getConfig()->getModelClassName($class);
+                                if (class_exists($className)) {
+                                    $class = $className;
+                                }
+                            }
                             $method = (string)$observerNode->xpath('method')[0];
                             $data[$eventName][] = sprintf('%s:%s', $class, $method);
                         }

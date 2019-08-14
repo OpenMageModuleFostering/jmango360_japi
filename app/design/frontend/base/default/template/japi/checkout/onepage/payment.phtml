@@ -25,8 +25,8 @@
  */
 ?>
 <?php
-$_edition = Mage::getEdition();
-$_version = Mage::getVersion();
+/* @var $helper Jmango360_Japi_Helper_Data */
+$helper = Mage::helper('japi');
 ?>
 <script type="text/javascript">
 //<![CDATA[
@@ -38,11 +38,11 @@ $_version = Mage::getVersion();
 </script>
 <form action="" id="co-payment-form">
     <fieldset>
-    <?php if ($_edition == Mage::EDITION_COMMUNITY && version_compare($_version, '1.8', '<')===true): ?>
+    <?php if ($helper->wrapPaymentBlockMethods()): ?>
         <dl class="sp-methods" id="checkout-payment-method-load">
     <?php endif; ?>
         <?php echo $this->getChildHtml('methods') ?>
-    <?php if ($_edition == Mage::EDITION_COMMUNITY && version_compare($_version, '1.8', '<')===true): ?>
+    <?php if ($helper->wrapPaymentBlockMethods()): ?>
         </dl>
     <?php endif; ?>
     </fieldset>
