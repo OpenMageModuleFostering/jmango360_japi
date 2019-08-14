@@ -1231,10 +1231,13 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         if ($isAddressesApiUpdate = Mage::getSingleton('core/session')->getData('is_address_update')) {
             return $isAddressesApiUpdate;
         }
+
         /** @var Mage_Checkout_Model_Session $checkoutSession */
         $checkoutSession = Mage::getSingleton('checkout/session');
-        if ($address = $checkoutSession->getQuote()->getBillingAddress()) {
-            return (bool)$address->getCustomerAddressId();
+        $quote = $checkoutSession->getQuote();
+        $shippingAddress = $quote->getShippingAddress();
+        if ($shippingAddress->getGroupedAllShippingRates()) {
+            return true;
         }
 
         return false;

@@ -3,7 +3,19 @@
 /**
  * Copyright 2016 JMango360
  */
-class Jmango360_Japi_Block_Checkout_Onepage_Billing extends Mage_Checkout_Block_Onepage_Billing
+if (Mage::helper('core')->isModuleEnabled('Nedstars_Checkout') && @class_exists('Nedstars_Checkout_Block_Onepage_Billing')) {
+    class Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract extends Nedstars_Checkout_Block_Onepage_Billing
+    {
+
+    }
+} else {
+    class Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract extends Mage_Checkout_Block_Onepage_Billing
+    {
+
+    }
+}
+
+class Jmango360_Japi_Block_Checkout_Onepage_Billing extends Jmango360_Japi_Block_Checkout_Onepage_Billing_Abstract
 {
     public function getAddress()
     {

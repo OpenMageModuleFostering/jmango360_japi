@@ -204,6 +204,13 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
         $product = $this->_initProduct();
 
         Mage::dispatchEvent('catalog_controller_product_view', array('product' => $product));
+        $controller = Mage::app()->getFrontController();
+        $request = $controller->getRequest();
+        $request->setParam('id', $product->getId());
+        Mage::dispatchEvent('catalog_controller_product_init_before', array(
+            'controller_action' => $controller,
+            'params' => $request->getParams()
+        ));
 
         /* @var $helper Jmango360_Japi_Helper_Product */
         $helper = Mage::helper('japi/product');

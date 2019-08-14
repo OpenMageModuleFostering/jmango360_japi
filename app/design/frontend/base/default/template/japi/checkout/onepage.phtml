@@ -69,7 +69,11 @@
         editAddressUrl: '<?php echo $this->getUrl('japi/customer/address', array('_secure' => true)) ?>'
     });
     <?php if (!$error): ?>
-        <?php if (Mage::helper('japi')->isAddressesReady()): ?>
+        <?php if ($this->getActiveStep() && !in_array($this->getActiveStep(), array('billing', 'login'))): ?>
+            document.observe("dom:loaded", function () {
+                checkout.gotoSection('<?php echo $this->getActiveStep() ?>');
+            });
+        <?php elseif (Mage::helper('japi')->isAddressesReady()): ?>
             document.observe("dom:loaded", function () {
                 checkout.gotoShippingMethodSection();
             });
@@ -77,10 +81,6 @@
             <?php Mage::getSingleton('core/session')->unsetData('is_shipping_address_update') ?>
             document.observe("dom:loaded", function () {
                 checkout.gotoSection('shipping');
-            });
-        <?php elseif ($this->getActiveStep()): ?>
-            document.observe("dom:loaded", function () {
-                checkout.gotoSection('<?php echo $this->getActiveStep() ?>');
             });
         <?php endif ?>
     <?php endif ?>

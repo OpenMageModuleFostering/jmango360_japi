@@ -527,6 +527,7 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
     public function saveBillingAction()
     {
         Mage::app()->getStore()->setConfig('aw_mobile2/general/is_enabled', 0);
+        Mage::getSingleton('core/session')->setData('is_address_update', true);
         return parent::saveBillingAction();
     }
 
@@ -791,6 +792,11 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
          * Flag as JMango360 order
          */
         $this->getOnepage()->getQuote()->setData('japi', 1);
+
+        /**
+         * Clear some flags
+         */
+        Mage::getSingleton('core/session')->unsetData('is_address_update');
 
         parent::saveOrderAction();
     }

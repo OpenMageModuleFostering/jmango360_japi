@@ -768,16 +768,18 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             if (in_array($attributeCode, array('short_description', 'description'))) {
                 if ($attribute->getData('is_wysiwyg_enabled') == 1) {
                     $html = $this->_getCustomHtmlStyle();
-                    $html .= $productHelper->productAttribute(
-                        $product, $product->getData($attributeCode), $attributeCode
-                    );
+                    $html .= $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
                     $result[$attributeCode] = $this->_cleanHtml($html);
                 } else {
                     $result[$attributeCode] = $product->getData($attributeCode);
                 }
             }
 
-            $value = $attribute->getFrontend()->getValue($product);
+            if ($attribute->getData('is_wysiwyg_enabled') == 1) {
+                $value = $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
+            } else {
+                $value = $attribute->getFrontend()->getValue($product);
+            }
 
             if ($attribute->getFrontendInput() == 'multiselect') {
                 $options = $attribute->getFrontend()->getOption($product->getData($attributeCode));

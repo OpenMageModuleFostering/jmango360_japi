@@ -235,7 +235,129 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
             case 'braintree':
                 return $this->_updateOrderBraintree();
                 break;
+            case 'jmango_payment_adyen_pin':
+                return $this->_updateOrderAdyenPIN();
+                break;
+            default:
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__($payment ? 'Payment (%s) is not supported' : 'Payment not found', $payment),
+                    Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
+                );
         }
+    }
+
+    protected function _updateOrderAdyenPIN()
+    {
+        $order = $this->_getOrder();
+
+        if (!$order->getData('japi')) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Order "%s" is not mobile order', $order->getIncrementId()),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        if (in_array($order->getState(), array($order::STATE_CANCELED, $order::STATE_COMPLETE))) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Order "%s" state is "%s"', $order->getIncrementId(), $order->getState()),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        if ($order->getState() == $order::STATE_NEW) {
+            $orderStatus = $this->_getRequest()->getParam('status');
+            if ($orderStatus == $order::STATE_PROCESSING) {
+                $this->_invoiceOrder($order);
+            }
+        }
+
+        /**
+         * Handle comment
+         */
+        $orderComment = $this->_getRequest()->getParam('comment');
+        if ($orderComment) {
+            $order->addStatusHistoryComment($orderComment);
+            $order->save();
+        }
+
+        return array('success' => true);
+    }
+
+    /**
+     * Automatically invoice a order
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return Mage_Sales_Model_Order
+     * @throws Jmango360_Japi_Exception
+     */
+    protected function _invoiceOrder($order)
+    {
+        if (!$order || !$order->getId()) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Order cannot be invoiced'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        if (!$order->canInvoice()) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Order "%s" cannot be invoiced', $order->getIncrementId()),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        /**
+         * Handle invoice
+         */
+        try {
+            /** @var Mage_Sales_Model_Order_Invoice $invoice */
+            $invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
+
+            $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
+            $invoice->register();
+
+            $invoice->getOrder()->setCustomerNoteNotify(false);
+            $invoice->getOrder()->setIsInProcess(true);
+            $order->addStatusHistoryComment('Automatically INVOICED by JMango360.', false);
+
+            /** @var Mage_Core_Model_Resource_Transaction $transactionSave */
+            $transactionSave = Mage::getModel('core/resource_transaction')
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder());
+
+            $transactionSave->save();
+        } catch (Exception $e) {
+            throw new Jmango360_Japi_Exception(
+                $e->getMessage(),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        return $order;
+    }
+
+    /**
+     * Get order from id
+     *
+     * @throws Jmango360_Japi_Exception
+     */
+    protected function _getOrder()
+    {
+        $orderId = $this->_getRequest()->getParam('order_id');
+        /* @var $order Mage_Sales_Model_Order */
+        $order = Mage::getModel('sales/order');
+        $order->load($orderId);
+        if (!$order->getId()) {
+            $order = $order->loadByIncrementId($orderId);
+            if (!$order->getId()) {
+                throw new Jmango360_Japi_Exception(
+                    Mage::helper('japi')->__('Order (%s) not found', $orderId),
+                    Jmango360_Japi_Model_Request::HTTP_NOT_FOUND
+                );
+            }
+        }
+
+        return $order;
     }
 
     protected function _updateOrderBraintree()
@@ -254,19 +376,7 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
             );
         }
 
-        $orderId = $this->_getRequest()->getParam('order_id');
-        /* @var $order Mage_Sales_Model_Order */
-        $order = Mage::getModel('sales/order');
-        $order->load($orderId);
-        if (!$order->getId()) {
-            $order = $order->loadByIncrementId($orderId);
-            if (!$order->getId()) {
-                throw new Jmango360_Japi_Exception(
-                    Mage::helper('japi')->__('Order not found'),
-                    Jmango360_Japi_Model_Request::HTTP_BAD_REQUEST
-                );
-            }
-        }
+        $order = $this->_getOrder();
 
         $payment = $order->getPayment();
         if ($payment->getMethod() != Jmango360_Japi_Model_Payment::CODE) {
@@ -289,7 +399,8 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
         $transaction = $braintree->getTransaction($transactionId);
         if ($transaction->id) {
             if ($transaction->status == 'settled') {
-                $order->setStatus(Mage_Sales_Model_Order::STATE_PROCESSING);
+                //$order->setStatus(Mage_Sales_Model_Order::STATE_PROCESSING);
+                $this->_invoiceOrder($order);
             }
             $orderStatusHistoryCollection = $order->getStatusHistoryCollection();
             $isSave = false;
@@ -316,9 +427,11 @@ class Jmango360_Japi_Model_Rest_Checkout_Onepage extends Jmango360_Japi_Model_Re
                     $isSave = true;
                 }
             }
+
             if ($isSave) {
                 $order->save();
             }
+
             return array('success' => true);
         }
     }

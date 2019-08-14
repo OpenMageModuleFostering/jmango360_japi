@@ -34,7 +34,9 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
     {
         $request = Mage::app()->getRequest();
 
-        // Log request if needed
+        /**
+         * Log API request for debugging by demand
+         */
         if (Mage::getStoreConfigFlag('japi/jmango_rest_developer_settings/enable')) {
             ini_set('display_errors', 1);
 
@@ -49,7 +51,9 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             Mage::log($debug, NULL, 'japi_request.log');
         }
 
-        // Set current store if exist
+        /**
+         * Set current store if exist
+         */
         $storeId = $request->getParam('store_id', null);
         if ($storeId) {
             $this->_setCurrentStore($storeId);
@@ -61,7 +65,11 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
         }
 
         foreach (Mage::app()->getWebsite()->getStores() as $store) {
-            //Storing Flat product config value
+            /** @var Mage_Core_Model_Store $store */
+
+            /**
+             * Storing Flat product config value
+             */
             $session = Mage::getSingleton('core/session');
             $_flatConfig = Mage::getStoreConfigFlag(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT);
             $session->setData('use_flat_product_' . $store->getId(), $_flatConfig);
@@ -74,22 +82,35 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
                 $request->getActionName() != 'getCrossSell' &&
                 $request->getActionName() != 'getUpSell'
             ) {
-                Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
+                $store->setConfig(Mage_Catalog_Helper_Product_Flat::XML_PATH_USE_PRODUCT_FLAT, 0);
             }
 
-            // Bypass flat category check
-            Mage::app()->getStore($store)->setConfig(Mage_Catalog_Helper_Category_Flat::XML_PATH_IS_ENABLED_FLAT_CATALOG_CATEGORY, 0);
+            /**
+             * Bypass flat category check
+             */
+            $store->setConfig(Mage_Catalog_Helper_Category_Flat::XML_PATH_IS_ENABLED_FLAT_CATALOG_CATEGORY, 0);
+
+            /**
+             * MPLUGIN-2038: Bypass Netzarbeiter_NicerImageNames modify image url
+             */
+            $store->setConfig('catalog/nicerimagenames/disable_ext', 1);
         }
 
-        // Checkout mobile version
+        /**
+         * Check mobile version for some deprecated functions
+         */
         $mobileVersion = $request->getParam('version');
         $isOfflineCart = $mobileVersion ? version_compare($mobileVersion, '2.9', '<') : true;
         Mage::getSingleton('core/session')->setIsOffilneCart($isOfflineCart);
 
-        // Flag can be used to determine if it is a REST service call
+        /**
+         * Flag can be used to determine if it is a REST service call
+         */
         $this->_setIsRest();
 
-        // Can not use response object case
+        /**
+         * Can not use response object case
+         */
         try {
             /** @var $response Jmango360_Japi_Model_Response */
             $response = Mage::getSingleton('japi/response');
@@ -104,7 +125,9 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             exit;
         }
 
-        // Can not render errors case
+        /**
+         * Can not render errors case
+         */
         try {
             /** @var $request Jmango360_Japi_Model_Request */
             $request = Mage::getSingleton('japi/request');
@@ -121,7 +144,9 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             exit;
         }
 
-        // Validate the token
+        /**
+         * Validate the token
+         */
         try {
             if (!$this->_validateToken()) {
                 $message = Mage::helper('japi')->__('Invalid token');
@@ -131,7 +156,9 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             $this->_renderException($e, $renderer, $response);
         }
 
-        // Check if the right session ID is set
+        /**
+         * Check if the right session ID is set
+         */
         try {
             if (!$this->_validateSessionId()) {
                 throw new Jmango360_Japi_Exception(
@@ -143,13 +170,15 @@ class Jmango360_Japi_Model_Server extends Mage_Api2_Model_Server
             $this->_renderException($e, $renderer, $response);
         }
 
-        // Init empty admin user for Openwriter_Cartmart
+        /**
+         * Init empty admin user for Openwriter_Cartmart
+         */
         if (Mage::helper('core')->isModuleEnabled('Openwriter_Cartmart')) {
             Mage::getSingleton('admin/session')->setUser(Mage::getModel('admin/user'));
         }
 
         try {
-            /*
+            /**
              * $response could have an exception in session or token check
              */
             if (!$response->isException()) {
