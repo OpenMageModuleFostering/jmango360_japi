@@ -32,6 +32,13 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
     protected $LOGGED_IN_EXCLUDE_FIELDS = array();
 
     /**
+     * Store ratings label mapping
+     *
+     * @var array
+     */
+    protected $_labels = array();
+
+    /**
      * Get product Id for Bazaarvoice
      *
      * @param Mage_Catalog_Model_Product $product
@@ -114,9 +121,11 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
             'apiVersion' => self::API_VERSION,
             'resource.q0' => 'statistics',
             'stats.q0' => 'reviews',
-            'filter.q0' => 'contentlocale:eq:' . $locale,
-            'filter_reviews.q0' => 'contentlocale:eq:' . $locale,
-            'filter.q0' => 'productid:eq:' . join(',', array_keys($productIds))
+            'filter.q0' => array(
+                sprintf('contentlocale:eq:%s', $locale),
+                sprintf('productid:eq:%s', join(',', array_keys($productIds)))
+            ),
+            'filter_reviews.q0' => sprintf('contentlocale:eq:%s', $locale)
         ));
 
         $result = $this->send('GET', $url);
@@ -180,13 +189,15 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         $url = $this->_getApiUrl('data/reviews.json', array(
             'apiVersion' => '5.4',
             'passkey' => $apiKey,
-            'Filter' => sprintf('ProductId:%s', $productId),
+            'Filter' => array(
+                sprintf('ProductId:%s', $productId),
+                sprintf('ContentLocale:eq:%s', Mage::app()->getLocale()->getLocaleCode())
+            ),
             'Sort' => $this->_getReviewsSort(),
             'Offset' => $this->_getReviewsOffset(),
             'Limit' => $this->_getReviewsLimit(),
             'Include' => 'Products',
-            'Stats' => 'Reviews',
-            'Locale' => Mage::app()->getLocale()->getLocaleCode()
+            'Stats' => 'Reviews'
         ));
 
         $result = $this->send('GET', $url);
@@ -392,24 +403,16 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
 
         $productId = $this->getBvProductId($product);
 
-        /* @var $session Mage_Customer_Model_Session */
-        $session = Mage::getSingleton('customer/session');
-        if ($session->isLoggedIn()) {
-            $submitData['UserId'] = $session->getCustomer()->getId();
-            $submitData['UserEmail'] = $session->getCustomer()->getEmail();
-        } else {
-            $submitData['UserId'] = uniqid();
-            $submitData['UserEmail'] = @$data['useremail'];
-        }
-
-        $submitData = array_merge(array(
+        $submitData = array(
             'UserNickname' => @$data['usernickname'],
+            'UserEmail' => @$data['useremail'],
+            'user' => $this->_getUAS(),
             'Title' => @$data['title'],
             'ReviewText' => @$data['reviewtext'],
             'Rating' => @$data['ratings']['rating'],
             'IsRecommended' => $this->_getBooleanValue(@$data['isrecommended']),
             'AgreedToTermsAndConditions' => $this->_getBooleanValue(@$data['agreedtotermsandconditions'])
-        ), $submitData);
+        );
 
         if (!empty($data['ratings'])) {
             $reviewForm = $this->getForm($product);
@@ -485,6 +488,28 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Generate UAS string
+     *
+     * @return string
+     */
+    protected function _getUAS()
+    {
+        $sharedKey = Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/shared_key');
+        if ($sharedKey) {
+            /* @var $dateModel Mage_Core_Model_Date */
+            $dateModel = Mage::getModel('core/date');
+            /* @var $session Mage_Customer_Model_Session */
+            $session = Mage::getSingleton('customer/session');
+            $userId = $session->isLoggedIn() ? $session->getCustomer()->getId() : uniqid();
+            $userStr = sprintf('date=%s&userid=%s', $dateModel->date('Y-m-d'), $userId);
+            $encUserStr = hash_hmac('sha256', $sharedKey, $userStr) . bin2hex($userStr);
+            return $encUserStr;
+        }
+
+        return '';
+    }
+
+    /**
      * Convert boolean value to string
      *
      * @param $value
@@ -544,7 +569,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
             $reviewStatistics = $result['Includes']['Products'][$productId]['ReviewStatistics']['SecondaryRatingsAverages'];
             foreach ($reviewStatistics as $reviewStatistic) {
                 $data[] = array(
-                    'title' => @$reviewStatistic['Label'],
+                    'title' => !empty($reviewStatistic['Label']) ? $reviewStatistic['Label'] : $this->_getRatingLabel(@$reviewStatistic['Id']),
                     'code' => @$reviewStatistic['Id'],
                     'type' => 'overview',
                     'percent' => round(100 * @$reviewStatistic['AverageRating'] / (empty($reviewStatistic['ValueRange']) ? 5 : $reviewStatistic['ValueRange']))
@@ -581,7 +606,7 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
             foreach ($result['SecondaryRatings'] as $rating) {
                 $data['review'][] = array(
                     'code' => 'ratings',
-                    'title' => @$rating['Label'],
+                    'title' => !empty($rating['Label']) ? $rating['Label'] : $this->_getRatingLabel(@$rating['Id']),
                     'type' => 'radio',
                     'required' => false,
                     'id' => ++$index . "",
@@ -704,6 +729,28 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         return $data;
     }
 
+    /**
+     * Get rating label from configuration
+     *
+     * @param $value
+     * @return string
+     */
+    protected function _getRatingLabel($value)
+    {
+        if (empty($this->_labels)) {
+            $labelsMap = explode("\n", Mage::getStoreConfig('japi/jmango_rest_bazaarvoice_settings/rating_label'));
+            foreach ($labelsMap as $labelMap) {
+                list($labelId, $labelText) = explode('|', $labelMap);
+                if ($labelId && $labelText) {
+                    $this->_labels[$labelId] = $labelText;
+                }
+            }
+        }
+        if (array_key_exists($value, $this->_labels)) {
+            return $this->_labels[$value];
+        }
+    }
+
     protected function _getDatetimeValue($value)
     {
         $storeTimestamp = Mage::getModel('core/date')->timestamp($value);
@@ -740,7 +787,12 @@ class Jmango360_Japi_Helper_Review_Bazaarvoice extends Mage_Core_Helper_Abstract
         $env = $this->_getEnv();
         $baseUrl = $env == 'staging' ? self::URL_STAGING : self::URL_PRODUCTION;
         if (!empty($params)) {
-            return sprintf('%s%s?%s', $baseUrl, $uri, http_build_query($params));
+            /**
+             * Workaround to support duplicate param name on query string
+             */
+            $query = http_build_query($params, null, '&');
+            $query = preg_replace('/%5B(?:[0-9]|[1-9][0-9]+)%5D=/', '=', $query);
+            return sprintf('%s%s?%s', $baseUrl, $uri, $query);
         } else {
             return sprintf('%s%s', $baseUrl, $uri);
         }

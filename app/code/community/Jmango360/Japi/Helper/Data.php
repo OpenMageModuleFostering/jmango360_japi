@@ -927,6 +927,8 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
                                 foreach ($image->attributes as $attribute) {
                                     if ($attribute->name == 'title') {
                                         $current['label'] = $attribute->value;
+                                    } elseif ($attribute->name == 'alt') {
+                                        $current['label'] = $attribute->value;
                                     }
                                 }
                             }
@@ -1197,13 +1199,13 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         return $model->toOptionArray();
     }
 
+    /**
+     * Check Bazaarvoice Conversations enabled
+     *
+     * @return bool
+     */
     public function isBazaarvoiceEnabled()
     {
-        return (
-                Mage::helper('core')->isModuleEnabled('Comaxx_BvConversations')
-                && Mage::getStoreConfigFlag('bazaarvoice/general/enable_bv')
-                && Mage::getStoreConfigFlag('bazaarvoice/rr/enable_rr')
-            )
-            || (Mage::helper('core')->isModuleEnabled('Bazaarvoice_Connector'));
+        return Mage::getStoreConfigFlag('japi/jmango_rest_bazaarvoice_settings/enable');
     }
 }

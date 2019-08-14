@@ -461,7 +461,7 @@
                             <show_in_store>1</show_in_store>
                             <comment>Select to view which customers are from JMango360</comment>
                         </display_customer_from>
-                        <enable_address translate="label comment" module="japi">
+                        <!--enable_address translate="label comment" module="japi">
                             <label>Enable additional fields on sign up form</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
@@ -471,7 +471,7 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enable additional fields on sign up form</comment>
                         </enable_address>
-                        <!--street2_label translate="label comment" module="japi">
+                        <street2_label translate="label comment" module="japi">
                             <label>Street Address #2 Label</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>40</sort_order>
@@ -738,6 +738,16 @@
                     <show_in_store>1</show_in_store>
                     <sort_order>95</sort_order>
                     <fields>
+                        <enable translate="label comment" module="japi">
+                            <label>Enable Bazaarvoice</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Using Bazaarvoice Conversations platform</comment>
+                        </enable>
                         <env translate="label comment" module="japi">
                             <label>Environment</label>
                             <frontend_type>select</frontend_type>
@@ -747,6 +757,9 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Select environment</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
                         </env>
                         <api_key_stg translate="label comment" module="japi">
                             <label>Bazaarvoice API Key (STG)</label>
@@ -756,6 +769,9 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Bazaarvoice Conversations API key (staging)</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
                         </api_key_stg>
                         <api_key_prod translate="label comment" module="japi">
                             <label>Bazaarvoice API Key (PROD)</label>
@@ -765,7 +781,22 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Bazaarvoice Conversations API key (production)</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
                         </api_key_prod>
+                        <shared_key translate="label comment" module="japi">
+                            <label>Shared Encoding Key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>The shared, secret encoding key that is used to encrypt user information</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </shared_key>
                         <tc translate="label comment" module="japi">
                             <label><![CDATA[Terms & Conditions]]></label>
                             <frontend_type>textarea</frontend_type>
@@ -774,7 +805,22 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Customize the terms and conditions that your users will see for all submissions</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
                         </tc>
+                        <rating_label translate="label comment" module="japi">
+                            <label><![CDATA[Rating Lables]]></label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Example: EaseOfUse|Kwaliteit van product</comment>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </rating_label>
                     </fields>
                 </jmango_rest_bazaarvoice_settings>
                 <jmango_rest_developer_settings translate="label" module="japi">

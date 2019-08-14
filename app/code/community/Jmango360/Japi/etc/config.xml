@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.4.0</version>
+            <version>3.4.1</version>
         </Jmango360_Japi>
     </modules>
 
@@ -412,10 +412,13 @@
                 <android_touch_icon></android_touch_icon>
             </jmango_smart_app_banner>
             <jmango_rest_bazaarvoice_settings>
+                <enable></enable>
                 <env>staging</env>
                 <api_key_stg></api_key_stg>
                 <api_key_prod></api_key_prod>
+                <shared_key></shared_key>
                 <tc></tc>
+                <rating_label></rating_label>
             </jmango_rest_bazaarvoice_settings>
             <jmango_rest_developer_settings>
                 <enable>0</enable>

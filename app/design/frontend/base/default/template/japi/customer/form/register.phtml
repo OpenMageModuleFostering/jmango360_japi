@@ -94,7 +94,7 @@
                 <?php echo $this->getLayout()->createBlock('japi/form')->setFields(Mage::helper('japi')->getSignupFormFields())->toHtml() ?>
             </ul>
         </div>
-        <?php if ($this->getShowAddressFields()): ?>
+        <?php if (Mage::getStoreConfigFlag('japi/jmango_rest_customer_settings/enable_address')): ?>
             <div class="fieldset">
                 <input type="hidden" name="create_address" value="1"/>
                 <h2 class="legend"><?php echo $this->__('Address Information') ?></h2>
@@ -192,7 +192,7 @@
                                         title="<?php echo Mage::helper('core')->quoteEscape($this->__('State/Province')) ?>"
                                         class="validate-select" style="display:none;">
                                     <option
-                                        value=""><?php echo $this->__('Please select region, state or province') ?></option>
+                                            value=""><?php echo $this->__('Please select region, state or province') ?></option>
                                 </select>
                                 <script type="text/javascript">
                                     //<![CDATA[

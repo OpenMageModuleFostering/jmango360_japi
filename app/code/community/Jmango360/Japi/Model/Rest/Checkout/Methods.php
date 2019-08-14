@@ -457,7 +457,7 @@ class Jmango360_Japi_Model_Rest_Checkout_Methods extends Jmango360_Japi_Model_Re
                 $this->_assignPaymentMethod($method);
                 $code = $method->getCode();
                 $options[$code] = $method->toArray();
-                $options[$code]['title'] = $this->_stripHtml($block->getMethodTitle($method));
+                $options[$code]['title'] = $this->_stripHtml($method->getTitle());
                 if (is_object($method->getInfoInstance())) {
                     $options[$code]['payment'] = $method->getInfoInstance()->toArray();
                 }

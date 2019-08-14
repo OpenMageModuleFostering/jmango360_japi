@@ -449,6 +449,25 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('TIG_MyParcel2014')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <file>js/TIG/MyParcel2014/jquery-myparcel.min.js</file>
+    </action>
+    <action method=\"addItem\">
+        <type>skin_js</type>
+        <file>js/TIG/MyParcel2014/checkout.js</file>
+    </action>
+</reference>
+<reference name=\"checkout.onepage.shipping_method.available\">
+    <action method=\"setTemplate\">
+        <template>TIG/MyParcel2014/checkout/onepage/shipping_method/available.phtml</template>
+    </action>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();

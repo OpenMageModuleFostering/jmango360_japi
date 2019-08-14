@@ -679,7 +679,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             }
 
             $attributes[] = array(
-                'label' => $nameWidget->getStoreLabel('firstname'),
+                'label' => $nameWidget->getStoreLabel('firstname') ? $nameWidget->getStoreLabel('firstname') : Mage::helper('customer')->__('First Name'),
                 'key' => 'firstname',
                 'enable' => true,
                 'required' => true,
@@ -697,7 +697,7 @@ class Jmango360_Japi_Model_Rest_Mage extends Mage_Core_Model_Abstract
             }
 
             $attributes[] = array(
-                'label' => $nameWidget->getStoreLabel('lastname'),
+                'label' => $nameWidget->getStoreLabel('lastname') ? $nameWidget->getStoreLabel('lastname') : Mage::helper('customer')->__('Last Name'),
                 'key' => 'lastname',
                 'enable' => true,
                 'required' => true,

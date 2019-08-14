@@ -21,10 +21,6 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
             $this->getResponse()->setHeader('JM-Session-Id', $session->getSessionId());
         }
         $this->_initLayoutMessages(array('core/session', 'customer/session'));
-        if (Mage::getStoreConfigFlag('japi/jmango_rest_customer_settings/enable_address')) {
-            $form = $this->getLayout()->getBlock('customer_form_register');
-            if ($form) $form->setShowAddressFields(true);
-        }
         $this->renderLayout();
     }
 
