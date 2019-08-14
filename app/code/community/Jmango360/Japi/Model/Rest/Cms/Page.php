@@ -43,13 +43,14 @@ class Jmango360_Japi_Model_Rest_Cms_Page extends Mage_Cms_Model_Page
         $result['content'] = $processor->filter($this->_filter($page->getContent()));
 
         $pageStoreIds = array();
-
         $_page = Mage::getModel('cms/page')->load($page->getId());
         $page_StoreIds = $_page['store_id'];
-        foreach ($page_StoreIds as $storeId) {
-            $pageStoreIds[] = $storeId;
+        if (is_array($page_StoreIds)) {
+            foreach ($page_StoreIds as $storeId) {
+                $pageStoreIds[] = $storeId;
+            }
         }
-        $result['storeIds'] = $pageStoreIds;
+        $result['storeIds'] = count($pageStoreIds) ? $pageStoreIds : null;
 
         return $result;
     }

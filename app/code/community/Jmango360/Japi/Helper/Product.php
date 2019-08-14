@@ -1107,6 +1107,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     protected function _addFileInfo($product, &$result)
     {
         if (!$this->isModuleEnabled('MageWorx_Downloads')) return;
+        if (version_compare(Mage::helper('japi')->getExtensionVersion('MageWorx_Downloads'), '1.4.4', '<=')) return;
         $result['attachment'] = Mage::helper('japi/product_file')->getItems($product);
     }
 

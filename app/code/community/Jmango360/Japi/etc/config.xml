@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>3.5.1</version>
+            <version>3.5.2</version>
         </Jmango360_Japi>
     </modules>
 
@@ -81,7 +81,7 @@
 
     <frontend>
         <secure_url>
-            <customer>/japi/</customer>
+            <japi>/japi/</japi>
         </secure_url>
         <events>
             <controller_action_predispatch>
