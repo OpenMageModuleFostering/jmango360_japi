@@ -2,7 +2,7 @@
 
 class Jmango360_Japi_Model_Observer
 {
-    public function addressBookPostcodeCheck($observe)
+    public function TIG_PostNL__addressBookPostcodeCheck($observe)
     {
         if (Mage::app()->getRequest()->getModuleName() != 'japi') return;
         if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL')) return;
@@ -16,7 +16,7 @@ class Jmango360_Japi_Model_Observer
         $block->setTemplate('japi/TIG/PostNL/address_validation/customer/address/edit.phtml');
     }
 
-    public function shippingAddressPostcodeCheck($observe)
+    public function TIG_PostNL__shippingAddressPostcodeCheck($observe)
     {
         if (Mage::app()->getRequest()->getModuleName() != 'japi') return;
         if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL')) return;
@@ -25,12 +25,15 @@ class Jmango360_Japi_Model_Observer
         $blockClass = Mage::getConfig()->getBlockClassName(TIG_PostNL_Model_AddressValidation_Observer_Onepage::SHIPPING_ADDRESS_BLOCK_NAME);
         $block = $observe->getBlock();
         if (!$block || get_class($block) != $blockClass) return;
+        if (Mage::getSingleton('core/session')->hasData(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT)) {
+            Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 1);
+        }
         if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, TIG_PostNL_Model_AddressValidation_Observer_Onepage::POSTCODECHECK_ENV)) return;
         Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 0);
         $block->setTemplate('japi/TIG/PostNL/address_validation/checkout/onepage/shipping.phtml');
     }
 
-    public function billingAddressPostcodeCheck($observe)
+    public function TIG_PostNL__billingAddressPostcodeCheck($observe)
     {
         if (Mage::app()->getRequest()->getModuleName() != 'japi') return;
         if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL')) return;
@@ -41,7 +44,25 @@ class Jmango360_Japi_Model_Observer
         if (!$block || get_class($block) != $blockClass) return;
         if (!Mage::helper('postnl/addressValidation')->isPostcodeCheckEnabled(null, TIG_PostNL_Model_AddressValidation_Observer_Onepage::POSTCODECHECK_ENV)) return;
         Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 0);
+        Mage::getSingleton('core/session')->setData(TIG_PostNL_Helper_AddressValidation::XPATH_POSTCODE_CHECK_IN_CHECKOUT, 1);
         $block->setTemplate('japi/TIG/PostNL/address_validation/checkout/onepage/billing.phtml');
+    }
+
+    public function TIG_PostNL__addDeliveryOptions($observe)
+    {
+        if (Mage::app()->getRequest()->getModuleName() != 'japi') return;
+        if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL')) return;
+        if (!class_exists('TIG_PostNL_Model_DeliveryOptions_Observer_ShippingMethodAvailable')) return;
+        if (!class_exists('TIG_PostNL_Helper_DeliveryOptions')) return;
+        $blockClass = Mage::getConfig()->getBlockClassName(TIG_PostNL_Model_DeliveryOptions_Observer_ShippingMethodAvailable::BLOCK_NAME);
+        $block = $observe->getBlock();
+        if (!$block || get_class($block) != $blockClass) return;
+        /* @var $model TIG_PostNL_Model_DeliveryOptions_Observer_ShippingMethodAvailable */
+        $model = Mage::getSingleton('postnl_deliveryoptions/observer_shippingMethodAvailable');
+        if (!$model->getCanUseDeliveryOptions()) return;
+        $model->setBpostBlockModified(true);
+        //Mage::app()->getStore()->setConfig(TIG_PostNL_Helper_DeliveryOptions::XPATH_DELIVERY_OPTIONS_ACTIVE, 0);
+        $block->setTemplate('japi/TIG/PostNL/delivery_options/onepage/available.phtml');
     }
 
     public function handleErrorCheckout($observe)
@@ -188,17 +209,28 @@ class Jmango360_Japi_Model_Observer
             $route = explode('/', $request->getPathInfo());
             if (in_array('system_config', $route)) return;
             if (count($route) > 3 && $route[1] == 'japi') {
-                if ($route[2] == 'checkout' && $route[3] == 'onepage') {
+                if (!$this->_getListModuleNeedToByPassSession() && ($route[2] == 'checkout' && $route[3] == 'onepage')) {
                     return;
                 }
                 Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
             } elseif (count($route) > 3 && in_array('japi', $route)) {
-                if (in_array('checkout', $route) && in_array('onepage', $route)) {
+                if (!$this->_getListModuleNeedToByPassSession() && (in_array('checkout', $route) && in_array('onepage', $route))) {
+                    return;
+                }
+                Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
+            } elseif (strpos(Mage::app()->getRequest()->getHeader('Referer'), 'japi/checkout/onepage') !== false) {
+                if (!$this->_getListModuleNeedToByPassSession()) {
                     return;
                 }
                 Mage::register('_singleton/core/session', Mage::getModel('japi/core_session', array('name' => 'frontend')), true);
             }
         }
+    }
+
+    protected function _getListModuleNeedToByPassSession()
+    {
+        $helper = Mage::helper('japi');
+        return $helper->isModuleEnabled('TIG_PostNL');
     }
 
     public function restAdminActionPreDispatch($observe)
@@ -237,6 +269,26 @@ class Jmango360_Japi_Model_Observer
             Mage::getResourceModel('japi/sales_report_order')->aggregate($date);
             Mage::app()->getLocale()->revert();
             $this->_logCronjob("End\n");
+            return 1;
+        } catch (Exception $e) {
+            Mage::logException($e);
+            return 0;
+        }
+    }
+
+    public function reindexProductAttributeData()
+    {
+        try {
+            if (Mage::getStoreConfigFlag('japi/indexer/product_attribute_show_in_jm360')) return 2;
+            /* @var $productCollection Mage_Catalog_Model_Resource_Product_Collection */
+            $productCollection = Mage::getResourceSingleton('catalog/product_collection');
+            $productCollection->addFieldToFilter('type_id', array('in' => array('simple', 'configurable', 'grouped', 'bundle')));
+            $productIds = $productCollection->getAllIds();
+            /* @var $productAction Mage_Catalog_Model_Product_Action */
+            $productAction = Mage::getSingleton('catalog/product_action');
+            $productAction->updateAttributes($productIds, array('show_in_jm360' => '1'), 0);
+            Mage::getConfig()->saveConfig('japi/indexer/product_attribute_show_in_jm360', 1);
+            Mage::app()->cleanCache(array(Mage_Core_Model_Config::CACHE_TAG));
             return 1;
         } catch (Exception $e) {
             Mage::logException($e);
@@ -391,6 +443,27 @@ class Jmango360_Japi_Model_Observer
                     'filter_condition_callback' => array($this, 'japiCustomerFilterConditionCallback')
                 ), 'entity_id');
                 break;
+            case 'adminhtml/catalog_product_grid':
+                if (!Mage::getStoreConfigFlag('japi/jmango_rest_catalog_settings/visible_on_app')) {
+                    return;
+                }
+
+                if (!$helper->hasJapiProductData()) {
+                    return;
+                }
+
+                $grid->addColumnAfter('hide_in_jm360', array(
+                    'header' => $helper->__('Hide on JMango360'),
+                    'index' => 'hide_in_jm360',
+                    'type' => 'options',
+                    'width' => '70px',
+                    'options' => array(
+                        0 => $helper->__('No'),
+                        1 => $helper->__('Yes')
+                    ),
+                    'renderer' => 'Jmango360_Japi_Block_Adminhtml_Catalog_Product_Grid_Column_Renderer_Hide'
+                ), 'visibility');
+                break;
         }
     }
 
@@ -399,20 +472,32 @@ class Jmango360_Japi_Model_Observer
      */
     public function eavCollectionAbstractLoadBefore($observe)
     {
+        /* @var $helper Jmango360_Japi_Helper_Data */
+        $helper = Mage::helper('japi');
+
         /* @var $collection Varien_Data_Collection_Db */
         $collection = $observe->getEvent()->getCollection();
         if (!$collection) return;
 
         if ($collection instanceof Mage_Customer_Model_Resource_Customer_Collection) {
-            $this->_addJapiToCustomerSelect($collection);
+            if (Mage::getStoreConfigFlag('japi/jmango_rest_customer_settings/display_customer_from') && $helper->hasJapiCustomerData()) {
+                $this->_addJapiToCustomerSelect($collection);
+            }
+        }
+
+        if ($collection instanceof Mage_Catalog_Model_Resource_Product_Collection) {
+            if (Mage::getStoreConfigFlag('japi/jmango_rest_catalog_settings/visible_on_app') && $helper->hasJapiProductData()) {
+                //$this->_addJapiToProductSelect($collection);
+                $collection->addAttributeToSelect('hide_in_jm360');
+            }
         }
     }
 
     /**
-     * @param $collection Mage_Sales_Model_Resource_Order_Grid_Collection
-     * @param $column Mage_Adminhtml_Block_Widget_Grid_Column
-     *
      * Customer mobile filter callback
+     *
+     * @param $collection Mage_Customer_Model_Resource_Customer_Collection
+     * @param $column Mage_Adminhtml_Block_Widget_Grid_Column
      */
     public function japiCustomerFilterConditionCallback($collection, $column)
     {
@@ -423,7 +508,7 @@ class Jmango360_Japi_Model_Observer
     /**
      * Add japi with ifnull condition to customer select
      *
-     * @param Varien_Data_Collection_Db $collection
+     * @param Mage_Customer_Model_Resource_Customer_Collection $collection
      */
     protected function _addJapiToCustomerSelect($collection)
     {
@@ -436,5 +521,52 @@ class Jmango360_Japi_Model_Observer
         } catch (Exception $e) {
             Mage::logException($e);
         }
+    }
+
+    /**
+     * Support TIG_PostNL
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function TIG_PostNL__saveOrderOptions(Varien_Event_Observer $observer)
+    {
+        if (!Mage::helper('core')->isModuleEnabled('TIG_PostNL'))
+            return $this;
+
+        /* @var $obj TIG_PostNL_Model_DeliveryOptions_Observer_UpdatePostnlOrder */
+        $obj = Mage::getSingleton('postnl_deliveryoptions/observer_updatePostnlOrder');
+        $obj->saveOptions($observer);
+    }
+
+    /**
+     * Support Vaimo_Klarna
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function Vaimo_Klarna__checkLaunchKlarnaCheckout(Varien_Event_Observer $observer)
+    {
+        if (!Mage::helper('core')->isModuleEnabled('Vaimo_Klarna'))
+            return $this;
+
+        /* @var $obj Vaimo_Klarna_Model_Observer */
+        $obj = Mage::getSingleton('klarna/observer');
+        $obj->checkLaunchKlarnaCheckout($observer);
+    }
+
+    /**
+     * MPLUGIN-1324: fix issue "Session expired" for Japi checkout onepage
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function japiOnepagePreDispatch(Varien_Event_Observer $observer)
+    {
+        $session = Mage::getSingleton('core/session');
+        $sessionId = $session->getSessionId();
+        /** @var Mage_Core_Model_Cookie $cookie */
+        $cookie = Mage::getModel('core/cookie');
+        $cookie->set('frontend', $sessionId, null, '/japi/checkout', Mage::app()->getRequest()->getHttpHost(), null, true);
     }
 }

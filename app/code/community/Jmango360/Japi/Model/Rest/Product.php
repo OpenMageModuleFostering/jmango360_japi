@@ -38,12 +38,68 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
                 $this->_getResponse()->render($data);
                 $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
                 break;
+            case 'getRelated' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getRelatedProducts();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getCrossSell' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getCrossSellProducts();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getUpSell' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getUpSellProducts();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
+            case 'getProductId' . Jmango360_Japi_Model_Request::OPERATION_RETRIEVE:
+                $data = $this->_getProductId();
+                $this->_getResponse()->render($data);
+                $this->_getResponse()->setHttpResponseCode(Jmango360_Japi_Model_Server::HTTP_OK);
+                break;
             default:
                 throw new Jmango360_Japi_Exception(
                     Mage::helper('japi')->__('Resource method not implemented'),
                     Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
                 );
         }
+    }
+
+    protected function _getProductId()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Url */
+        $model = Mage::getModel('japi/rest_product_url');
+        $data = $model->getProductId();
+
+        return $data;
+    }
+
+    protected function _getRelatedProducts()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Related */
+        $model = Mage::getModel('japi/rest_product_related');
+        $data = $model->getList();
+
+        return $data;
+    }
+
+    protected function _getCrossSellProducts()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Crosssell */
+        $model = Mage::getModel('japi/rest_product_crosssell');
+        $data = $model->getList();
+
+        return $data;
+    }
+
+    protected function _getUpSellProducts()
+    {
+        /* @var $model Jmango360_Japi_Model_Rest_Product_Upsell */
+        $model = Mage::getModel('japi/rest_product_upsell');
+        $data = $model->getList();
+
+        return $data;
     }
 
     protected function _getProductList()
@@ -75,6 +131,29 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
 
     protected function _getProductDetail()
     {
+        $product = $this->_initProduct();
+
+        Mage::dispatchEvent('catalog_controller_product_view', array('product' => $product));
+
+        /* @var $helper Jmango360_Japi_Helper_Product */
+        $helper = Mage::helper('japi/product');
+        $data['product'] = $helper->convertProductIdToApiResponseV2($product->getId());
+        if (!$data['product']) {
+            throw new Jmango360_Japi_Exception(
+                Mage::helper('japi')->__('Product not found'),
+                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
+            );
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return Mage_Catalog_Model_Product
+     * @throws Jmango360_Japi_Exception
+     */
+    protected function _initProduct()
+    {
         $id = $this->_getRequest()->getParam('product_id', 0);
 
         if (!$id || !is_numeric($id) || $id <= 0) {
@@ -84,27 +163,17 @@ class Jmango360_Japi_Model_Rest_Product extends Mage_Core_Model_Abstract
             );
         }
 
-        $product = Mage::getModel('catalog/product')->load($id, array('sku'));
-        if (!$product->getId()) {
+        $product = Mage::getModel('catalog/product')->load($id, array('sku', 'hide_in_jm360'));
+        if (!$product->getId() || $product->getData('hide_in_jm360') == 1) {
             throw new Jmango360_Japi_Exception(
                 Mage::helper('japi')->__('Product not found'),
                 Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
             );
         }
 
-        Mage::dispatchEvent('catalog_controller_product_view', array('product' => $product));
+        Mage::register('current_product', $product);
 
-        /* @var $helper Jmango360_Japi_Helper_Product */
-        $helper = Mage::helper('japi/product');
-        $data['product'] = $helper->convertProductIdToApiResponseV2($id);
-        if (!$data['product']) {
-            throw new Jmango360_Japi_Exception(
-                Mage::helper('japi')->__('Product not found'),
-                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
-            );
-        }
-
-        return $data;
+        return $product;
     }
 
     protected function _getRecentlyViewed()

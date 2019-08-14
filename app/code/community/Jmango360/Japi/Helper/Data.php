@@ -17,6 +17,18 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
     );
 
     /**
+     * Set session cookie if website not accept SID
+     */
+    public function checkValidSession()
+    {
+        $SID = Mage::app()->getRequest()->getParam('SID');
+        $sid = Mage::getSingleton('core/session')->getSessionId();
+        if ($SID != $sid) {
+            setcookie(session_name(), $SID, time() + Mage::app()->getCookie()->getLifetime(), '/');
+        }
+    }
+
+    /**
      * @param $form Mage_Eav_Model_Form
      * @param $excluded array
      * @return array
@@ -146,6 +158,16 @@ class Jmango360_Japi_Helper_Data extends Mage_Core_Helper_Abstract
         /* @var $setup Mage_Eav_Model_Entity_Setup */
         $setup = new Mage_Eav_Model_Entity_Setup('core_setup');
         return $setup->getAttribute('customer', 'japi');
+    }
+
+    /**
+     * Check if product entity has "hide_in_jm360" attribute
+     */
+    public function hasJapiProductData()
+    {
+        /* @var $setup Mage_Eav_Model_Entity_Setup */
+        $setup = new Mage_Eav_Model_Entity_Setup('core_setup');
+        return $setup->getAttribute(Mage_Catalog_Model_Product::ENTITY, 'hide_in_jm360');
     }
 
     /**

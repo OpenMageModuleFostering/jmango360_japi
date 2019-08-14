@@ -58,7 +58,7 @@
         <update handle="japi_checkout_default"/>
         <reference name="content">
             <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
-            <block type="checkout/onepage" name="checkout.onepage" template="japi/checkout/onepage.phtml">
+            <block type="japi/checkout_onepage" name="checkout.onepage" template="japi/checkout/onepage.phtml">
                 <block type="checkout/onepage_billing" name="checkout.onepage.billing" as="billing" template="japi/checkout/onepage/billing.phtml">
                     <block type="japi/form" name="form.additional.info">
                         <action method="setPrefix"><value>billing</value></action>

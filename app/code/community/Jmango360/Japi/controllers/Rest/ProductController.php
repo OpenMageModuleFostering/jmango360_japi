@@ -43,4 +43,32 @@ class Jmango360_Japi_Rest_ProductController extends Jmango360_Japi_Controller_Ab
         $server->setRestDispatchModel(Mage::getModel('japi/rest_product'));
         $server->run();
     }
+
+    public function getRelatedAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_product'));
+        $server->run();
+    }
+
+    public function getCrossSellAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_product'));
+        $server->run();
+    }
+
+    public function getUpSellAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_product'));
+        $server->run();
+    }
+
+    public function getProductIdAction()
+    {
+        $server = $this->getServer();
+        $server->setRestDispatchModel(Mage::getModel('japi/rest_product'));
+        $server->run();
+    }
 }

@@ -34,6 +34,7 @@ class Jmango360_Japi_Model_Rest_Product_Search extends Jmango360_Japi_Model_Rest
             $block = $this->_getSearchLayerBlock();
             /* @var $productCollection Mage_Catalog_Model_Resource_Product_Collection */
             $productCollection = $block->getLayer()->getProductCollection();
+            Mage::helper('japi/product')->applyHideOnAppFilter($productCollection);
 
             /* @var $resource Mage_Core_Model_Resource */
             $resource = Mage::getSingleton('core/resource');

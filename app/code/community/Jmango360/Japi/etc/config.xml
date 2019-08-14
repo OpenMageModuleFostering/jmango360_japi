@@ -7,7 +7,7 @@
 <config>
     <modules>
         <Jmango360_Japi>
-            <version>2.8.2</version>
+            <version>2.9.0</version>
         </Jmango360_Japi>
     </modules>
 
@@ -81,6 +81,24 @@
 
     <frontend>
         <events>
+            <controller_action_predispatch_japi_checkout_onepage>
+                <observers>
+                    <vaimo_klarna>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>Vaimo_Klarna__checkLaunchKlarnaCheckout</method>
+                    </vaimo_klarna>
+                </observers>
+            </controller_action_predispatch_japi_checkout_onepage>
+            <controller_action_postdispatch_japi_checkout_saveShippingMethod>
+                <observers>
+                    <tig_postnl>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>TIG_PostNL__saveOrderOptions</method>
+                    </tig_postnl>
+                </observers>
+            </controller_action_postdispatch_japi_checkout_saveShippingMethod>
             <controller_action_postdispatch_checkout_onepage_success>
                 <observers>
                     <rest_checkout_success>
@@ -134,18 +152,23 @@
                     <tig_postnl_customer_address_edit_postcodecheck>
                         <type>singleton</type>
                         <class>japi/observer</class>
-                        <method>addressBookPostcodeCheck</method>
+                        <method>TIG_PostNL__addressBookPostcodeCheck</method>
                     </tig_postnl_customer_address_edit_postcodecheck>
                     <tig_postnl_checkout_onepage_shipping_postcodecheck>
                         <type>singleton</type>
                         <class>japi/observer</class>
-                        <method>shippingAddressPostcodeCheck</method>
+                        <method>TIG_PostNL__shippingAddressPostcodeCheck</method>
                     </tig_postnl_checkout_onepage_shipping_postcodecheck>
                     <tig_postnl_checkout_onepage_billing_postcodecheck>
                         <type>singleton</type>
                         <class>japi/observer</class>
-                        <method>billingAddressPostcodeCheck</method>
+                        <method>TIG_PostNL__billingAddressPostcodeCheck</method>
                     </tig_postnl_checkout_onepage_billing_postcodecheck>
+                    <tig_postnl_checkout_deliveryoptions>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>TIG_PostNL__addDeliveryOptions</method>
+                    </tig_postnl_checkout_deliveryoptions>
                 </observers>
             </core_block_abstract_to_html_before>
             <customer_register_success>
@@ -157,6 +180,15 @@
                     </japi_customer_register_success>
                 </observers>
             </customer_register_success>
+            <controller_action_predispatch_japi_checkout_onepage>
+                <observers>
+                    <japi_predispatch_japi_checkout_onepage>
+                        <type>singleton</type>
+                        <class>japi/observer</class>
+                        <method>japiOnepagePreDispatch</method>
+                    </japi_predispatch_japi_checkout_onepage>
+                </observers>
+            </controller_action_predispatch_japi_checkout_onepage>
         </events>
         <routers>
             <japi>
@@ -264,6 +296,7 @@
             <jmango_rest_catalog_settings>
                 <include_all_active>1</include_all_active>
                 <hide_null_value>0</hide_null_value>
+                <visible_on_app>0</visible_on_app>
             </jmango_rest_catalog_settings>
             <jmango_rest_checkout_settings>
                 <onepage>1</onepage>

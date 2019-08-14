@@ -12,6 +12,7 @@ class Jmango360_Japi_Model_Rest_Product_List extends Jmango360_Japi_Model_Rest_C
         if (is_object($category) && $category->getId()) {
             $block = $this->_getListBlock();
             $productCollection = $block->getLayer()->getProductCollection();
+            Mage::helper('japi/product')->applyHideOnAppFilter($productCollection);
 
             /* @var $resource Mage_Core_Model_Resource */
             $resource = Mage::getSingleton('core/resource');

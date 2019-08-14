@@ -541,6 +541,10 @@ span.price {
   }
 }
 
+.account-create .success-msg {
+  display: block;
+}
+
 .account-address .success-msg {
   display: block;
 }
@@ -769,6 +773,110 @@ span.price {
 
       &[type="radio"], &[type="checkbox"] {
         width: auto;
+      }
+    }
+  }
+}
+
+/******** Afterpay_Afterpay ********/
+.sp-methods dd {
+  .klarna_readme {
+    padding: 0 1em;
+  }
+
+  .payment_plan_wrapper {
+    margin: 0;
+
+    .payment_plan {
+      li {
+        padding: 1em 0;
+      }
+
+      .payment_plan_info_wrapper {
+        padding: 0;
+
+        dl {
+          float: left;
+          margin: 0;
+
+          dt, dd {
+            border: 0;
+            padding: 0.5em;
+          }
+
+          dt {
+            width: 70%;
+
+            &:last-child {
+              width: 100%;
+            }
+          }
+
+          dd {
+            width: 29%;
+          }
+        }
+      }
+    }
+  }
+
+  ul.klarna-input-box {
+    margin-top: 0;
+
+    > li {
+      padding: 0;
+      margin-bottom: 1em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      > br {
+        display: none;
+      }
+
+      > input[type="text"] {
+        width: 100% !important;
+      }
+
+      > button.form-button {
+        width: 100% !important;
+        margin: 0.5em 0 0 !important;
+      }
+
+      .update-address-indicator {
+        text-align: center;
+        display: block;
+      }
+
+      .klarna_msg_txt {
+        li {
+          padding: 0;
+        }
+      }
+    }
+
+    .klarna_dob {
+      input[type="text"] {
+        width: 31% !important;
+      }
+    }
+
+    .gender-input-box {
+      input, label {
+        display: inline;
+      }
+    }
+
+    .klarna_notification {
+      background: #fcf8e3;
+      border: 1px solid #faebcc;
+      padding: 0.5em !important;
+      color: #8a6d3b;
+      margin: 0;
+
+      &:before {
+        background: none;
       }
     }
   }

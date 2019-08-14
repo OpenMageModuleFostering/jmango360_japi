@@ -5,8 +5,9 @@
 ?>
 <?php /* @var $this Jmango360_Japi_Block_Form */ ?>
 <?php foreach ($this->getFields() as $field): ?>
-    <li class="wide">
-        <label class="<?php echo $field['required'] ? 'required' : '' ?>" for="">
+    <li class="wide" id="<?php echo str_replace(' ', '_', $field['key']) ?>_wrapper">
+        <label class="<?php echo $field['required'] ? 'required' : '' ?>"
+               for="<?php echo $this->getFieldId($field['key']) ?>">
             <?php if ($field['required']): ?><em>*</em><?php endif ?>
             <?php echo $this->__($field['label']) ?>
         </label>
@@ -35,6 +36,18 @@
                            value="1"
                            checked="<?php echo $this->getFieldValue($field['key']) ? 'checked' : '' ?>"
                            class="input-text<?php echo $field['required'] ? ' required-entry' : '' ?>"/>
+                    <?php break; ?>
+                <?php case 'hidden': ?>
+                    <input type="hidden"
+                           name="<?php echo $this->getFieldName($field['key']) ?>"
+                           id="<?php echo $this->getFieldId($field['key']) ?>"
+                           value="<?php echo $this->escapeHtml($this->getFieldValue($field['key'])) ?>"/>
+                    <?php break; ?>
+                <?php case 'textarea': ?>
+                    <textarea
+                        name="<?php echo $this->getFieldName($field['key']) ?>"
+                        id="<?php echo $this->getFieldId($field['key']) ?>"
+                        class="input-text<?php echo $field['required'] ? ' required-entry' : '' ?>"><?php echo $this->escapeHtml($this->getFieldValue($field['key'])) ?></textarea>
                     <?php break; ?>
                 <?php default: ?>
                     <input type="text"

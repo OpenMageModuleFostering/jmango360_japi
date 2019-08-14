@@ -156,6 +156,15 @@ class Jmango360_Japi_CustomerController extends Mage_Customer_AccountController
         }
     }
 
+    protected function _welcomeCustomer(Mage_Customer_Model_Customer $customer, $isJustConfirmed = false)
+    {
+        $url = parent::_welcomeCustomer($customer, $isJustConfirmed);
+        $this->_getSession()->addSuccess(
+            $this->__('Please close this form and login with your new account.')
+        );
+        return $url;
+    }
+
     protected function _getCustomer()
     {
         $customer = $this->_getFromRegistry('current_customer');

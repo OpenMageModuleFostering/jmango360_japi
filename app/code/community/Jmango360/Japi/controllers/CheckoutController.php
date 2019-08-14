@@ -94,6 +94,12 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
     {
         /* @var $helper Jmango360_Japi_Helper_Data */
         $helper = Mage::helper('japi');
+
+        /**
+         * MPLUGIN-1377: Reset PHPSESSID
+         */
+        $helper->checkValidSession();
+
         $checkoutUrl = $helper->getCheckoutUrl();
         if ($checkoutUrl) $this->_redirectUrl($checkoutUrl);
         else $this->_redirect('checkout/onepage', array('_secure' => true));
@@ -223,6 +229,18 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
     <block type=\"postnl_mijnpakket/js\" name=\"postnl_mijnpakket_js\" template=\"TIG/PostNL/mijnpakket/js.phtml\"/>
     <block type=\"postnl_mijnpakket/loginButton\" name=\"postnl_mijnpakket_login\" template=\"TIG/PostNL/mijnpakket/onepage/login_button.phtml\"/>
     <block type=\"postnl_deliveryoptions/pickupNotification\" name=\"postnl_billing_pickup_notification\" template=\"TIG/PostNL/delivery_options/onepage/pickup_notification.phtml\"/>
+</reference>";
+        }
+
+        if ($helper->isModuleEnabled('Vaimo_Klarna')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addJs\"><script>vaimo/klarna/klarna.js</script></action>
+    <action method=\"addCss\"><stylesheet>css/vaimo/klarna/checkout.css</stylesheet></action>
+    <block type=\"page/html_head\" name=\"klarna_header\" as=\"klarna_header\" template=\"vaimo/klarna/checkout/header.phtml\" />
+</reference>
+<reference name=\"content\">
+    <block type=\"klarna/checkout_top\" after=\"-\" name=\"klarna_checkout_top\" as=\"klarna_checkout_top\" template=\"vaimo/klarna/checkout/top.phtml\" />
 </reference>";
         }
 

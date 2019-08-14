@@ -452,6 +452,9 @@ span.price {
 .account-edit .buttons-set {
   padding: 1em 0;
 }
+.account-create .success-msg {
+  display: block;
+}
 .account-address .success-msg {
   display: block;
 }
@@ -635,4 +638,79 @@ span.price {
 #dd_method_msp_klarna .form-list li input[type="radio"],
 #dd_method_msp_klarna .form-list li input[type="checkbox"] {
   width: auto;
+}
+/******** Afterpay_Afterpay ********/
+.sp-methods dd .klarna_readme {
+  padding: 0 1em;
+}
+.sp-methods dd .payment_plan_wrapper {
+  margin: 0;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan li {
+  padding: 1em 0;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper {
+  padding: 0;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl {
+  float: left;
+  margin: 0;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl dt,
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl dd {
+  border: 0;
+  padding: 0.5em;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl dt {
+  width: 70%;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl dt:last-child {
+  width: 100%;
+}
+.sp-methods dd .payment_plan_wrapper .payment_plan .payment_plan_info_wrapper dl dd {
+  width: 29%;
+}
+.sp-methods dd ul.klarna-input-box {
+  margin-top: 0;
+}
+.sp-methods dd ul.klarna-input-box > li {
+  padding: 0;
+  margin-bottom: 1em;
+}
+.sp-methods dd ul.klarna-input-box > li:last-child {
+  margin-bottom: 0;
+}
+.sp-methods dd ul.klarna-input-box > li > br {
+  display: none;
+}
+.sp-methods dd ul.klarna-input-box > li > input[type="text"] {
+  width: 100% !important;
+}
+.sp-methods dd ul.klarna-input-box > li > button.form-button {
+  width: 100% !important;
+  margin: 0.5em 0 0 !important;
+}
+.sp-methods dd ul.klarna-input-box > li .update-address-indicator {
+  text-align: center;
+  display: block;
+}
+.sp-methods dd ul.klarna-input-box > li .klarna_msg_txt li {
+  padding: 0;
+}
+.sp-methods dd ul.klarna-input-box .klarna_dob input[type="text"] {
+  width: 31% !important;
+}
+.sp-methods dd ul.klarna-input-box .gender-input-box input,
+.sp-methods dd ul.klarna-input-box .gender-input-box label {
+  display: inline;
+}
+.sp-methods dd ul.klarna-input-box .klarna_notification {
+  background: #fcf8e3;
+  border: 1px solid #faebcc;
+  padding: 0.5em !important;
+  color: #8a6d3b;
+  margin: 0;
+}
+.sp-methods dd ul.klarna-input-box .klarna_notification:before {
+  background: none;
 }

@@ -59,7 +59,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         'special_from_date',
         'special_to_date',
         'image',
-        'media_gallery'
+        'media_gallery',
+        'hide_in_jm360'
     );
 
     /**
@@ -74,7 +75,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         'short_description',
         'visibility',
         'price',
-        'image'
+        'image',
+        'hide_in_jm360'
     );
 
     /**
@@ -247,10 +249,43 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $data['available_limit'] = $toolBarBlock->getAvailableLimit();
 
         $data['current_order'] = $toolBarBlock->getCurrentOrder();
-        $data['current_direction'] = $toolBarBlock->getCurrentDirection();
+        $currentDirection = $this->_getCurrentDirection($collection);
+        if (!$currentDirection) $currentDirection = $toolBarBlock->getCurrentDirection();
+        $data['current_direction'] = $currentDirection;
         $data['available_orders'] = $toolBarBlock->getAvailableOrders();
 
         return $data;
+    }
+
+    /**
+     * Get Toobar direction from layout frontend
+     *
+     * @param  Mage_Catalog_Model_Resource_Product_Collection $collection
+     * @return string
+     * @throws Mage_Core_Exception
+     */
+    protected function _getCurrentDirection($collection)
+    {
+        $_cacheKey = 'japi_catalog_current_direction_' . Mage::app()->getStore()->getStoreId();
+        $cache = Mage::app()->getCache();
+        if ($dir = $cache->load($_cacheKey)) {
+            return $dir;
+        }
+        $layout = Mage::app()->getLayout();
+        $update = $layout->getUpdate();
+        $update->load('catalog_category_layered');
+        $layout->generateXml();
+        $layout->generateBlocks();
+        $block = $layout->getBlock('product_list_toolbar');
+        if ($block) {
+            $block->setCollection($collection);
+            if ($dir = $block->getCurrentDirection()) {
+                $cache->save($dir, $_cacheKey, array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG), null);
+                return $dir;
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -294,19 +329,37 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             return null;
         }
 
+        /* @var $collection Mage_Catalog_Model_Resource_Product_Collection */
         $collection = Mage::getResourceModel('catalog/product_collection')
             ->setStoreId(Mage::app()->getStore()->getId())
             ->addAttributeToSelect(Mage::getSingleton('catalog/config')->getProductAttributes())
+            ->addFieldToFilter('type_id', array('in' => array('simple', 'configurable', 'grouped', 'bundle')))
             ->addMinimalPrice()
             ->addFinalPrice()
             ->addTaxPercents()
             ->addIdFilter($product);
+
+        $this->applyHideOnAppFilter($collection);
 
         Mage::getSingleton('catalog/product_status')->addVisibleFilterToCollection($collection);
         //Mage::getSingleton('catalog/product_visibility')->addVisibleInCatalogFilterToCollection($collection);
 
         $result = $this->convertProductCollectionToApiResponseV2($collection, true);
         return count($result) ? array_pop($result) : null;
+    }
+
+    /**
+     * Apply filter 'hide_in_jm360'
+     *
+     * @param Mage_Catalog_Model_Resource_Product_Collection $collection
+     */
+    public function applyHideOnAppFilter($collection)
+    {
+        if (!$collection) return;
+        $collection->addAttributeToFilter(array(
+            array('attribute' => 'hide_in_jm360', 'null' => true),
+            array('attribute' => 'hide_in_jm360', 'eq' => 0)
+        ), null, 'left');
     }
 
     /**
@@ -522,6 +575,7 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             $this->_addConfigurableAttributes($product, $result, true);
             $this->_addGroupedItems($product, $result, true);
             $this->_addBundleInfo($product, $result);
+            $this->_addFileInfo($product, $result);
         } else {
             if ($product->getTypeId() == 'bundle') {
                 $result['bundle_attributes'] = Mage::helper('japi/product_bundle')->getBundleAttributes($product);
@@ -548,14 +602,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
             if (in_array($attributeCode, array('short_description', 'description'))) {
                 if ($attribute->getData('is_wysiwyg_enabled') == 1) {
-                    $html = '<style>';
-                    $html .= 'pre,code,blockquote{white-space:normal!important;}';
-                    $html .= 'table{width:100%!important;}';
-                    $html .= '</style>';
+                    $html = $this->_getCustomHtmlStyle();
                     $html .= $productHelper->productAttribute(
                         $product, $product->getData($attributeCode), $attributeCode
                     );
-                    $result[$attributeCode] = $html;
+                    $result[$attributeCode] = $this->_cleanHtml($html);
                 } else {
                     $result[$attributeCode] = $product->getData($attributeCode);
                 }
@@ -710,12 +761,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 if (!$attrContent || $attrContent == '' || trim(strip_tags($attrContent)) == '') {
                     $result[$attributeCode] = '';
                 } else {
-                    $html = '<style>';
-                    $html .= 'pre,code,blockquote{white-space:normal!important;}';
-                    $html .= 'table{width:100%!important;}';
-                    $html .= '</style>';
+                    $html = $this->_getCustomHtmlStyle();
                     $html .= $attrContent;
-                    $result[$attributeCode] = $html;
+                    $result[$attributeCode] = $this->_cleanHtml($html);
                 }
             } else {
                 $result[$attributeCode] = $product->getData($attributeCode);
@@ -786,6 +834,46 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $result['price'] = $this->calculatePriceIncludeTax($product, $this->_getSCPBasePrice($product));
 
         return $result;
+    }
+
+    /**
+     * Return download files from MageWorx_Downloads
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param $result
+     */
+    protected function _addFileInfo($product, &$result)
+    {
+        if (!$this->isModuleEnabled('MageWorx_Downloads')) return;
+        $result['attachment'] = Mage::helper('japi/product_file')->getItems($product);
+    }
+
+    /**
+     * Return custom CSS for WYSIWYG field
+     */
+    protected function _getCustomHtmlStyle()
+    {
+        $css = '<style type="text/css">';
+        $css .= 'pre,code,blockquote{white-space:normal!important;}';
+        $css .= 'table{width:100%!important;}';
+        if ($custtomCss = Mage::getStoreConfig('japi/jmango_rest_catalog_settings/custom_css')) {
+            $css .= str_replace("\n", '', $custtomCss);
+        }
+        $css .= '</style>';
+
+        return $css;
+    }
+
+    /**
+     * Remove: &nbsp;
+     *
+     * @param string $html
+     * @return string
+     */
+    protected function _cleanHtml($html)
+    {
+        if (!$html) return $html;
+        return str_replace('&nbsp; ', ' ', str_replace('&nbsp;&nbsp;', ' ', $html));
     }
 
     /**

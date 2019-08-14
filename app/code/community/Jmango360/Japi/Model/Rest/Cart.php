@@ -80,14 +80,16 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         $session->replaceQuote($quote);
     }
 
-    public function getCartData()
+    public function getCartData($needValidate = true)
     {
-        // if mobile version < 2.9.0, we should throw any error found
-        $throwError = Mage::getSingleton('core/session')->getIsOffilneCart();
+        if ($needValidate) {
+            // if mobile version < 2.9.0, we should throw any error found
+            $throwError = Mage::getSingleton('core/session')->getIsOffilneCart();
 
-        $this->_validateQuote(!$throwError);
-        $this->_validateMinimumAmount(!$throwError);
-        $this->_validateGuestCanCheckout(!$throwError);
+            $this->_validateQuote(!$throwError);
+            $this->_validateMinimumAmount(!$throwError);
+            $this->_validateGuestCanCheckout(!$throwError);
+        }
 
         $cart = $this->getQuote()->getData();
 
@@ -288,7 +290,7 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
                 'type' => 1
             );
 
-        $data['cart'] = $this->getCartData();
+        $data['cart'] = $this->getCartData(false);
         if ($data['cart'] === false) {
             return $this->_getCart();
         }

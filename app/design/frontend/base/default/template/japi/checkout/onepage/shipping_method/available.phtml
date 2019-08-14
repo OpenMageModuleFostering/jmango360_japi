@@ -37,10 +37,10 @@
             <ul>
             <?php $_sole = $_sole && count($_rates) == 1; foreach ($_rates as $_rate): ?>
                 <?php $shippingCodePrice[] = "'".$_rate->getCode()."':".(float)$_rate->getPrice(); ?>
-                <li>
-                   <?php if ($_rate->getErrorMessage()): ?>
-                    <ul class="messages"><li class="error-msg"><ul><li><?php echo $this->escapeHtml($_rate->getErrorMessage()) ?></li></ul></li></ul>
-                   <?php else: ?>
+                <li class="<?php echo $code ?>_wrapper">
+                    <?php if ($_rate->getErrorMessage()): ?>
+                        <ul class="messages"><li class="error-msg"><ul><li><?php echo $this->escapeHtml($_rate->getErrorMessage()) ?></li></ul></li></ul>
+                    <?php else: ?>
                         <?php if ($_sole) : ?>
                         <span class="no-display"><input name="shipping_method" type="radio" value="<?php echo $_rate->getCode() ?>" id="s_method_<?php echo $_rate->getCode() ?>" checked="checked" /></span>
                         <?php else: ?>
@@ -60,12 +60,11 @@
                         /**
                          * MPLUGIN-1203: don't use escape HTML when display method title for "Netzkollektiv_InStorePickupMulti"
                          */
-                            if (Mage::helper('japi')->isModuleEnabled('Netzkollektiv_InStorePickupMulti')
-                                && $_rate->getCarrier() == 'instorepickupmulti') {
-                                echo $_rate->getMethodTitle();
-                            } else {
-                                echo $this->escapeHtml($_rate->getMethodTitle());
-                            }
+                        if (Mage::helper('japi')->isModuleEnabled('Netzkollektiv_InStorePickupMulti') && $_rate->getCarrier() == 'instorepickupmulti') {
+                            echo $_rate->getMethodTitle();
+                        } else {
+                            echo $this->escapeHtml($_rate->getMethodTitle());
+                        }
                         ?>
                         <?php $_excl = $this->getShippingPrice($_rate->getPrice(), $this->helper('tax')->displayShippingPriceIncludingTax()); ?>
                         <?php $_incl = $this->getShippingPrice($_rate->getPrice(), true); ?>
@@ -74,7 +73,17 @@
                             (<?php echo $this->__('Incl. Tax'); ?> <?php echo $_incl; ?>)
                         <?php endif; ?>
                         </label>
-                   <?php endif ?>
+                        <?php
+                        $carrier = Mage::getModel('shipping/config')->getCarrierInstance($code);
+                        if ($carrier && $carrier->getFormBlock()){
+                            $block = $this->getLayout()->createBlock($carrier->getFormBlock());
+                            $block->setMethodCode($code);
+                            $block->setRate($_rate);
+                            $block->setMethodInstance($carrier);
+                            echo $block->_toHtml();
+                        }
+                        ?>
+                    <?php endif ?>
                 </li>
             <?php endforeach; ?>
             </ul>
@@ -108,5 +117,41 @@
        });
     });
 //]]>
+</script>
+
+<!-- Experius_Pickup -->
+<script type="text/javascript">
+    JMango(document).ready(function(){
+        hideShippingAll();
+        JMango('input[type="radio"][name="shipping_method"]').click(function(){
+            hideShippingAll();
+            var code = JMango(this).val();
+            if(JMango(this).is(':checked')){
+                showShipping(code);
+            }
+        });
+
+        JMango('input[type="radio"][name="shipping_method"]').each(function(){
+            var code = JMango(this).val();
+            if(JMango(this).is(":checked")){
+                showShipping(code);
+            }
+        });
+    });
+
+    function showShipping(code){
+        if(JMango('#'+'shipping_form_'+code).length != 0){
+            JMango('#'+'shipping_form_'+code).show();
+            JMango(this).find('.required-entry').attr('disabled','false');
+        }
+    }
+
+    function hideShippingAll(){
+        JMango('input[type="radio"][name="shipping_method"]').each(function(){
+            var code = JMango(this).val();
+            JMango('#'+'shipping_form_'+code).hide();
+            JMango(this).find('.required-entry').attr('disabled','true');
+        });
+    }
 </script>
 <?php endif; ?>
