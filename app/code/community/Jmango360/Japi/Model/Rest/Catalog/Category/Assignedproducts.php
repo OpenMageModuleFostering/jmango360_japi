@@ -62,6 +62,14 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
     protected function _getLayerBlock()
     {
         /**
+         * MPLUGIN-2270: Support GoMage_Navigation
+         */
+        if (Mage::helper('core')->isModuleEnabled('GoMage_Navigation')) {
+            Mage::app()->getLayout()->createBlock('page/html_head', 'head');
+            return Mage::helper('japi')->getBlock('GoMage_Navigation_Block_Layer_View');
+        }
+
+        /**
          * MPLUGIN-1601: Support Amasty_Shopby
          */
         if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')) {
@@ -143,7 +151,11 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
     protected function _filterToArray($filter)
     {
         $data = array();
-        $data['name'] = Mage::helper('japi')->__($filter->getName());
+        if (stripos($_SERVER['HTTP_HOST'], 'dangerousminds') !== false) {
+            $data['name'] = $filter->getName();
+        } else {
+            $data['name'] = Mage::helper('japi')->__($filter->getName());
+        }
         $data['code'] = $filter->getAttributeModel()->getAttributeCode();
         if ($filter instanceof Amasty_Shopby_Block_Catalog_Layer_Filter_Attribute) {
             foreach ($filter->getItemsAsArray() as $item) {

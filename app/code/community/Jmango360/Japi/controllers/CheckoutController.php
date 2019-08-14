@@ -874,6 +874,11 @@ class Jmango360_Japi_CheckoutController extends Jmango360_Japi_Checkout_Abstract
         $server->setIsSubmit();
 
         if ($requiredAgreements = Mage::helper('checkout')->getRequiredAgreementIds()) {
+            if (strpos(Mage::getUrl(), 'deltastar.nl') !== false) {
+                $exceptAgreementId = '4';
+                $key = array_search($exceptAgreementId, $requiredAgreements);
+                unset($requiredAgreements[$key]);
+            }
             $postedAgreements = array_keys($this->getRequest()->getPost('agreement', array()));
             $diff = array_diff($requiredAgreements, $postedAgreements);
             if ($diff) {
