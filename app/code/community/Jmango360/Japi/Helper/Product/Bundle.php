@@ -180,11 +180,7 @@ class Jmango360_Japi_Helper_Product_Bundle extends Mage_Core_Helper_Abstract
 
         /* @var $taxHelper Jmango360_Japi_Helper_Product */
         $taxHelper = Mage::helper('japi/product');
-        $priceTax = $taxHelper->calculatePriceIncludeTax($product, $price);
-
-        /* @var $storeHelper Mage_Core_Helper_Data */
-        //$storeHelper = Mage::helper('core');
-        //$priceStore = $storeHelper->currencyByStore($priceTax, null, false);
+        $priceTax = $taxHelper->calculatePriceIncludeTax($product, $price, true, false);
 
         return $priceTax;
     }

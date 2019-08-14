@@ -1094,15 +1094,20 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
     /**
      * This function will return product final price with/without tax
      * that based on Tax settings in Sale -> Tax & System -> Sale -> Tax
-     * and convert to store currency
+     * and convert to store currency, include weee tax if needed
      *
      * @param Mage_Catalog_Model_Product $_product
      * @param float $productFinalPrice
      * @param bool $convertPrice
+     * @param bool $includeWeeeTax
      * @return float
      */
-
-    public function calculatePriceIncludeTax(Mage_Catalog_Model_Product $_product, $productFinalPrice, $convertPrice = true)
+    public function calculatePriceIncludeTax(
+        Mage_Catalog_Model_Product $_product,
+        $productFinalPrice,
+        $convertPrice = true,
+        $includeWeeeTax = true
+    )
     {
         if (version_compare(Mage::getVersion(), '1.8.1.0', '<')) {
             /* @var $taxHelper Jmango360_Japi_Helper_Tax */
@@ -1139,10 +1144,39 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             $productFinalPrice = $taxHelper->getPrice($_product, $productFinalPrice, true, null, null, $customerTaxClass, null, null, false);
         }
 
+        /**
+         * MPLUGIN-1715: Add weee tax
+         */
+        $weeeTaxAmountInclTaxes = 0;
+        if ($includeWeeeTax && $taxHelper->isModuleEnabled('Mage_Weee')) {
+            /* @var Mage_Weee_Helper_Data $weeeHelper */
+            $weeeHelper = Mage::helper('weee');
+
+            if ($_product->getTypeId() == 'bundle') {
+                if ($_product->getPriceType() == 1) {
+                    if ($weeeHelper->typeOfDisplay($_product, array(0, 1, 4))) {
+                        $weeeTaxAmountInclTaxes = $weeeHelper->getAmountForDisplay($_product);
+                        if ($weeeHelper->isTaxable()) {
+                            $weeeTaxAttributes = $weeeHelper->getProductWeeeAttributesForRenderer($_product, null, null, null, true);
+                            $weeeTaxAmountInclTaxes = $weeeHelper->getAmountInclTaxes($weeeTaxAttributes);
+                        }
+                    }
+                }
+            } elseif (!$_product->isGrouped()) {
+                if ($weeeHelper->typeOfDisplay($_product, array(0, 1, 4))) {
+                    $weeeTaxAmountInclTaxes = $weeeHelper->getAmountForDisplay($_product);
+                    if ($weeeHelper->isTaxable()) {
+                        $weeeTaxAttributes = $weeeHelper->getProductWeeeAttributesForRenderer($_product, null, null, null, true);
+                        $weeeTaxAmountInclTaxes = $weeeHelper->getAmountInclTaxes($weeeTaxAttributes);
+                    }
+                }
+            }
+        }
+
         if ($convertPrice) {
             // Convert store price
             $store = Mage::app()->getStore();
-            $productFinalPrice = $store->convertPrice($productFinalPrice, false, false);
+            $productFinalPrice = $store->convertPrice($productFinalPrice + $weeeTaxAmountInclTaxes, false, false);
         }
 
         return $productFinalPrice;

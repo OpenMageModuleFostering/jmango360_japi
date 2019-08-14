@@ -19,7 +19,9 @@ class Jmango360_Japi_Model_Rest_Customer_Register extends Jmango360_Japi_Model_R
         if (empty($errors)) {
             $this->cleanPasswordsValidationData($customer);
 
-            // Flag mobile user
+            /**
+             * Flag mobile user
+             */
             $customer->setData('japi', 1);
 
             $customer->save();
@@ -42,15 +44,11 @@ class Jmango360_Japi_Model_Rest_Customer_Register extends Jmango360_Japi_Model_R
                     )
                 )
             );
-            /*throw new Jmango360_Japi_Exception(
-                Mage::helper('japi')->__('Account is created. Please check email to confirm.'),
-                Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR
-            );*/
         } else {
-            $data['customer'] = $this->_getCustomerData();
+            $data['customer'] = $this->_getCustomerData($customer);
         }
 
-        /*
+        /**
          * Customer is logged in and therefor has a new session ID
          */
         $data['session_id'] = Mage::getSingleton('core/session')->getSessionId();
@@ -110,7 +108,7 @@ class Jmango360_Japi_Model_Rest_Customer_Register extends Jmango360_Japi_Model_R
             $customerForm->compactData($customerData);
             $customer->setPassword($request->getParam('password'));
 
-            /*
+            /**
              * Looks like both password_confirmation and confirmation are used due to version differences
              */
             $customer->setConfirmation($request->getParam('confirmation'));
@@ -183,26 +181,30 @@ class Jmango360_Japi_Model_Rest_Customer_Register extends Jmango360_Japi_Model_R
             $customerHelper = Mage::helper('customer');
             $session->addSuccess(Mage::helper('japi')->__("Account confirmation is required. Please, check your email for the confirmation link. To resend the confirmation email please <a href='%s'>click here</a>.",
                 $customerHelper->getEmailConfirmationUrl($customer->getEmail())));
-            /*
+            /**
              * Because this is the App its not always possible to confirm through email.
              *   -- The customer is logged in and gets an email to confirm anyway
              *   -- The next time the customer want to logg in he gets a warning "not confirmed"
              */
         }
-        $session->setCustomerAsLoggedIn($customer);
+        /**
+         * MPLUGIN-1722: Disable automatic sign-in newly created customer
+         */
+        //$session->setCustomerAsLoggedIn($customer);
 
         return $this;
     }
 
-    /* Clean password's validation data (password, password_confirmation)
+    /**
+     * Clean password's validation data (password, password_confirmation)
      *
      * @return Mage_Customer_Model_Customer
      */
     public function cleanPasswordsValidationData($customer)
     {
-        /*
+        /**
          * Looks like both password_confirmation and confirmation are used due to version differences
-        */
+         */
         $customer->setData('password', null);
         $customer->setData('confirmation', null);
         $customer->setData('password_confirmation', null);

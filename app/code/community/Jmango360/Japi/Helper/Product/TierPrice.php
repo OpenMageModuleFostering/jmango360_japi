@@ -84,7 +84,7 @@ class Jmango360_Japi_Helper_Product_TierPrice extends Mage_Core_Helper_Abstract
         if ($product->getTypeId() != Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
             $taxHelper = Mage::helper('japi/product');
             /* @var $taxHelper Jmango360_Japi_Helper_Product */
-            $tierPriceWithTax = $taxHelper->calculatePriceIncludeTax($product, $optionPrice);
+            $tierPriceWithTax = $taxHelper->calculatePriceIncludeTax($product, $optionPrice, true, true);
         }
 
         return (string)$tierPriceWithTax;

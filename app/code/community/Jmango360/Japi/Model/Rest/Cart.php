@@ -110,7 +110,9 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
             /* @var $item Mage_Sales_Model_Quote_Item */
             $product = $helper->convertProductIdToApiResponseV2($item->getProductId());
 
-            // MPLUGIN-1259: Workaround to manual remove unavailable product
+            /**
+             * MPLUGIN-1259: Workaround to manual remove unavailable product
+             */
             if (!$product) {
                 $this->removeItem($item->getId());
                 $recollect = true;
@@ -122,6 +124,19 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
             if ($taxHelper->displayCartPriceInclTax() || $taxHelper->displayCartBothPrices()) {
                 $cart['items'][$index]['price'] = $item->getData('price_incl_tax');
                 $cart['items'][$index]['row_total'] = $item->getData('row_total_incl_tax');
+            }
+
+            /**
+             * MPLUGIN-1730: Add weee tax calculation
+             */
+            if ($taxHelper->isModuleEnabled('Mage_Weee')) {
+                /* @var Mage_Weee_Helper_Data $weeeHelper */
+                $weeeHelper = Mage::helper('weee');
+
+                if ($weeeHelper->typeOfDisplay($item, array(0, 1, 4), 'sales')) {
+                    $cart['items'][$index]['price'] += $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition();
+                    $cart['items'][$index]['row_total'] += $item->getWeeeTaxAppliedRowAmount() + $item->getWeeeTaxRowDisposition();
+                }
             }
 
             $cart['items'][$index]['has_messages'] = $this->_getQuoteItemMessages($item);

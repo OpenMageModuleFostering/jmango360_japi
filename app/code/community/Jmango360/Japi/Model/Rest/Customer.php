@@ -283,21 +283,23 @@ class Jmango360_Japi_Model_Rest_Customer extends Mage_Customer_Model_Customer
         return array('customer' => $this->_getCustomerData());
     }
 
-    protected function _getCustomerData()
+    protected function _getCustomerData($customer = null)
     {
         $data = array();
-        if (!$this->_getSession()->isLoggedIn()) {
+        if (!$customer && !$this->_getSession()->isLoggedIn()) {
             return $data;
         }
 
-        /*
+        /**
          * It can happen that after saving customer the customer is not set in session
          * -- and some saved data is not shown
-         * -- to be sure the customer is loaded again before setting the response 
+         * -- to be sure the customer is loaded again before setting the response
          */
-        $customerId = $this->_getSession()->getCustomerId();
-        /* @var $customer Mage_Customer_Model_Customer */
-        $customer = Mage::getModel('customer/customer')->load($customerId);
+        if (!$customer) {
+            $customerId = $this->_getSession()->getCustomerId();
+            /* @var $customer Mage_Customer_Model_Customer */
+            $customer = Mage::getModel('customer/customer')->load($customerId);
+        }
 
         $data = $customer->getData();
         $data['addresses'] = array();

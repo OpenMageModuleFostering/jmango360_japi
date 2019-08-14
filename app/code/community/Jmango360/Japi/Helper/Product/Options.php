@@ -100,8 +100,9 @@ class Jmango360_Japi_Helper_Product_Options extends Mage_Core_Helper_Abstract
             $optionPrice = $product->getFinalPrice() * $optionPrice / 100;
         }
 
-        /* @var $taxHelper Japi_Product_Helper */
-        $configurableItemPriceWithTax = Mage::helper('japi/product')->calculatePriceIncludeTax($product, $optionPrice);
+        /* @var $helper Jmango360_Japi_Helper_Product */
+        $helper = Mage::helper('japi/product');
+        $configurableItemPriceWithTax = $helper->calculatePriceIncludeTax($product, $optionPrice, true, false);
 
         return (string)$configurableItemPriceWithTax;
     }

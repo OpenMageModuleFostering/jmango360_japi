@@ -238,6 +238,19 @@ class Jmango360_Japi_Model_Rest_Customer_Order_List extends Mage_Customer_Model_
 
                 $item = $itemModel->toArray();
 
+                /**
+                 * MPLUGIN-1730: Add weee tax calculation
+                 */
+                if ($helper->isModuleEnabled('Mage_Weee')) {
+                    /* @var Mage_Weee_Helper_Data $weeeHelper */
+                    $weeeHelper = Mage::helper('weee');
+
+                    if ($weeeHelper->typeOfDisplay($itemModel, array(0, 1, 4), 'sales')) {
+                        $item['price'] += $itemModel->getWeeeTaxAppliedAmount() + $itemModel->getWeeeTaxDisposition();
+                        $item['row_total'] += $itemModel->getWeeeTaxAppliedRowAmount() + $itemModel->getWeeeTaxRowDisposition();
+                    }
+                }
+
                 $product = $this->_getProductFromOrderItem($itemModel);
                 if ($product && $product->getId() && $product->getData('status') == 1) {
                     $item['image'] = Mage::helper('japi/product')->getProductImage($product);
