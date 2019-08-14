@@ -1,0 +1,12 @@
+<config>
+    <modules>
+        <Jmango360_Japi>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Core />
+                <Mage_Api2 />
+            </depends>
+        </Jmango360_Japi>
+    </modules>
+</config>

@@ -1,0 +1,114 @@
+<?php
+/* @var $model Jmango360_Japi_Model_Rest_Mage */
+$model = Mage::getModel('japi/rest_mage');
+$data = $model->getThemeData();
+$barBgColor = '#f9f9f9';
+$barFgColor = '#000000';
+$buttonBgColor = '#d3d3d3';
+$buttonFgColor = '#000000';
+try {
+    $data = Mage::helper('core')->jsonDecode($data);
+    $barStyle = isset($data['titleBar']) ? $data['titleBar'] : array();
+    $buttonStyle = isset($data['actionbutton']) ? $data['actionbutton'] : array();
+    $buttonBgColor = isset($buttonStyle['bgColor']) ? $buttonStyle['bgColor'] : $buttonBgColor;
+    $buttonFgColor = isset($buttonStyle['fgColor']) ? $buttonStyle['fgColor'] : $buttonFgColor;
+} catch (Exception $e) {
+    Mage::logException($e);
+}
+$customCss = Mage::getStoreConfig('japi/jmango_rest_checkout_settings/custom_css');
+$TIGPostNLVersion = Mage::helper('japi')->getExtensionVersion('TIG_PostNL');
+?>
+<link type="text/css" rel="stylesheet" media="all"
+      href="<?php echo $this->getSkinUrl('japi/css/style.css?v=2.7.0-0') ?>"/>
+<style type="text/css">
+    .ladda-button[data-color=jmango] {
+        background: <?php echo $buttonBgColor ?>;
+    }
+
+    .ladda-button[data-color=jmango]:hover {
+        background: <?php echo $buttonBgColor ?>;
+    }
+
+    .ladda-button[disabled],
+    .ladda-button[disabled]:hover,
+    .ladda-button[data-loading],
+    .ladda-button[data-loading]:hover {
+        background: #999;
+    }
+
+    .ladda-button .ladda-label {
+        color: <?php echo  $buttonFgColor ?>;
+    }
+
+    #progressbar {
+        background: <?php echo $barBgColor ?>;
+    }
+
+    #progressbar li:before {
+        background: <?php echo $barFgColor ?>;
+        color: <?php echo $barBgColor ?>;
+    }
+
+    #progressbar li:after {
+        background: <?php echo $barFgColor ?>;
+        opacity: 0.1;
+    }
+
+    #progressbar li.active:before {
+        background: <?php echo $barFgColor ?>;
+        color: <?php echo $barBgColor ?>;
+    }
+
+    #progressbar li.active:after {
+        background: <?php echo $barFgColor ?>;
+        opacity: 1;
+    }
+
+    <?php if ($TIGPostNLVersion && version_compare($TIGPostNLVersion, '1.7.2', '<=')): ?>
+    #postnl_add_location .popup-window {
+        width: 100%;
+        margin: 0;
+        top: 0;
+        left: 0;
+    }
+
+    #postnl_add_location .popup-window .popup-content .button-set {
+        padding: 0;
+        margin: 1em;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+    }
+
+    .location-options > li {
+        margin: 0;
+    }
+
+    .col2-set .col-1, .col2-set .col-2 {
+        padding: 0;
+        min-width: 100%;
+    }
+
+    .tooltip-container .tooltip {
+        opacity: 1;
+        z-index: 999;
+    }
+
+    .postnl-container .location .tooltip-container {
+        display: inline-block;
+        float: right;
+    }
+
+    .postnl-container .location .show-map {
+        display: inline-block;
+    }
+
+    .option-list > .option {
+        height: auto;
+        padding: 0;
+    }
+
+    <?php endif; ?>
+
+    <?php echo $customCss ?>
+</style>

@@ -1,0 +1,11 @@
+<?php
+/**
+ * Copyright 2015 JMango360
+ */
+?>
+<?php /* @var $this Jmango360_Japi_Block_Adminhtml_Report_Chart_Sales */ ?>
+<?php if ($this->getCount()): ?>
+    <img src="<?php echo $this->getChartUrl(false) ?>" alt="chart" title="chart"/>
+<?php else: ?>
+    <p class="a-center"><?php echo $this->__('No Data Found') ?></p>
+<?php endif ?>

@@ -1,0 +1,196 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2015 JMango360
+ */
+-->
+<layout version="0.1.0">
+    <japi_checkout_default translate="label">
+        <label>JMango360 Onepage Checkout Page</label>
+        <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
+            <block type="page/html_head" name="head" as="head" template="japi/page/html/head.phtml">
+                <action method="addItem"><type>skin_css</type><file>japi/lib/bootstrap/css/bootstrap.min.css</file></action>
+                <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
+                <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>
+
+                <action method="addJs"><script>prototype/prototype.js</script></action>
+                <action method="addJs"><script>lib/ccard.js</script></action>
+                <action method="addJs"><script>prototype/validation.js</script></action>
+                <action method="addJs"><script>scriptaculous/builder.js</script></action>
+                <action method="addJs"><script>scriptaculous/effects.js</script></action>
+                <action method="addJs"><script>scriptaculous/dragdrop.js</script></action>
+                <action method="addJs"><script>scriptaculous/controls.js</script></action>
+                <action method="addJs"><script>scriptaculous/slider.js</script></action>
+                <action method="addJs"><script>varien/js.js</script></action>
+                <action method="addJs"><script>varien/form.js</script></action>
+                <action method="addJs"><script>varien/menu.js</script></action>
+                <action method="addJs"><script>mage/translate.js</script></action>
+                <action method="addJs"><script>mage/cookies.js</script></action>
+
+                <block type="page/js_cookie" name="js_cookies" template="page/js/cookie.phtml"/>
+
+                <action method="addItem"><type>skin_js</type><file>japi/lib/spin/spin.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/ladda/ladda.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/jquery/jquery-1.11.2.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/jquery/jquery-noconflict.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/transition.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/collapse.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/bootstrap/js/modal.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=2.7.0</file></action>
+            </block>
+            <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
+                <label>Page Top</label>
+            </block>
+            <block type="core/messages" name="global_messages" as="global_messages"/>
+            <block type="core/messages" name="messages" as="messages"/>
+            <block type="core/text_list" name="content" as="content" translate="label">
+                <label>Main Content Area</label>
+            </block>
+            <block type="core/text_list" name="before_body_end" as="before_body_end" translate="label">
+                <label>Page Bottom</label>
+            </block>
+        </block>
+    </japi_checkout_default>
+
+    <japi_checkout_onepage>
+        <update handle="japi_checkout_default"/>
+        <reference name="content">
+            <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
+            <block type="checkout/onepage" name="checkout.onepage" template="japi/checkout/onepage.phtml">
+                <block type="checkout/onepage_billing" name="checkout.onepage.billing" as="billing" template="japi/checkout/onepage/billing.phtml">
+                    <block type="japi/form" name="form.additional.info">
+                        <action method="setPrefix"><value>billing</value></action>
+                        <action method="setForm"><value>billing</value></action>
+                    </block>
+                </block>
+                <block type="checkout/onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="japi/checkout/onepage/shipping.phtml"/>
+                <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="japi/checkout/onepage/shipping_method.phtml">
+                    <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="japi/checkout/onepage/shipping_method/available.phtml"/>
+                    <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="japi/checkout/onepage/shipping_method/additional.phtml"/>
+                </block>
+                <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="japi/checkout/onepage/payment.phtml">
+                    <block type="checkout/onepage_payment_methods" name="checkout.onepage.payment.methods" as="methods" template="japi/checkout/onepage/payment/info.phtml"/>
+                </block>
+                <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="japi/checkout/onepage/review.phtml"/>
+            </block>
+        </reference>
+    </japi_checkout_onepage>
+
+    <japi_checkout_review>
+        <remove name="right"/>
+        <remove name="left"/>
+        <block type="checkout/onepage_review_info" name="root" output="toHtml" template="japi/checkout/onepage/review/info.phtml">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>checkout/cart_item_renderer</block>
+                <template>japi/checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>checkout/cart_item_renderer_grouped</block>
+                <template>japi/checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>checkout/cart_item_renderer_configurable</block>
+                <template>japi/checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>bundle</type>
+                <block>bundle/checkout_cart_item_renderer</block>
+                <template>japi/checkout/onepage/review/item.phtml</template>
+            </action>
+            <block type="checkout/cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="japi/checkout/onepage/review/totals.phtml"/>
+            <block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before" output="toHtml" translate="label">
+                <label>Items Before</label>
+            </block>
+            <block type="core/text_list" name="checkout.onepage.review.info.items.after" as="items_after" output="toHtml" translate="label">
+                <label>Items After</label>
+            </block>
+            <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="japi/checkout/onepage/agreements.phtml"/>
+            <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon" template="japi/checkout/onepage/coupon.phtml"/>
+            <block type="core/template" name="checkout.onepage.review.button" as="button" template="japi/checkout/onepage/review/button.phtml"/>
+        </block>
+    </japi_checkout_review>
+
+    <japi_customer_default translate="label">
+        <label>JMango360 Customer Forms</label>
+        <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
+            <block type="page/html_head" name="head" as="head" template="japi/page/html/head.phtml">
+                <action method="addItem"><type>skin_css</type><file>japi/lib/bootstrap/css/bootstrap.min.css</file></action>
+                <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
+                <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>
+
+                <action method="addJs"><script>prototype/prototype.js</script></action>
+                <action method="addJs"><script>lib/ccard.js</script></action>
+                <action method="addJs"><script>prototype/validation.js</script></action>
+                <action method="addJs"><script>scriptaculous/builder.js</script></action>
+                <action method="addJs"><script>scriptaculous/effects.js</script></action>
+                <action method="addJs"><script>scriptaculous/dragdrop.js</script></action>
+                <action method="addJs"><script>scriptaculous/controls.js</script></action>
+                <action method="addJs"><script>scriptaculous/slider.js</script></action>
+                <action method="addJs"><script>varien/js.js</script></action>
+                <action method="addJs"><script>varien/form.js</script></action>
+                <action method="addJs"><script>varien/menu.js</script></action>
+                <action method="addJs"><script>mage/translate.js</script></action>
+                <action method="addJs"><script>mage/cookies.js</script></action>
+
+                <block type="page/js_cookie" name="js_cookies" template="page/js/cookie.phtml"/>
+
+                <action method="addItem"><type>skin_js</type><file>japi/lib/spin/spin.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/ladda/ladda.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/jquery/jquery-1.11.2.min.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/lib/jquery/jquery-noconflict.js</file></action>
+                <action method="addItem"><type>skin_js</type><file>japi/js/varien/form.js</file></action>
+            </block>
+            <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
+                <label>Page Top</label>
+            </block>
+            <block type="core/messages" name="global_messages" as="global_messages"/>
+            <block type="core/messages" name="messages" as="messages"/>
+            <block type="core/text_list" name="content" as="content" translate="label">
+                <label>Main Content Area</label>
+            </block>
+            <block type="core/text_list" name="before_body_end" as="before_body_end" translate="label">
+                <label>Page Bottom</label>
+            </block>
+        </block>
+    </japi_customer_default>
+
+    <japi_customer_register>
+        <update handle="japi_customer_default"/>
+        <reference name="content">
+            <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
+            <block type="customer/form_register" name="customer_form_register" template="japi/customer/form/register.phtml">
+                <block type="page/html_wrapper" name="customer.form.register.fields.before" as="form_fields_before" translate="label">
+                    <label>Form Fields Before</label>
+                </block>
+            </block>
+        </reference>
+    </japi_customer_register>
+
+    <japi_customer_edit>
+        <update handle="japi_customer_default"/>
+        <reference name="content">
+            <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
+            <block type="customer/form_edit" name="customer_edit" template="japi/customer/form/edit.phtml"/>
+        </reference>
+    </japi_customer_edit>
+
+    <japi_customer_address>
+        <update handle="japi_customer_default"/>
+        <reference name="content">
+            <block type="core/template" name="checkout.onepage.style" as="checkout.onepage.style" template="japi/checkout/onepage/style.phtml"/>
+            <block type="customer/address_edit" name="customer_address_edit" template="japi/customer/address/edit.phtml"/>
+        </reference>
+    </japi_customer_address>
+
+    <japi_checkout_onepage_shippingmethod>
+        <remove name="right"/>
+        <remove name="left"/>
+
+        <block type="checkout/onepage_shipping_method_available" name="root" output="toHtml" template="japi/checkout/onepage/shipping_method/available.phtml"/>
+    </japi_checkout_onepage_shippingmethod>
+</layout>

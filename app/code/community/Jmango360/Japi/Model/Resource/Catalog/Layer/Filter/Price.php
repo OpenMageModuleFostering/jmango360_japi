@@ -1,0 +1,6 @@
+<?php
+
+class Jmango360_Japi_Model_Resource_Catalog_Layer_Filter_Price extends Mage_Catalog_Model_Resource_Layer_Filter_Price
+{
+
+}

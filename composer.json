@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/Jmango360_Japi",
+    "type": "magento-module",
+    "license": "Apache-License",
+    "homepage": "",
+    "description": "Create mobile app for your Magento site using JMango360 platform with this plugin",
+    "authors": [
+    {
+        "name": "Duc Ngo",
+        "email": "duc@jmango360.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

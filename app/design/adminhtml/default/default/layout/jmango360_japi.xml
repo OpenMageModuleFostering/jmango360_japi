@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2015 JMango360
+ */
+-->
+<layout>
+    <adminhtml_japi_report_orders>
+        <update handle="report_sales"/>
+        <reference name="content">
+            <block type="japi/adminhtml_report_orders" template="japi/report/grid/container.phtml"
+                   name="sales.report.grid.container">
+                <block type="adminhtml/store_switcher" template="report/store/switcher/enhanced.phtml"
+                       name="store.switcher">
+                    <action method="setStoreVarName">
+                        <var_name>store_ids</var_name>
+                    </action>
+                </block>
+                <block type="japi/adminhtml_report_orders_chart" name="report.chart"/>
+                <block type="japi/adminhtml_report_filter_form_orders" name="grid.filter.form"/>
+            </block>
+        </reference>
+    </adminhtml_japi_report_orders>
+
+    <adminhtml_japi_report_sales>
+        <update handle="report_sales"/>
+        <reference name="content">
+            <block type="japi/adminhtml_report_sales" template="japi/report/grid/container.phtml"
+                   name="sales.report.grid.container">
+                <block type="adminhtml/store_switcher" template="report/store/switcher/enhanced.phtml"
+                       name="store.switcher">
+                    <action method="setStoreVarName">
+                        <var_name>store_ids</var_name>
+                    </action>
+                </block>
+                <block type="japi/adminhtml_report_sales_chart" name="report.chart"/>
+                <block type="japi/adminhtml_report_filter_form" name="grid.filter.form"/>
+            </block>
+        </reference>
+    </adminhtml_japi_report_sales>
+
+    <adminhtml_japi_report_customers>
+        <reference name="content">
+            <block type="japi/adminhtml_report_customers" template="japi/report/grid/container.phtml"
+                   name="sales.report.grid.container">
+                <block type="adminhtml/store_switcher" template="report/store/switcher/enhanced.phtml"
+                       name="store.switcher">
+                    <action method="setStoreVarName">
+                        <var_name>store_ids</var_name>
+                    </action>
+                </block>
+                <block type="japi/adminhtml_report_customers_chart" name="report.chart"/>
+                <block type="japi/adminhtml_report_filter_form_orders" name="grid.filter.form"/>
+            </block>
+        </reference>
+    </adminhtml_japi_report_customers>
+
+    <adminhtml_japi_order_grid>
+        <update handle="formkey"/>
+        <block type="japi/adminhtml_order_grid" name="japi_order.grid" output="toHtml" />
+    </adminhtml_japi_order_grid>
+
+    <adminhtml_japi_order_index>
+        <reference name="content">
+            <block type="japi/adminhtml_order" name="japi_order.grid.container" />
+        </reference>
+    </adminhtml_japi_order_index>
+</layout>

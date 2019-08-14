@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2015 JMango360
+ */
+-->
+<config>
+    <menu>
+        <japi>
+            <title>JMango360</title>
+            <sort_order>70</sort_order>
+            <children>
+                <report translate="title" module="japi">
+                    <title>Reports</title>
+                    <sort_order>0</sort_order>
+                    <children>
+                        <orders translate="title" module="japi">
+                            <title>Orders</title>
+                            <action>adminhtml/japi_report/index/type/orders</action>
+                            <sort_order>0</sort_order>
+                        </orders>
+                        <sales translate="title" module="japi">
+                            <title>Sales</title>
+                            <action>adminhtml/japi_report/index/type/sales</action>
+                            <sort_order>10</sort_order>
+                        </sales>
+                        <customer translate="title" module="japi">
+                            <title>Customers</title>
+                            <action>adminhtml/japi_report/index/type/customers</action>
+                            <sort_order>20</sort_order>
+                        </customer>
+                        <japi_order translate="title" module="japi">
+                            <title>Order Details</title>
+                            <action>adminhtml/japi_order/index/</action>
+                            <sort_order>30</sort_order>
+                        </japi_order>
+                    </children>
+                </report>
+                <setting translate="title" module="japi">
+                    <title>Settings</title>
+                    <action>adminhtml/system_config/edit/section/japi</action>
+                    <sort_order>10</sort_order>
+                </setting>
+            </children>
+        </japi>
+    </menu>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow everything</title>
+            </all>
+            <admin>
+                <children>
+                    <japi>
+                        <title>JMango360</title>
+                        <children>
+                            <report translate="title" module="japi">
+                                <title>Reports</title>
+                                <children>
+                                    <orders translate="title" module="japi">
+                                        <title>Orders</title>
+                                    </orders>
+                                    <sales translate="title" module="japi">
+                                        <title>Sales</title>
+                                    </sales>
+                                    <customer translate="title" module="japi">
+                                        <title>Customers</title>
+                                    </customer>
+                                    <japi_order translate="title" module="japi">
+                                        <title>Order Details</title>
+                                    </japi_order>
+                                </children>
+                            </report>
+                            <setting translate="title" module="japi">
+                                <title>Settings</title>
+                            </setting>
+                            <log translate="title" module="japi">
+                                <title>Download log files</title>
+                            </log>
+                        </children>
+                    </japi>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <japi translate="title" module="japi">
+                                        <title>JMango360 Mobile</title>
+                                    </japi>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

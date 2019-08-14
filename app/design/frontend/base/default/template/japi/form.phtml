@@ -1,0 +1,48 @@
+<?php
+/**
+ * Copyright 2016 JMango360
+ */
+?>
+<?php /* @var $this Jmango360_Japi_Block_Form */ ?>
+<?php foreach ($this->getFields() as $field): ?>
+    <li class="wide">
+        <label class="<?php echo $field['required'] ? 'required' : '' ?>" for="">
+            <?php if ($field['required']): ?><em>*</em><?php endif ?>
+            <?php echo $this->__($field['label']) ?>
+        </label>
+        <div class="input-box">
+            <?php switch ($field['display_type']):
+                case 'select':
+                case 'multiselect': ?>
+                    <select <?php echo $field['display_type'] == 'multi_select' ? 'multiple' : '' ?>
+                        name="<?php echo $this->getFieldName($field['key']) ?>"
+                        id="<?php echo $this->getFieldId($field['key']) ?>"
+                        class="<?php echo $field['required'] ? 'required-entry' : '' ?>">
+                        <?php if (isset($field['options'])): ?>
+                            <?php foreach ($field['options'] as $value => $label): ?>
+                                <option
+                                    value="<?php echo $value ?>"
+                                    <?php if ($this->getFieldValue($field['key']) == $value): ?>selected="selected"<?php endif; ?>
+                                ><?php echo $label ?></option>
+                            <?php endforeach ?>
+                        <?php endif; ?>
+                    </select>
+                    <?php break; ?>
+                <?php case 'boolean': ?>
+                    <input type="checkbox"
+                           name="<?php echo $this->getFieldName($field['key']) ?>"
+                           id="<?php echo $this->getFieldId($field['key']) ?>"
+                           value="1"
+                           checked="<?php echo $this->getFieldValue($field['key']) ? 'checked' : '' ?>"
+                           class="input-text<?php echo $field['required'] ? ' required-entry' : '' ?>"/>
+                    <?php break; ?>
+                <?php default: ?>
+                    <input type="text"
+                           name="<?php echo $this->getFieldName($field['key']) ?>"
+                           id="<?php echo $this->getFieldId($field['key']) ?>"
+                           value="<?php echo $this->escapeHtml($this->getFieldValue($field['key'])) ?>"
+                           class="input-text<?php echo $field['required'] ? ' required-entry' : '' ?>"/>
+                <?php endswitch; ?>
+        </div>
+    </li>
+<?php endforeach; ?>

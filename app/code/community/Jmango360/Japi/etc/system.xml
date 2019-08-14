@@ -1,0 +1,517 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <japi translate="label" module="japi">
+            <class>separator-top</class>
+            <label>JMango360 Mobile</label>
+            <tab>service</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>400</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>0</show_in_website>
+            <show_in_store>0</show_in_store>
+            <groups>
+                <jmango_rest_api translate="label" module="japi">
+                    <label>Connection credentials</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>10</sort_order>
+                    <fields>
+                        <version translate="label comment" module="japi">
+                            <label>Version</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>japi/adminhtml_system_config_form_version</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>The plugin version</comment>
+                        </version>
+                        <apiuser translate="label comment" module="japi">
+                            <label>User Name</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>japi/adminhtml_system_config_form_user</frontend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>This username will be checked from every App while a session is set up between the
+                                App and the Magento store.
+                            </comment>
+                        </apiuser>
+                        <apikey translate="label comment" module="japi">
+                            <label>Api Key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>This key will be checked from every App while a session is set up between the App
+                                and the Magento store.
+                            </comment>
+                        </apikey>
+                        <use_token translate="label comment" module="japi">
+                            <label>Use token for Api communications</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Use token will add check and refresh the token with every request.</comment>
+                        </use_token>
+                    </fields>
+                </jmango_rest_api>
+                <jmango_rest_catalog_settings translate="label" module="japi">
+                    <label>Catalogue Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>20</sort_order>
+                    <fields>
+                        <include_all_active translate="label comment" module="japi">
+                            <label>Include all active categories</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Include all "Active" categories regardless of whether or not they are included in
+                                navigation
+                            </comment>
+                        </include_all_active>
+                        <attribute_on_listing translate="label comment" module="japi">
+                            <label>Display attribute on Product Listing</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>japi/system_config_source_attributes</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>This attribute will be displayed in product listing</comment>
+                        </attribute_on_listing>
+                        <attribute_on_details translate="label comment" module="japi">
+                            <label>Display attribute on Product Details</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>japi/system_config_source_attributes</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>This attribute will be displayed in product details</comment>
+                        </attribute_on_details>
+                        <hide_null_value translate="label comment" module="japi">
+                            <label>Hide non value additional attributes</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Attribute whose value is N/A or blank will not be displayed on Additional
+                                Information on product detail page
+                            </comment>
+                        </hide_null_value>
+                        <show_grouped_item_image translate="label comment" module="japi">
+                            <label>Show image of child product in Grouped Product Detail on mobile</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </show_grouped_item_image>
+                    </fields>
+                </jmango_rest_catalog_settings>
+                <jmango_app_login_settings translate="label" module="japi">
+                    <label>Mobile App Login Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>21</sort_order>
+                    <fields>
+                        <require_login translate="label" module="japi">
+                            <label>App users must login to see product prices</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>This will prevent mobile app user using app without an account.</comment>
+                        </require_login>
+                    </fields>
+                </jmango_app_login_settings>
+                <jmango_rest_checkout_settings translate="label" module="japi">
+                    <label>Mobile App Checkout Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>25</sort_order>
+                    <fields>
+                        <shipping_excluded translate="label" module="japi">
+                            <label>Excluded shipping methods</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>japi/system_config_source_shipping</source_model>
+                            <backend_model>japi/system_config_backend_shipping</backend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Select one or more, but not all shipping methods that are not suitable/compatible
+                                to be used in mobile app environment. This can be set anytime during or after creation
+                                of JMango360 application.
+                            </comment>
+                        </shipping_excluded>
+                        <payment_excluded translate="label" module="japi">
+                            <label>Excluded payment methods</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>japi/system_config_source_payment</source_model>
+                            <backend_model>japi/system_config_backend_payment</backend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Select one or more, but not all payment methods that are not suitable/compatible to
+                                be used in mobile app environment. This can be set anytime during or after creation of
+                                JMango360 application.
+                            </comment>
+                        </payment_excluded>
+                        <onepage translate="label" module="japi">
+                            <label>Use Onepage checkout for mobile app</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>25</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Select to use JMango360 Onepage responsive web checkout for mobile app instead of
+                                default Magento checkout
+                            </comment>
+                        </onepage>
+                        <custom_xml translate="label" module="japi">
+                            <label>Custom Layout Update</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>26</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter xml layout update code here, it will only affect JMango360 Onepage checkout
+                                page
+                            </comment>
+                            <depends>
+                                <onepage>1</onepage>
+                            </depends>
+                        </custom_xml>
+                        <custom_css translate="label" module="japi">
+                            <label>Custom CSS</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>27</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter css code here, it will only append to JMango360 Onepage checkout page
+                            </comment>
+                            <depends>
+                                <onepage>1</onepage>
+                            </depends>
+                        </custom_css>
+                        <checkout_url translate="label" module="japi">
+                            <label>Web checkout URL</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Enter custom checkout url of website if Jmango360 plugin could not detect. Ex:
+                                checkout/onepage.
+                            </comment>
+                            <depends>
+                                <onepage>0</onepage>
+                            </depends>
+                        </checkout_url>
+                    </fields>
+                </jmango_rest_checkout_settings>
+                <jmango_rest_gallery_settings translate="label" module="japi">
+                    <label>Product image gallery settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>30</sort_order>
+                    <fields>
+                        <image_width translate="label comment" module="japi">
+                            <label>Detail page image cache-width</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for "big" images on the detail pages.</comment>
+                        </image_width>
+                        <image_height translate="label comment" module="japi">
+                            <label>Detail page image cache-height</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for "big" images on the detail pages.</comment>
+                        </image_height>
+                        <small_image_width translate="label comment" module="japi">
+                            <label>Catalogue image cache-width</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for images on the catalogue pages.</comment>
+                        </small_image_width>
+                        <small_image_height translate="label comment" module="japi">
+                            <label>Catalogue image cache-height</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for images on the catalogue pages.</comment>
+                        </small_image_height>
+                        <thumbnail_width translate="label comment" module="japi">
+                            <label>Thumbnail image cache-width</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for thumbnails on the detail pages.</comment>
+                        </thumbnail_width>
+                        <thumbnail_height translate="label comment" module="japi">
+                            <label>Thumbnail image cache-height</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the default "cached" size for thumbnails on the detail pages.</comment>
+                        </thumbnail_height>
+                        <catalog_image_default translate="label comment" module="japi">
+                            <label>Choose image type to be displayed if catalogue thumbnail is not available</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>japi/system_config_source_catalogimage</source_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Choose what kind of image of product that I would like to show in catalogue listing
+                                in mobile app.
+                            </comment>
+                        </catalog_image_default>
+                        <image_default_listing translate="label comment" module="japi">
+                            <label>Choose image type to be displayed on catalogue page</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>japi/system_config_source_defaultimage</source_model>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Choose what kind of image of product that I would like to show in product listing
+                                in mobile app.
+                            </comment>
+                        </image_default_listing>
+                    </fields>
+                </jmango_rest_gallery_settings>
+                <jmango_rest_stock_settings translate="label" module="japi">
+                    <label>Stock Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>35</sort_order>
+                    <fields>
+                        <display_product_stock_status translate="label" module="japi">
+                            <label>Display products availability in stock in mobile app</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_product_stock_status>
+                    </fields>
+                </jmango_rest_stock_settings>
+                <jmango_rest_sales_settings translate="label" module="japi">
+                    <label>Sales Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>36</sort_order>
+                    <fields>
+                        <display_order_from translate="label" module="japi">
+                            <label>Enable Order From in orders list</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Select to view which orders are from JMango360</comment>
+                        </display_order_from>
+                    </fields>
+                </jmango_rest_sales_settings>
+                <jmango_rest_customer_settings translate="label" module="japi">
+                    <label>Customer Settings</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>37</sort_order>
+                    <fields>
+                        <display_customer_from translate="label" module="japi">
+                            <label>Enable JMango360 User in Customers list</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Select to view which customers are from JMango360</comment>
+                        </display_customer_from>
+                        <!--attributes translate="label" module="japi">
+                            <label>Select customer attributes</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>japi/system_config_source_customer_attributes</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Select one or more attributes to include to customer registration form in mobile app</comment>
+                        </attributes!-->
+                        <enable_address translate="label" module="japi">
+                            <label>Enable additional fields on sign up form</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enable additional fields on sign up form</comment>
+                        </enable_address>
+                        <!--address_attributes translate="label" module="japi">
+                            <label>Select address attributes</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>japi/system_config_source_address_attributes</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                            <comment>Select one or more attributes to include to customer registration form in mobile app</comment>
+                        </address_attributes-->
+                        <street2_label translate="label" module="japi">
+                            <label>Street Address #2 Label</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the label for 2nd street address.</comment>
+                        </street2_label>
+                        <street2_require translate="label" module="japi">
+                            <label>Street Address #2 as Required</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set if the street address field is required input.</comment>
+                        </street2_require>
+                        <street2_type translate="label" module="japi">
+                            <label>Street Address #2 Validation</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>japi/system_config_source_address_validatetype</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set type of input for the street address field.</comment>
+                        </street2_type>
+                        <street3_label translate="label" module="japi">
+                            <label>Street Address #3 Label</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the label for 3rd street address.</comment>
+                        </street3_label>
+                        <street3_require translate="label" module="japi">
+                            <label>Street Address #3 as Required</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set if the street address field is required input.</comment>
+                        </street3_require>
+                        <street4_label translate="label" module="japi">
+                            <label>Street Address #4 Label</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set the label for 4th street address.</comment>
+                        </street4_label>
+                        <street4_require translate="label" module="japi">
+                            <label>Street Address #4 as Required</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Set if the street address field is required input.</comment>
+                        </street4_require>
+                    </fields>
+                </jmango_rest_customer_settings>
+                <jmango_rest_developer_settings translate="label" module="japi">
+                    <label>Developer</label>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <sort_order>40</sort_order>
+                    <fields>
+                        <enable translate="label comment" module="japi">
+                            <label>Enable debug logging</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Log requests to japi.log. Disable in production.</comment>
+                        </enable>
+                        <log_file translate="label">
+                            <label></label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>japi/adminhtml_system_config_form_log</frontend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <enable>1</enable>
+                            </depends>
+                        </log_file>
+                    </fields>
+                </jmango_rest_developer_settings>
+            </groups>
+        </japi>
+    </sections>
+</config>

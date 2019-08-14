@@ -1,0 +1,77 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE_AFL.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magento.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade Magento to newer
+ * versions in the future. If you wish to customize Magento for your
+ * needs please refer to http://www.magento.com for more information.
+ *
+ * @category    design
+ * @package     base_default
+ * @copyright   Copyright (c) 2006-2015 X.commerce, Inc. (http://www.magento.com)
+ * @license     http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+?>
+<?php /* @var $this Mage_Checkout_Block_Onepage */ ?>
+<div class="page-title">
+    <h1><?php echo $this->__('Checkout') ?></h1>
+</div>
+<?php $error = $this->getMessagesBlock()->getGroupedHtml() ?>
+<?php echo $error ?>
+<?php if ($this->getQuote()->getHasError()) return ?>
+<ol class="opc quote-<?php echo $this->getQuote()->getId() ?>" id="checkoutSteps">
+    <?php $i = 0 ?>
+    <?php foreach ($this->getSteps() as $_stepId => $_stepInfo): ?>
+        <?php if (!$this->getChild($_stepId) || !$this->getChild($_stepId)->isShow()): continue; endif; ?>
+        <?php $i++ ?>
+        <li id="opc-<?php echo $_stepId ?>"
+            class="panel section<?php echo $i == 1 || !empty($_stepInfo['allow']) ? ' allow' : '' ?>">
+            <div class="step-title" role="tab">
+                <div class="step-number-wrapper">
+                    <span class="step-number"><?php echo $i ?></span>
+                </div>
+                <h2><?php echo $_stepInfo['label'] ?></h2>
+                <a href="#checkout-step-<?php echo $_stepId ?>" data-toggle="collapse" role="button"
+                   data-parent="#checkoutSteps" <?php if ($i == 1): ?>aria-expanded="true" <?php endif; ?>
+                   aria-controls="checkout-step-<?php echo $_stepId ?>" class="section-control">
+                    <i class="icomoon-pencil"></i>
+                </a>
+            </div>
+            <div id="checkout-step-<?php echo $_stepId ?>" role="tabpanel"
+                 class="step a-item collapse<?php echo $i == 1 ? ' in' : '' ?>"
+                 style="<?php echo $i > 1 ? 'display:none;' : '' ?>">
+                <?php echo $this->getChildHtml($_stepId) ?>
+            </div>
+        </li>
+    <?php endforeach ?>
+</ol>
+<script type="text/javascript">
+    //<![CDATA[
+    var accordion = JMango('#checkoutSteps');
+    var checkout = new JMCheckout(accordion, {
+        progress: '<?php echo $this->getUrl('japi/checkout/progress', array('_secure' => true)) ?>',
+        review: '<?php echo $this->getUrl('japi/checkout/review', array('_secure' => true)) ?>',
+        saveMethod: '<?php echo $this->getUrl('japi/checkout/saveMethod', array('_secure' => true)) ?>',
+        failure: '<?php echo $this->getUrl('japi/checkout/onepage', array('_secure' => true)) ?>'
+    });
+    <?php if (!$error && Mage::getSingleton('core/session')->getData('is_address_update') && $this->getQuote()->getBillingAddress()->getCountryId()): ?>
+    <?php Mage::getSingleton('core/session')->setData('is_address_update', false) ?>
+    document.observe("dom:loaded", function () {
+        checkout.gotoSection('shipping_method');
+        shippingMethod.load('<?php echo $this->getUrl('japi/checkout/getShippingMethod', array('_secure' => true)) ?>');
+    });
+    <?php endif ?>
+    //]]>
+</script>
