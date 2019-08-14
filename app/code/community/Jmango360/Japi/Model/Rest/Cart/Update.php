@@ -277,6 +277,21 @@ class Jmango360_Japi_Model_Rest_Cart_Update extends Jmango360_Japi_Model_Rest_Ca
         $quote = $session->getQuote();
         $quote->removePayment()->save();
         $quote->getShippingAddress()->setShippingMethod('')->save();
+        if ($quote->getCheckoutMethod() != Mage_Sales_Model_Quote::CHECKOUT_METHOD_LOGIN_IN)
+        {
+            $quote->setIsActive(true)
+                ->setCustomerId(null)
+                ->setCustomerEmail(null)
+                ->setCustomerFirstname(null)
+                ->setCustomerMiddlename(null)
+                ->setCustomerLastname(null)
+                ->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID)
+                ->setIsPersistent(false);
+            foreach($quote->getAllAddresses() as $address){
+                $address->isDeleted(true);
+            }
+            $quote->collectTotals()->save();
+        }
 
         $data = $this->_getCart();
         return $data;

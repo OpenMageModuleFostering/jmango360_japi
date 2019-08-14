@@ -350,14 +350,14 @@ class Jmango360_Japi_Model_Rest_Cart extends Mage_Checkout_Model_Cart
         if ($error1 = $this->_validateQuote(!$throwError))
             $data['messages']['message'][] = array(
                 'code' => Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR,
-                'message' => $error1,
+                'message' => html_entity_decode($error1),
                 'type' => 1
             );
 
         if ($error2 = $this->_validateMinimumAmount(!$throwError))
             $data['messages']['message'][] = array(
                 'code' => Jmango360_Japi_Model_Request::HTTP_INTERNAL_ERROR,
-                'message' => $error2,
+                'message' => html_entity_decode($error2),
                 'type' => 1
             );
 

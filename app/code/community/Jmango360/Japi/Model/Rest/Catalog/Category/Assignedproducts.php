@@ -150,11 +150,8 @@ class Jmango360_Japi_Model_Rest_Catalog_Category_Assignedproducts extends Mage_C
             if (Mage::helper('core')->isModuleEnabled('Amasty_Shopby')
                 && class_exists('Amasty_Shopby_Model_Catalog_Layer_Filter_Price')
             ) {
-                if ($filter->hasDisplayType()
-                    && in_array($filter->getDisplayType(), array(
-                        Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT,
-                        Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN
-                    ))
+                if ((defined('Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT') && $filter->hasDisplayType() == Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DEFAULT)
+                    || (defined('Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN') && $filter->hasDisplayType() == Amasty_Shopby_Model_Catalog_Layer_Filter_Price::DT_DROPDOWN)
                 ) {
                     foreach ($filter->getItems() as $item) {
                         $data['items'][] = $this->_itemToArray($item, $data['code']);

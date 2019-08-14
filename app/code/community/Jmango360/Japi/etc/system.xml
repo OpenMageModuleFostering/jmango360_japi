@@ -1035,8 +1035,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment><![CDATA[Enter each line a query string.<br>
-                            Example: Filter|ContentLocale:eq:nl_NL,en_GB]]></comment>
+                            <comment><![CDATA[Enter each line a query string.<br>Example: Filter|ContentLocale:eq:nl_NL,en_GB]]></comment>
                             <depends>
                                 <enable>1</enable>
                             </depends>

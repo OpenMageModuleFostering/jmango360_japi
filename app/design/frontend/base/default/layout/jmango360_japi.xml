@@ -11,6 +11,14 @@
         </reference>
     </default>
 
+    <japi_adyen_pin>
+        <label>JMango360 Empty Page</label>
+        <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
+            <block type="core/text_list" name="content" as="content" translate="label">
+            </block>
+        </block>
+    </japi_adyen_pin>
+
     <japi_checkout_default translate="label">
         <label>JMango360 Onepage Checkout Page</label>
         <block type="page/html" name="root" output="toHtml" template="japi/page/rwd.phtml">
@@ -19,7 +27,7 @@
                 <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>
 
-                <action method="addJs"><script>prototype/prototype.js</script></action>
+                <action method="addJs"><script>jmango360/prototype/prototype.js</script></action>
                 <action method="addJs"><script>lib/ccard.js</script></action>
                 <action method="addJs"><script>prototype/validation.js</script></action>
                 <action method="addJs"><script>scriptaculous/builder.js</script></action>
@@ -45,6 +53,8 @@
                 <action method="addItem"><type>skin_js</type><file>japi/lib/scrollto/scrollTo.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>js/opcheckout.js</file></action>
                 <action method="addItem"><type>skin_js</type><file>japi/js/checkout.js?v=3.5.1</file></action>
+                <action method="addJs" ifconfig="giftvoucher/general/active"><script>magestore/giftvoucher/giftvoucher.js</script></action>
+                <action method="addJs" ifconfig="rewardpoints/general/enable"><script>magestore/rewardpoints.js</script></action>
             </block>
             <block type="core/text_list" name="after_body_start" as="after_body_start" translate="label">
                 <label>Page Top</label>
@@ -151,7 +161,7 @@
                 <action method="addItem"><type>skin_css</type><file>japi/lib/ladda/ladda.min.css</file></action>
                 <action method="addItem"><type>skin_css</type><file>japi/css/icomoon/style.css</file></action>
 
-                <action method="addJs"><script>prototype/prototype.js</script></action>
+                <action method="addJs"><script>jmango360/prototype/prototype.js</script></action>
                 <action method="addJs"><script>lib/ccard.js</script></action>
                 <action method="addJs"><script>prototype/validation.js</script></action>
                 <action method="addJs"><script>scriptaculous/builder.js</script></action>

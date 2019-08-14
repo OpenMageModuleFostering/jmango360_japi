@@ -60,7 +60,8 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         'special_to_date',
         'image',
         'media_gallery',
-        'hide_in_jm360'
+        'hide_in_jm360',
+        'extra_information'
     );
 
     /**
@@ -250,7 +251,13 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             $collection->getSelect()->order('cat_index_position ' . strtoupper($direction));
             $collection->setOrder('entity_id', 'asc');
         }
-
+        /**
+         * Fix list order when sort by position
+         * Always add sort by 'entity_id' for website https://www.massamarkt.nl/
+         */
+        if ($field == 'position' && $this->isModuleEnabled('Massamarkt_Core')) {
+            $collection->setOrder('entity_id', 'asc');
+        }
         if (version_compare(Mage::getVersion(), '1.9.0.0', '>=')) {
             $_ignoreOrder = array('position', 'entity_id');
         } else {
@@ -267,6 +274,9 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             }
             if ($this->isModuleEnabled('Plusman_Custom')) {
                 //Always add sort by 'entity_id' for website http://www.plusman.nl
+                $collection->setOrder('entity_id', 'asc');
+            }
+            if (stripos($_SERVER['HTTP_HOST'], 'motodiffusion') >= 0) {
                 $collection->setOrder('entity_id', 'asc');
             }
         }
@@ -772,10 +782,25 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
             if (in_array($attributeCode, array('short_description', 'description'))) {
                 if ($attribute->getData('is_wysiwyg_enabled') == 1) {
                     $html = $this->_getCustomHtmlStyle();
-                    $html .= $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
+                    if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                        $html .= $productHelper->productAttribute($product, $product->getData('about'), 'about');
+                    } else {
+                        $html .= $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
+                    }
+                    if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
+                        $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                    }
                     $result[$attributeCode] = $this->_cleanHtml($html);
                 } else {
-                    $result[$attributeCode] = $product->getData($attributeCode);
+                    if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                        $html = $product->getData('about');
+                    } else {
+                        $html = $product->getData($attributeCode);
+                    }
+                    if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
+                        $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                    }
+                    $result[$attributeCode] = $html;
                 }
             }
 
@@ -1007,9 +1032,14 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                  * MPLUGIN-1031: Validate data of attribute
                  * Return empty data if value of attribute null or contains only html tags
                  */
-                $attrContent = $productHelper->productAttribute(
-                    $product, $product->getData($attributeCode), $attributeCode
-                );
+                if ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) {
+                    $attrContent = $productHelper->productAttribute($product, $product->getData('about'), 'about');
+                } else {
+                    $attrContent = $productHelper->productAttribute($product, $product->getData($attributeCode), $attributeCode);
+                }
+                if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
+                    $attrContent .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                }
                 if (!$attrContent || $attrContent == '' || trim(strip_tags($attrContent)) == '') {
                     $result[$attributeCode] = '';
                 } else {
@@ -1018,7 +1048,11 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                     $result[$attributeCode] = $this->_cleanHtml($html);
                 }
             } else {
-                $result[$attributeCode] = $product->getData($attributeCode);
+                $html = ($attributeCode == 'description' && stripos($_SERVER['HTTP_HOST'], 'buyyourwine') >= 0) ? $product->getData('about') : $product->getData($attributeCode);
+                if ($attributeCode == 'description' && $this->isModuleEnabled('Massamarkt_Core')) {
+                    $html .= '<br />'. $productHelper->productAttribute($product, $product->getData('extra_information'), 'extra_information');
+                }
+                $result[$attributeCode] = $html;
             }
 
             $value = '';
@@ -2323,10 +2357,16 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
 
         $data = array();
 
-        /**
-         * Get filter items
-         */
-        $klevuFilters = $productCollection->getKlevuFilters();
+        if (method_exists($productCollection, 'getKlevuFilters')) {
+            /**
+             * Get filter items
+             */
+            $klevuFilters = $productCollection->getKlevuFilters();
+        } else {
+            /** Fixed klevu search in site www.massamarkt.nl */
+            $klevuFilters = $this->getKlevuFilters($productCollection);
+        }
+
         foreach ($klevuFilters as $key => $filter) {
             if (array_key_exists($key, $filters)) continue;
             if ($key == 'category' && array_key_exists('cat', $filters)) continue;
@@ -2369,6 +2409,40 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
         $data['products'] = $this->convertProductCollectionToApiResponseV2($productCollection);
 
         return $data;
+    }
+
+    /**
+     * Get Klevu filters from klevu response
+     *
+     * @param $productCollection
+     * @return array
+     */
+    public function getKlevuFilters($productCollection)
+    {
+        $attributes = array();
+        $filters = $productCollection->getKlevuResponse()->getData('filters');
+        // If there are no filters, return empty array.
+        if (empty($filters)) return $attributes;
+
+        foreach($filters as $filter)
+        {
+            $key = (string) $filter['key'];
+            $attributes[$key] = array('label' => (string) $filter['label']);
+            $attributes[$key]['options'] = array();
+            if($filter['options'])
+            {
+                foreach($filter['options'] as $option)
+                {
+                    $attributes[$key]['options'][] = array(
+                        'label' => trim((string) $option['name']),
+                        'count' => trim((string) $option['count']),
+                        'selected' => trim((string) $option['selected'])
+                    );
+                }
+            }
+        }
+
+        return $attributes;
     }
 
     /**
