@@ -265,6 +265,10 @@ class Jmango360_Japi_Helper_Product extends Mage_Core_Helper_Abstract
                 //Always add sort by 'entity_id' for website http://www.gopro-mania.nl
                 $collection->setOrder('entity_id', 'asc');
             }
+            if ($this->isModuleEnabled('Plusman_Custom')) {
+                //Always add sort by 'entity_id' for website http://www.plusman.nl
+                $collection->setOrder('entity_id', 'asc');
+            }
         }
 
         Mage::dispatchEvent('catalog_block_product_list_collection', array(

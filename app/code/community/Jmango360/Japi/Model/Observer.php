@@ -707,6 +707,8 @@ class Jmango360_Japi_Model_Observer
     {
         /* @var $action Mage_Core_Controller_Varien_Action */
         $action = $observer->getEvent()->getControllerAction();
+        $request = $action->getRequest();
+
         if ($action->getRequest()->getModuleName() == 'kco') {
             if (strpos($action->getRequest()->getServer('HTTP_REFERER'), 'japi/kco') !== false) {
                 $action->getRequest()
@@ -715,6 +717,18 @@ class Jmango360_Japi_Model_Observer
                     ->setControllerName('kco')
                     ->setActionName($action->getRequest()->getActionName())
                     ->setDispatched(false);
+            }
+        }
+
+        if (Mage::helper('core')->isModuleEnabled('Magentix_SoColissimo')) {
+            if ($request->getModuleName() == 'japi' && $request->getActionName() == 'saveShipping') {
+                if (@class_exists('Magentix_SoColissimo_Model_Observer')) {
+                    /** @var Magentix_SoColissimo_Model_Observer $obj */
+                    $obj = Mage::getSingleton('socolissimo/observer');
+                    if (method_exists($obj, 'unsetSocolissimoAddress')) {
+                        $obj->unsetSocolissimoAddress($observer);
+                    }
+                }
             }
         }
 

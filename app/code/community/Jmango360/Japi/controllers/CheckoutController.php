@@ -503,6 +503,18 @@ class Jmango360_Japi_CheckoutController extends Mage_Checkout_OnepageController
 </reference>";
         }
 
+        if ($helper->isModuleEnabled('Magentix_SoColissimo')) {
+            $xml .= "
+<reference name=\"head\">
+    <action method=\"addCss\"><stylesheet>socolissimo/css/style.css</stylesheet></action>
+</reference>
+<reference name=\"before_body_end\">
+    <block type=\"socolissimo/frontend_socolissimo\" name=\"socolissimo\" template=\"socolissimo/socolissimo.phtml\">
+        <action method=\"setData\"><name>js</name><value>socolissimo/js/checkout/magento-onepage.js</value></action>
+    </block>
+</reference>";
+        }
+
         try {
             $this->getLayout()->getUpdate()->addUpdate($xml);
             $this->generateLayoutXml()->generateLayoutBlocks();

@@ -1561,3 +1561,16 @@ label[for="s_method_socolissimosimplicite_socolissimosimplicite"] {
 .rtl .opc .section .sp-methods .section-control {
   float: left;
 }
+/** Magentix_SoColissimo **********************************************************************************************/
+.socolissimo-popup-inner {
+  min-width: 100%;
+}
+.socolissimo-popup-inner .socolissimo-shipping li {
+  float: left;
+}
+.socolissimo-popup-inner .socolissimo-shipping .socolissimo-actions {
+  width: 100%;
+}
+.socolissimo-popup-inner .socolissimo-list ul {
+  overflow-y: auto;
+}
